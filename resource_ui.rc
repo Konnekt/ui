@@ -1,0 +1,791 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+#include "commctrl.h"
+#include "resource_ui.h"
+#include "richedit.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Polish resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_PLK)
+#ifdef _WIN32
+LANGUAGE LANG_POLISH, SUBLANG_DEFAULT
+#pragma code_page(1250)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+1 VERSIONINFO
+ FILEVERSION 0,1,21,50
+ PRODUCTVERSION 0,6,0,0
+ FILEFLAGSMASK 0x0L
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "041504e2"
+        BEGIN
+            VALUE "CompanyName", "Stamina"
+            VALUE "FileDescription", "w98/XP UserInterface"
+            VALUE "FileVersion", "0.1.21.50"
+            VALUE "InternalName", "konnektUI [w98/XP]"
+            VALUE "LegalCopyright", "Copyright ©2002-2005 Stamina"
+            VALUE "ProductName", "Konnekt"
+            VALUE "ProductVersion", "0.6"
+            VALUE "URL", "http://www.konnekt.info"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x415, 1250
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_WND_MSG             ICON                    "wnd_msg.ico"
+APP                     ICON                    "app.ico"
+TRAY                    ICON                    "tray.ico"
+BLANK                   ICON                    "blank.ico"
+POINT                   ICON                    "point.ico"
+INFO                    ICON                    "icon_info.ico"
+WARNING                 ICON                    "icon_warning.ico"
+ERROR                   ICON                    "icon_error.ico"
+HELP                    ICON                    "icon_help.ico"
+SHOWBITS                ICON                    "icon_showbits.ico"
+YES                     ICON                    "icon_yes.ico"
+NO                      ICON                    "icon_no.ico"
+REFRESH                 ICON                    "icon_refresh.ico"
+NEXT                    ICON                    "icon_next.ico"
+PREVIOUS                ICON                    "icon_previous.ico"
+APPLY                   ICON                    "icon_apply.ico"
+CANCEL                  ICON                    "icon_cancel.ico"
+DEFAULT                 ICON                    "icon_default.ico"
+IMPORT                  ICON                    "icon_import.ico"
+EXPORT                  ICON                    "icon_export.ico"
+USER                    ICON                    "icon_user.ico"
+GROUP                   ICON                    "icon_group.ico"
+STATUSINFO              ICON                    "icon_statusinfo.ico"
+ACCOUNTCREATE           ICON                    "icon_accountcreate.ico"
+ACCOUNTREMOVE           ICON                    "icon_accountremove.ico"
+CHANGEPASSWORD          ICON                    "icon_changepassword.ico"
+REMINDPASSWORD          ICON                    "icon_remindpassword.ico"
+SECURE                  ICON                    "icon_secure.ico"
+UNSECURE                ICON                    "icon_unsecure.ico"
+SEARCH                  ICON                    "icon_search.ico"
+PLUGIN                  ICON                    "icon_plugin.ico"
+URL                     ICON                    "icon_url.ico"
+BETA                    ICON                    "icon_beta.ico"
+HISTORY                 ICON                    "icon_history.ico"
+OPTIONS                 ICON                    "icon_options.ico"
+DELETE                  ICON                    "icon_delete.ico"
+IDI_WND_MSG_NEW         ICON                    "wnd_msg_new.ico"
+IDI_TB_MAIN             ICON                    "tb_main.ico"
+IDI_TB_ADD              ICON                    "tb_add.ico"
+IDI_TB_OPTIONS          ICON                    "tb_options.ico"
+IDI_NET_NONE            ICON                    "net_none.ico"
+IDI_ST_OFFLINE          ICON                    "st_offline.ico"
+IDI_ST_ONLINE           ICON                    "st_online.ico"
+IDI_ST_AWAY             ICON                    "st_away.ico"
+IDI_ST_COMPOSING        ICON                    "st_composing.ico"
+IDI_ST_HIDDEN           ICON                    "st_hidden.ico"
+IDI_ST_NA               ICON                    "st_na.ico"
+IDI_ST_CHAT             ICON                    "st_chat.ico"
+IDI_ST_UNKNOWN          ICON                    "st_unknown.ico"
+IDI_ST_BLOCKING         ICON                    "st_blocking.ico"
+IDI_ST_DND              ICON                    "st_dnd.ico"
+IDI_NEW_USER            ICON                    "new_user.ico"
+IDI_MT_MESSAGE          ICON                    "mt_message.ico"
+IDI_MT_MAIL             ICON                    "mt_mail.ico"
+IDI_MT_FILE             ICON                    "mt_file.ico"
+IDI_MT_SERVEREVENT      ICON                    "mt_serverevent.ico"
+IDI_MT_URL              ICON                    "mt_url.ico"
+IDI_OVR_NOTINLIST       ICON                    "ovr_notinlist.ico"
+IDI_OVR_IGNORE          ICON                    "ovr_ignore.ico"
+IDI_OVR_HIDEMYSTATUS    ICON                    "ovr_hidemystatus.ico"
+IDI_OVR_HIDESHISSTATUS  ICON                    "ovr_hideshisstatus.ico"
+IDI_OVR_HIDEBOTH        ICON                    "ovr_hideboth.ico"
+IDI_OVR_ACTIVE          ICON                    "ovr_active.ico"
+IDI_OVR_SMS             ICON                    "ovr_sms.ico"
+IDI_OVR_MAIL            ICON                    "ovr_mail.ico"
+IDI_OVR_INFO            ICON                    "ovr_info.ico"
+IDI_OVRB_SMS            ICON                    "ovrb_sms.ico"
+IDI_OVRB_MAIL           ICON                    "ovrb_mail.ico"
+IDI_OVRB_INFO           ICON                    "ovrb_info.ico"
+IDI_TIP_MAIL            ICON                    "tip_mail.ico"
+IDI_TIP_PHONE           ICON                    "tip_phone.ico"
+IDI_TIP_NAME            ICON                    "tip_name.ico"
+IDI_TIP_REASON          ICON                    "tip_reason.ico"
+IDI_TIP_INFO            ICON                    "tip_info.ico"
+IDI_HIST_DIR            ICON                    "hist_dir.ico"
+IDI_HIST_SUB            ICON                    "hist_sub.ico"
+IDI_HIST_QUERY          ICON                    "histb_search.ico"
+IDI_HISTB_REFRESH       ICON                    "histb_refresh.ico"
+IDI_HISTB_SHRED         ICON                    "histb_shred.ico"
+IDI_HISTB_DEL           ICON                    "histb_del.ico"
+IDI_HISTB_PRINT         ICON                    "histb_print.ico"
+IDI_HISTB_SEARCH        ICON                    "histb_search.ico"
+IDI_HISTB_RESEND        ICON                    "histb_resend.ico"
+IDI_HISTB_SAVE          ICON                    "histb_save.ico"
+IDI_HISTB_COMPACT       ICON                    "histb_compact.ico"
+IDI_ENTER               ICON                    "enter.ico"
+IDI_CLFILTER_ON         ICON                    "clfilter_on.ico"
+IDI_CLFILTER_OFF        ICON                    "clfilter_off.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AVI
+//
+
+IDA_LONG                AVI                     "long.avi"
+IDA_LONGRECV            AVI                     "longrecv.avi"
+IDA_LONGSEND            AVI                     "longsend.avi"
+IDA_LONGINET            AVI                     "longinet.avi"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_INFO DIALOGEX 0, 0, 278, 133
+STYLE DS_ABSALIGN | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU | WS_THICKFRAME
+EXSTYLE WS_EX_CONTROLPARENT | WS_EX_APPWINDOW
+CAPTION "Dialog"
+FONT 8, "Tahoma", 0, 0, 0xEE
+BEGIN
+    CONTROL         "",IDC_TREE,"SysTreeView32",TVS_HASBUTTONS | 
+                    TVS_LINESATROOT | TVS_SHOWSELALWAYS | TVS_TRACKSELECT | 
+                    TVS_FULLROWSELECT | WS_TABSTOP | 0x800,4,0,89,105,
+                    WS_EX_CLIENTEDGE
+    GROUPBOX        "Ustawienia",IDG_GROUP,90,0,182,105,WS_CLIPSIBLINGS
+    LTEXT           "",IDC_TIP,4,83,235,22,NOT WS_VISIBLE
+END
+
+IDD_PASS DIALOGEX 0, 0, 156, 67
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Dialog"
+FONT 8, "Tahoma", 0, 0, 0xEE
+BEGIN
+    DEFPUSHBUTTON   "&OK",IDOK,47,49,63,14
+    CTEXT           "Podaj has³o",IDC_STATIC,7,3,142,19
+    EDITTEXT        IDC_PASS1,47,23,63,13,ES_PASSWORD | ES_AUTOHSCROLL
+    CONTROL         "Zapamiêtaj",IDC_CHECK,"Button",BS_AUTOCHECKBOX | NOT 
+                    WS_VISIBLE | WS_TABSTOP,47,38,102,9
+END
+
+IDD_SETPASS DIALOGEX 0, 0, 156, 86
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Dialog"
+FONT 8, "Tahoma", 0, 0, 0xEE
+BEGIN
+    DEFPUSHBUTTON   "&OK",IDOK,47,68,63,14
+    CTEXT           "Podaj has³o",IDC_STATIC,7,3,142,15
+    EDITTEXT        IDC_PASS1,47,23,63,13,ES_PASSWORD | ES_AUTOHSCROLL
+    EDITTEXT        IDC_PASS2,47,38,63,13,ES_PASSWORD | ES_AUTOHSCROLL
+    CONTROL         "Zapamiêtaj",IDC_CHECK,"Button",BS_AUTOCHECKBOX | NOT 
+                    WS_VISIBLE | WS_TABSTOP,47,55,102,9
+END
+
+IDD_LOGIN DIALOGEX 0, 0, 156, 116
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Dialog"
+FONT 8, "Tahoma", 0, 0, 0xEE
+BEGIN
+    DEFPUSHBUTTON   "&OK",IDOK,47,93,63,14
+    CTEXT           "Podaj login",IDC_STATIC,7,3,142,19
+    EDITTEXT        IDC_LOGIN,47,23,63,13,ES_AUTOHSCROLL
+    EDITTEXT        IDC_PASS1,47,38,63,13,ES_PASSWORD | ES_AUTOHSCROLL
+    CONTROL         "Zapamiêtaj",IDC_CHECK,"Button",BS_AUTOCHECKBOX | NOT 
+                    WS_VISIBLE | WS_TABSTOP,47,80,102,9
+    EDITTEXT        IDC_PASS2,47,64,63,13,ES_PASSWORD | ES_AUTOHSCROLL
+    CTEXT           "Powtórz has³o",-1,0,53,155,8
+END
+
+IDD_STATUS DIALOGEX 0, 0, 186, 86
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Dialog"
+FONT 8, "Tahoma", 0, 0, 0xEE
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,116,66,50,14
+    PUSHBUTTON      "Anuluj",IDCANCEL,64,66,48,14,NOT WS_VISIBLE
+    CTEXT           "Wpisz\naa",IDC_STATIC,7,3,172,21,NOT WS_GROUP
+    EDITTEXT        IDC_EDIT,20,45,146,12,ES_AUTOHSCROLL
+    COMBOBOX        IDC_COMBO,20,44,146,57,CBS_DROPDOWN | CBS_AUTOHSCROLL | 
+                    NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "",IDC_COMBOBOXEX1,"ComboBoxEx32",CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP,56,28,70,96
+END
+
+IDD_MSG DIALOGEX 0, 0, 296, 145
+STYLE DS_SETFONT | DS_CENTER | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | 
+    WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+EXSTYLE WS_EX_CONTROLPARENT
+CAPTION "Wiadomoœæ"
+FONT 8, "Tahoma", 0, 0, 0xEE
+BEGIN
+END
+
+IDD_CONFIG DIALOGEX 0, 0, 288, 178
+STYLE DS_SETFONT | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_CAPTION | 
+    WS_SYSMENU | WS_THICKFRAME
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Ustawienia"
+FONT 8, "Tahoma", 0, 0, 0xEE
+BEGIN
+    PUSHBUTTON      "Anuluj",IDCANCEL,122,157,50,14
+    PUSHBUTTON      "Zastosuj",IDAPPLY,175,157,50,14
+    DEFPUSHBUTTON   "OK",IDOK,231,157,50,14
+    CONTROL         "Tree1",IDC_TREE,"SysTreeView32",TVS_HASBUTTONS | 
+                    TVS_LINESATROOT | TVS_SHOWSELALWAYS | TVS_TRACKSELECT | 
+                    TVS_FULLROWSELECT | WS_TABSTOP | 0x800,7,11,89,140,
+                    WS_EX_CLIENTEDGE
+    GROUPBOX        "Ustawienia",IDG_GROUP,100,7,181,145,WS_CLIPSIBLINGS,
+                    WS_EX_TRANSPARENT
+END
+
+IDD_LONGPROC DIALOGEX 0, 0, 187, 101
+STYLE DS_SETFONT | DS_MODALFRAME | DS_SETFOREGROUND | DS_CENTER | WS_POPUP | 
+    WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_CAPTION
+EXSTYLE WS_EX_TOOLWINDOW | WS_EX_APPWINDOW
+CAPTION "D³u¿sza operacja"
+FONT 8, "Tahoma", 0, 0, 0xEE
+BEGIN
+    PUSHBUTTON      "Anuluj",IDCANCEL,70,81,46,14
+    CTEXT           "Static",IDC_STATIC,7,4,173,31
+    CONTROL         "Animate2",IDC_ANIMATE,"SysAnimate32",ACS_CENTER | 
+                    ACS_TRANSPARENT | ACS_AUTOPLAY | WS_TABSTOP,7,39,173,23
+    CONTROL         "Progress1",IDC_PROGRESS,"msctls_progress32",NOT 
+                    WS_VISIBLE | WS_BORDER,34,63,120,11
+END
+
+IDD_SEARCH DIALOGEX 0, 0, 292, 182
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CLIPSIBLINGS | 
+    WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Szukaj znajomych ..."
+FONT 8, "Tahoma", 0, 0, 0xEE
+BEGIN
+    CONTROL         "",IDE_NET,"ComboBoxEx32",CBS_DROPDOWNLIST | WS_TABSTOP,
+                    7,4,71,1000
+    CONTROL         "ZnajdŸ tylko online",IDC_CHECK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,84,7,76,10
+    EDITTEXT        IDE_NAME,53,30,61,12,ES_AUTOHSCROLL
+    LTEXT           "Imiê",IDC_STATIC,15,33,14,8
+    EDITTEXT        IDE_SURNAME,53,45,61,12,ES_AUTOHSCROLL
+    LTEXT           "Nazwisko",IDC_STATIC1,15,47,32,8
+    EDITTEXT        IDE_NICK,53,60,61,12,ES_AUTOHSCROLL
+    LTEXT           "Pseudonim",IDC_STATIC2,15,62,36,8
+    GROUPBOX        "Dane osobowe",IDC_STATIC3,7,20,209,56,BS_CENTER
+    EDITTEXT        IDE_EMAIL,155,31,55,12,ES_AUTOHSCROLL
+    LTEXT           "Email/Tel",IDC_STATIC5,120,32,31,8
+    EDITTEXT        IDE_CITY,155,46,55,12,ES_AUTOHSCROLL
+    LTEXT           "Miasto",IDC_STATIC6,120,47,22,8
+    COMBOBOX        IDE_GENDER,118,60,48,1000,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    COMBOBOX        IDE_BORN,168,60,44,1000,CBS_DROPDOWN | CBS_AUTOHSCROLL | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Nr.Konta",IDC_STATIC4,220,20,65,28,BS_CENTER
+    EDITTEXT        IDE_UID,224,31,56,13,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "Szukaj",IDOK,220,4,65,14
+    CONTROL         "List1",IDC_LIST,"SysListView32",LVS_REPORT | 
+                    LVS_SHOWSELALWAYS | LVS_SHAREIMAGELISTS | WS_BORDER | 
+                    WS_TABSTOP,7,79,278,82
+    PUSHBUTTON      "Dodaj",IDYES,240,164,45,14,WS_DISABLED
+    PUSHBUTTON      "Zamknij",IDCANCEL,176,164,50,14
+END
+
+IDD_SEARCH_2 DIALOGEX 0, 0, 430, 196
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CLIPSIBLINGS | 
+    WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Szukaj znajomych ..."
+FONT 8, "Tahoma", 0, 0, 0xEE
+BEGIN
+    GROUPBOX        "Dane szukanej osoby",203,4,3,137,172,BS_CENTER
+    CONTROL         "",10,"ComboBoxEx32",CBS_DROPDOWNLIST | WS_TABSTOP,53,18,
+                    81,992
+    COMBOBOX        24,53,124,81,985,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    COMBOBOX        23,53,140,81,985,CBS_DROPDOWN | CBS_AUTOHSCROLL | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "",125,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,78,159,10,
+                    10
+    EDITTEXT        19,53,49,81,12,ES_AUTOHSCROLL
+    LTEXT           "Imiê:",200,10,51,16,8
+    EDITTEXT        20,53,64,81,12,ES_AUTOHSCROLL
+    LTEXT           "Nazwisko:",132,10,66,32,8
+    EDITTEXT        21,53,79,81,12,ES_AUTOHSCROLL
+    LTEXT           "Pseudonim:",202,10,81,36,8
+    EDITTEXT        15,53,94,81,12,ES_AUTOHSCROLL
+    LTEXT           "Email/Tel:",205,10,96,31,8
+    EDITTEXT        18,53,109,81,12,ES_AUTOHSCROLL
+    LTEXT           "Miasto:",206,10,111,22,8
+    EDITTEXT        12,53,34,81,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "Szukaj",1,10,178,124,14
+    CONTROL         "List1",1000,"SysListView32",LVS_REPORT | 
+                    LVS_SHOWSELALWAYS | LVS_SHAREIMAGELISTS | WS_BORDER | 
+                    WS_TABSTOP,145,7,281,168
+    PUSHBUTTON      "Dodaj do listy kontaktów",6,146,178,108,14,WS_DISABLED
+    PUSHBUTTON      "Zamknij",2,376,178,50,14
+    LTEXT           "UID:",207,10,36,22,8
+    LTEXT           "Sieæ:",208,10,20,22,8
+    LTEXT           "ZnajdŸ tylko online:",209,10,159,66,8
+END
+
+IDD_ABOUT DIALOGEX 0, 0, 223, 147
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "O programie ..."
+FONT 8, "Tahoma", 0, 0, 0xEE
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,166,14,50,14
+    ICON            "",IDC_ICON,7,9,20,20
+    LTEXT           "Konnekt\n%s\n© 2002 Stamina",IDC_STATIC,33,7,129,25
+    GROUPBOX        "",IDC_STATIC1,7,31,209,109
+    CONTROL         "",IDC_EDIT,"RichEdit20A",ES_MULTILINE | ES_READONLY | 
+                    WS_VSCROLL | WS_TABSTOP,9,37,205,100
+END
+
+IDD_IGNORE DIALOGEX 0, 0, 186, 90
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Ignorowane kontakty"
+FONT 8, "Tahoma", 0, 0, 0xEE
+BEGIN
+    PUSHBUTTON      "OK",IDOK,129,69,50,14
+    CONTROL         "",IDE_NET,"ComboBoxEx32",CBS_DROPDOWNLIST | WS_TABSTOP,
+                    7,7,114,1000
+    CONTROL         "List1",IDC_LIST,"SysListView32",LVS_REPORT | 
+                    LVS_SHOWSELALWAYS | LVS_SORTASCENDING | 
+                    LVS_SHAREIMAGELISTS | LVS_NOCOLUMNHEADER | WS_BORDER | 
+                    WS_TABSTOP,7,21,114,62
+    EDITTEXT        IDE_UID,129,7,50,13,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "Dodaj",IDYES,129,22,50,14
+    PUSHBUTTON      "Usuñ",IDNO,129,39,50,14
+END
+
+IDD_GROUPS DIALOGEX 0, 0, 144, 90
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Grupy kontaktów"
+FONT 8, "Tahoma", 0, 0, 0xEE
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,87,69,50,14
+    CONTROL         "List1",IDC_LIST,"SysListView32",LVS_REPORT | 
+                    LVS_SHOWSELALWAYS | LVS_SORTASCENDING | 
+                    LVS_SHAREIMAGELISTS | LVS_EDITLABELS | 
+                    LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,7,7,78,76
+    PUSHBUTTON      "Dodaj",IDYES,87,7,50,14
+    PUSHBUTTON      "Usuñ",IDNO,87,24,50,14
+    PUSHBUTTON      "Edytuj",IDC_EDIT,87,41,50,14
+END
+
+IDD_SERVEREVENT DIALOGEX 0, 0, 232, 134
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Wiadomoœæ od serwera"
+FONT 8, "Tahoma", 0, 0, 0xEE
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,175,113,50,14
+    CONTROL         "",IDC_MSG,"RichEdit20A",ES_MULTILINE | ES_READONLY | 
+                    WS_VSCROLL | WS_TABSTOP,7,7,218,103
+    DEFPUSHBUTTON   "Nastêpna",IDYES,121,113,50,14,WS_DISABLED
+END
+
+IDD_HISTORY DIALOGEX 0, 0, 325, 208
+STYLE DS_SETFONT | DS_CENTER | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | 
+    WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Historia"
+FONT 8, "Tahoma", 0, 0, 0xEE
+BEGIN
+    CONTROL         "Tree1",IDC_TREE,"SysTreeView32",TVS_HASBUTTONS | 
+                    TVS_LINESATROOT | TVS_DISABLEDRAGDROP | 
+                    TVS_SHOWSELALWAYS | TVS_TRACKSELECT | WS_TABSTOP | 0x800,
+                    7,21,81,150,WS_EX_CLIENTEDGE
+    CONTROL         "List1",IDC_LIST,"SysListView32",LVS_REPORT | 
+                    LVS_SHOWSELALWAYS | LVS_SHAREIMAGELISTS | LVS_OWNERDATA | 
+                    WS_BORDER | WS_TABSTOP,88,21,230,67
+END
+
+IDD_HISTORY_SEARCH DIALOGEX 0, 0, 215, 152
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+EXSTYLE WS_EX_TOOLWINDOW | WS_EX_APPWINDOW
+CAPTION "Szukaj w historii"
+FONT 8, "Tahoma", 0, 0, 0xEE
+BEGIN
+    PUSHBUTTON      "Start",IDOK,150,6,60,15
+    PUSHBUTTON      "Anuluj",IDCANCEL,150,24,60,15
+    LTEXT           "Wpisz wyra¿enie do znalezienia w historii wiadomoœci.\r\nWyra¿enia regularne w standardzie PERL'a",
+                    -1,6,6,138,24
+    CONTROL         "ZnajdŸ wszystkie",IDC_FINDALL,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,6,54,96,12
+    CONTROL         "Wyra¿enie regularne",IDC_REGEXP,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,6,84,96,12
+    CONTROL         "Tylko ca³e wyrazy",IDC_WORDS,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,6,96,96,12
+    CONTROL         "Uwzglêdnij wielkoœæ liter",IDC_CASE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,6,108,96,12
+    GROUPBOX        "Wyniki jako",-1,108,54,102,66
+    CONTROL         "Pojedyñcze wiadomoœci",IDC_RADIO1,"Button",
+                    BS_AUTORADIOBUTTON,114,66,90,12
+    CONTROL         "",IDC_RADIO4,"Button",BS_AUTORADIOBUTTON,114,102,12,12
+    CONTROL         "W¹tek do koñca",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,
+                    114,78,90,12
+    CONTROL         "Ca³y w¹tek",IDC_RADIO3,"Button",BS_AUTORADIOBUTTON,114,
+                    90,84,12
+    COMBOBOX        IDC_SEARCH,6,36,138,84,CBS_DROPDOWN | CBS_AUTOHSCROLL | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Tylko wybrany katalog",IDC_ONLYCURRENT,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,6,66,96,12
+    EDITTEXT        IDC_PREV,126,102,24,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_NEXT,168,102,24,12,ES_AUTOHSCROLL
+    LTEXT           "< - >",-1,150,102,18,12
+    CONTROL         "",IDC_PROGRESS1,"msctls_progress32",WS_BORDER | 0x1,150,
+                    42,60,6
+    CONTROL         "",IDC_DATE_FROM,"SysDateTimePick32",DTS_RIGHTALIGN | 
+                    DTS_SHOWNONE | WS_TABSTOP,10,131,92,15
+    GROUPBOX        "Czas",-1,6,121,204,28
+    LTEXT           "-",-1,106,134,8,8
+    CONTROL         "",IDC_DATE_TO,"SysDateTimePick32",DTS_RIGHTALIGN | 
+                    DTS_SHOWNONE | WS_TABSTOP,114,131,92,15
+END
+
+IDD_BUTTONS DIALOGEX 0, 0, 186, 35
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Dialog"
+FONT 8, "Tahoma", 0, 0, 0xEE
+BEGIN
+    CTEXT           "Static",IDC_STATIC,7,7,172,21
+END
+
+IDD_DBGACTIONS DIALOG  0, 0, 186, 200
+STYLE DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU | 
+    WS_THICKFRAME
+CAPTION "UIDebug - Actions"
+FONT 8, "Tahoma"
+BEGIN
+    CONTROL         "Tree1",IDC_TREE,"SysTreeView32",TVS_HASBUTTONS | 
+                    TVS_HASLINES | TVS_LINESATROOT | TVS_SHOWSELALWAYS | 
+                    TVS_FULLROWSELECT | WS_TABSTOP,0,0,180,300,
+                    WS_EX_CLIENTEDGE
+END
+
+IDD_DEBUGICONS DIALOGEX 0, 0, 300, 146
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Lista za³adowanych ikon"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | 
+                    LVS_SHOWSELALWAYS | LVS_SHAREIMAGELISTS | LVS_ALIGNLEFT | 
+                    WS_BORDER | WS_TABSTOP,7,7,164,132
+    CONTROL         "",IDC_STATIC,"Static",SS_OWNERDRAW | SS_CENTERIMAGE,171,
+                    47,122,92
+    EDITTEXT        IDC_EDIT,171,7,122,40,ES_MULTILINE | ES_AUTOVSCROLL | 
+                    ES_READONLY | NOT WS_BORDER | WS_VSCROLL
+END
+
+IDD_ENTER DIALOGEX 0, 0, 186, 73
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Dialog"
+FONT 8, "Tahoma", 0, 0, 0xEE
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,116,54,50,14
+    PUSHBUTTON      "Anuluj",IDCANCEL,64,54,48,14,NOT WS_VISIBLE
+    CTEXT           "Wpisz\naa",IDC_STATIC,7,3,172,21,NOT WS_GROUP
+    EDITTEXT        IDC_EDIT,20,31,146,12,ES_AUTOHSCROLL
+    COMBOBOX        IDC_COMBO,20,31,146,57,CBS_DROPDOWN | CBS_AUTOHSCROLL | 
+                    NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_GETTOKEN DIALOGEX 0, 0, 212, 56
+STYLE DS_SETFONT | DS_MODALFRAME | DS_SETFOREGROUND | DS_CENTER | WS_POPUP | 
+    WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_TOPMOST
+CAPTION "Wpisz TOKEN"
+FONT 8, "Tahoma", 0, 0, 0xEE
+BEGIN
+    LTEXT           "Static",IDC_INFO,7,7,198,23
+    CONTROL         "",IDC_TOKEN,"Static",SS_BITMAP | SS_CENTERIMAGE,7,49,
+                    198,6
+    EDITTEXT        IDC_EDIT1,7,34,148,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,159,33,46,13
+END
+
+IDD_LOGINPASS2 DIALOGEX 0, 0, 156, 86
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Dialog"
+FONT 8, "Tahoma", 0, 0, 0xEE
+BEGIN
+    DEFPUSHBUTTON   "&OK",IDOK,47,68,63,14
+    CTEXT           "Podaj login",IDC_STATIC,7,3,142,19
+    EDITTEXT        IDC_LOGIN,47,23,63,13,ES_AUTOHSCROLL
+    EDITTEXT        IDC_PASS1,47,38,63,13,ES_PASSWORD | ES_AUTOHSCROLL
+    CONTROL         "Zapamiêtaj",IDC_CHECK,"Button",BS_AUTOCHECKBOX | NOT 
+                    WS_VISIBLE | WS_TABSTOP,47,55,102,9
+END
+
+IDD_SHOWBITS DIALOGEX 0, 0, 272, 230
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Wybierz rodzaj interfejsu i stopieñ zaawansowania"
+FONT 8, "Tahoma", 400, 0, 0xEE
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,190,108,77,18
+    PUSHBUTTON      "Anuluj",IDCANCEL,190,128,77,14
+    CONTROL         "",IDC_SLIDER,"msctls_trackbar32",TBS_AUTOTICKS | 
+                    TBS_TOP | WS_TABSTOP,4,105,176,19
+    CONTROL         IDI_TB_MAIN,IDC_IMAGE,"Static",SS_BITMAP | 
+                    SS_CENTERIMAGE,0,0,272,105
+    CONTROL         "",IDC_INFO,"RichEdit20A",ES_MULTILINE | ES_AUTOVSCROLL | 
+                    ES_READONLY | WS_TABSTOP,4,126,186,34
+    GROUPBOX        "Wiêcej opcji...",IDC_MORE,4,160,263,66,0,
+                    WS_EX_TRANSPARENT
+    CONTROL         "",IDC_SLIDERINFO,"msctls_trackbar32",TBS_AUTOTICKS | 
+                    WS_TABSTOP,11,173,35,12,WS_EX_TRANSPARENT
+    PUSHBUTTON      "Domyœlne",IDB_RESET,213,207,48,14
+    LTEXT           "Iloœæ informacji",IDC_MOREFRAME,46,174,94,8
+    LTEXT           "Iloœæ podpowiedzi",IDC_MOREFRAME,46,190,57,8
+    LTEXT           "Iloœæ kreatorów",IDC_MOREFRAME,46,208,64,8
+    CONTROL         "",IDC_SLIDERTIPS,"msctls_trackbar32",TBS_AUTOTICKS | 
+                    WS_TABSTOP,11,189,35,12,WS_EX_TRANSPARENT
+    CONTROL         "",IDC_SLIDERWIZARDS,"msctls_trackbar32",TBS_AUTOTICKS | 
+                    WS_TABSTOP,11,206,35,12,WS_EX_TRANSPARENT
+    CONTROL         "»",IDB_MORE,"Button",BS_AUTOCHECKBOX | BS_CENTER | 
+                    BS_PUSHLIKE | WS_TABSTOP,254,148,13,12
+    RTEXT           "*) Nie wszystkie wtyczki mog¹ stosowaæ siê do Twojego wyboru. ",
+                    IDC_MOREFRAME,190,168,70,35,WS_DISABLED
+END
+
+IDD_DIALOG1 DIALOGEX 0, 0, 186, 90
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,129,7,50,14
+    PUSHBUTTON      "Cancel",IDD_PLUGINS,129,24,50,14
+    CONTROL         "",IDC_SPIN1,"msctls_updown32",UDS_SETBUDDYINT | 
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | 
+                    UDS_NOTHOUSANDS,15,31,86,36
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""commctrl.h""\r\n"
+    "#include ""resource_ui.h""\r\n"
+    "#include ""richedit.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_INFO, DIALOG
+    BEGIN
+        LEFTMARGIN, 4
+        RIGHTMARGIN, 272
+        BOTTOMMARGIN, 131
+        HORZGUIDE, 105
+    END
+
+    IDD_LOGIN, DIALOG
+    BEGIN
+        VERTGUIDE, 47
+        BOTTOMMARGIN, 107
+    END
+
+    IDD_STATUS, DIALOG
+    BEGIN
+        BOTTOMMARGIN, 73
+    END
+
+    IDD_SEARCH_2, DIALOG
+    BEGIN
+        RIGHTMARGIN, 426
+        VERTGUIDE, 10
+        VERTGUIDE, 53
+        VERTGUIDE, 134
+        VERTGUIDE, 145
+        BOTTOMMARGIN, 192
+    END
+
+    IDD_HISTORY_SEARCH, DIALOG
+    BEGIN
+        VERTGUIDE, 114
+        VERTGUIDE, 166
+        BOTTOMMARGIN, 149
+    END
+
+    IDD_DEBUGICONS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 293
+        VERTGUIDE, 171
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 139
+        HORZGUIDE, 47
+    END
+
+    IDD_SHOWBITS, DIALOG
+    BEGIN
+        LEFTMARGIN, 4
+        RIGHTMARGIN, 267
+        VERTGUIDE, 11
+        VERTGUIDE, 46
+        VERTGUIDE, 136
+        VERTGUIDE, 180
+        VERTGUIDE, 190
+        TOPMARGIN, 3
+        BOTTOMMARGIN, 226
+        HORZGUIDE, 105
+        HORZGUIDE, 126
+        HORZGUIDE, 160
+    END
+
+    IDD_DIALOG1, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 83
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDM_MSG MENU 
+BEGIN
+    POPUP "MSG"
+    BEGIN
+        MENUITEM "Kopiuj",                      ID_MSG_COPY
+        MENUITEM "Zaznacz wszystko",            ID_MSG_SELECTALL
+        MENUITEM SEPARATOR
+        MENUITEM "Wyczyœæ okno",                109
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_SPLASH              BITMAP                  "splash.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// IMG
+//
+
+LOGO                    IMG                     "img/step_00.gif"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDS_INF_CNTRESET        "Wszystkie ustawione przez ciebie informacje zostan¹ usuniête!"
+END
+
+#endif    // Polish resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

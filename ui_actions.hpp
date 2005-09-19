@@ -1,4 +1,6 @@
 
+using Tables::tTableId;
+
 int cfgNeedRestart = 0;
 
 struct GroupBoxFilledSubClass {
@@ -209,7 +211,7 @@ const char * getCfgValue(cUIAction & a , char * buff , int size) {
 		type=Ctrl->DTgetType((a.type & ACT_FORCNT)?DTCNT:DTCFG , a.p1&0x0FFFFFFF);
 	//    if (!buff) {buff = TLS().buff;size = MAX_STRING;}
 
-		tTable db = (a.type & ACT_FORCNT)?DTCNT : DTCFG;
+		tTableId db = (a.type & ACT_FORCNT)?DTCNT : DTCFG;
 		int row = (a.type & ACT_FORCNT)?a.cnt : 0;
 		Tables::Value v(Tables::ctypeString);
 		Ctrl->DTget(db , row , a.p1&0x0FFFFFFF , &v);
@@ -249,7 +251,7 @@ void setCfgValue(cUIAction & a , char * v , size_t size) {
         if (an.buff) v=an.buff; else return;
     }
     if (a.p1 && !(a.status & ACTR_NODATASTORE)) {
-        tTable db = (a.type & ACT_FORCNT)?DTCNT : DTCFG;
+        tTableId db = (a.type & ACT_FORCNT)?DTCNT : DTCFG;
         int row = (a.type & ACT_FORCNT)?a.cnt : 0;
 		Tables::Value val(Tables::ctypeString);
         if (a.status & ACTSC_NEEDRESTART) {

@@ -21,7 +21,7 @@
 #include "ui_main.h"
 
 
-#include "res\ui\resource_ui.h"
+#include "resource_ui.h"
 #include "include\win_listview.h"
 
 #include "ui_actions.h"

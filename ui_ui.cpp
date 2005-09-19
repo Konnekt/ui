@@ -27,7 +27,7 @@
 
 #include "include\time64.h"
 
-#include "res\ui\resource_ui.h"
+#include "resource_ui.h"
 
 
 #include "ui_actions.h"

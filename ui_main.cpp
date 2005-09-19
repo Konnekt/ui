@@ -8,8 +8,8 @@
 #pragma hdrstop
 #define IN_UIMAIN_CPP
 
-#include "res\ui\resource_ui.h"
-#include "res\ui\resource.h"
+#include "resource_ui.h"
+#include "resource.h"
 
 #include "ui_main.h"
 
@@ -22,7 +22,7 @@
 #include "ui_window.h"
 #include "checkComposing.h"
 #include "dlgShowBits.h"
-#include "plug_defs/lib.h"
+#include "konnekt/lib.h"
 
 #define DOCS_DIR "doc\\"
 #define DOCS_STEPBYSTEP "szybka pomoc.html"

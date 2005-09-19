@@ -13,7 +13,7 @@
 #include "ui_main.h"
 
 
-#include "res\ui\resource_ui.h"
+#include "resource_ui.h"
 
 
 #include "ui_cntlist.h"

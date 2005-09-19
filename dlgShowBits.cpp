@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ui_main.h"
-#include "res\ui\resource_ui.h"
-#include "res\ui\resource.h"
+#include "resource_ui.h"
+#include "resource.h"
 #include "dlgShowBits.h"
 #include "ui_actions.h"
 

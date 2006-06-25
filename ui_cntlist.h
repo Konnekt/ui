@@ -157,6 +157,7 @@ class cCntListWindow {
             HFONT _hfItem , _hfItemSel , _hfItemOnline, _hfItemInfo;
             bool _flickerFree;
 			int _infoHeight;
+			bool _shadow;
     };
 
 #endif //vector

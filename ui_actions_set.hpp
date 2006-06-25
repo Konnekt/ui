@@ -21,6 +21,7 @@
    Ico.iconRes(ICON_WIZARD, "wizard", 0, IML_16_32);
    Ico.iconRes(ICON_SHOWBITS, "showbits", 0, IML_16_32);
 
+   Ico.iconRes(ICON_CHECKED, "checked", 0, IML_16);
    Ico.iconRes(ICON_YES, "yes", 0, IML_16);
    Ico.iconRes(ICON_NO, "no", 0, IML_16);
    Ico.iconRes(ICON_REFRESH, "refresh", 0, IML_16);
@@ -534,6 +535,7 @@
 					Act[IMIG_CFG_UI].insert(0 , -1 , "Nie pokazuj okna po zwyk³ym uruchomieniu" 
 						AP_TIP "Po uruchomieniu g³ówne okno pozostanie ukryte. W przypadku uruchamiania razem z systemem u¿ywana jest opcja znajduj¹ca siê w \"Uruchamianie\"." , ACTT_CHECK , CFG_UIHIDDENSTART);
 					Act[IMIG_CFG_UI].insert(0 , -1 , "Wyœwietl na pasku zadañ i w oknie prza³¹czania programów" , ACTT_CHECK | ACTSC_NEEDRESTART , CFG_UIMAINTASKBAR);
+					Act[IMIG_CFG_UI].insert(0 , -1 , "Wyœwietlaj ma³e menu" , ACTT_CHECK, CFG_UIMENUTYPE);
 				}
 			}Act[IMIG_CFG_UI].insert(0 , -1 , "" , ACTT_GROUPEND);
 
@@ -941,12 +943,18 @@
 				Act[IMIG_CFG_UI_APPRNC].insert(IMIB_CFG , -1 , "Info" , ACTT_FONT | ACTSFONT_NOBGCOLOR, CFG_UIF_MSGINFO);
 				Act[IMIG_CFG_UI_APPRNC].insert(IMIB_CFG , -1 , "Podkreœlone" , ACTT_FONT | ACTSFONT_NOBGCOLOR, CFG_UIF_MSGMARK);
 				Act[IMIG_CFG_UI_APPRNC].insert(0 , -1 , "" , ACTT_GROUPEND);
-				Act[IMIG_CFG_UI_APPRNC].insert(0 , -1 , "Lista kontaktów" , ACTT_GROUP);
-				Act[IMIG_CFG_UI_APPRNC].insert(IMIB_CFG , -1 , "Kontakt" , ACTT_FONT | ACTR_CHECK | ACTR_SHOW, CFG_UIF_CLIST);
-				Act[IMIG_CFG_UI_APPRNC].insert(IMIB_CFG , -1 , "Zaznaczony" , ACTT_FONT | ACTSFONT_NOFACE | ACTSFONT_NOSIZE , CFG_UIF_CLISTSEL);
-				Act[IMIG_CFG_UI_APPRNC].insert(IMIB_CFG , -1 , "Opis" , ACTT_FONT, CFG_UIF_CLISTINFO);
-				Act[IMIG_CFG_UI_APPRNC].insert(IMIB_CFG , -1 , "TIP" , ACTT_FONT, CFG_UICNTTIPFONT);
-				Act[IMIG_CFG_UI_APPRNC].insert(0 , -1 , "" , ACTT_GROUPEND);
+				Act[IMIG_CFG_UI_APPRNC].insert(0 , -1 , "Lista kontaktów" , ACTT_GROUP); {
+					Act[IMIG_CFG_UI_APPRNC].insert(IMIB_CFG , -1 , "Kontakt" , ACTT_FONT | ACTR_CHECK | ACTR_SHOW, CFG_UIF_CLIST);
+					Act[IMIG_CFG_UI_APPRNC].insert(IMIB_CFG , -1 , "Zaznaczony" , ACTT_FONT | ACTSFONT_NOFACE | ACTSFONT_NOSIZE , CFG_UIF_CLISTSEL);
+					Act[IMIG_CFG_UI_APPRNC].insert(IMIB_CFG , -1 , "Opis" , ACTT_FONT, CFG_UIF_CLISTINFO);
+					Act[IMIG_CFG_UI_APPRNC].insert(IMIB_CFG , -1 , "TIP" , ACTT_FONT, CFG_UICNTTIPFONT);
+				Act[IMIG_CFG_UI_APPRNC].insert(0 , -1 , "" , ACTT_GROUPEND);}
+
+				Act[IMIG_CFG_UI_APPRNC].insert(0 , -1 , "Menu" , ACTT_GROUP); {
+					Act[IMIG_CFG_UI_APPRNC].insert(IMIB_CFG , -1 , "Pozycja" , ACTT_FONT | ACTSC_INLINE, CFG_UIF_MENU);
+					Act[IMIG_CFG_UI_APPRNC].insert(IMIB_CFG , -1 , "Domyœlny" , ACTT_FONT | ACTSC_INLINE , CFG_UIF_MENUDEFAULT);
+					Act[IMIG_CFG_UI_APPRNC].insert(IMIB_CFG , -1 , "Zaznaczony" , ACTT_FONT, CFG_UIF_MENUACTIVE);
+				Act[IMIG_CFG_UI_APPRNC].insert(0 , -1 , "" , ACTT_GROUPEND);}
 
 			Act[IMIG_CFG_UI].insert(IMIG_CFG_UI_FORMAT , -1 , "Formatowanie pól" , ACTS_GROUP | (ShowBits::checkLevel(ShowBits::levelAdvanced) ? 0 : ACTS_HIDDEN) , ICON_POINT); {
 				if (ShowBits::checkBits(ShowBits::showInfoAdvanced)) {

@@ -1036,7 +1036,7 @@ void cCntListWindow::drawListItem(DRAWITEMSTRUCT * dis) {
    int icoYOffset = (rcName.bottom - rcName.top - 16) / 2;
    // Jezeli nie jest to notify, rysujemy pod ikonkami... 
    if (!notify)
-       Ico[icon].draw(dis->hDC , dis->rcItem.left+icoXOffset , dis->rcItem.top+icoYOffset , 0, ILS_SHADOW , 0 , 0 , 0x0);
+	   Ico[icon].draw(dis->hDC , dis->rcItem.left+icoXOffset , dis->rcItem.top+icoYOffset , 0, 0 , 0 , 0 , 0x0);
    // Piszemy...
    rc=rcName;
    int nameXOffset = 16 + 2*icoXOffset + 4;
@@ -1145,7 +1145,7 @@ void cCntListWindow::drawListItem(DRAWITEMSTRUCT * dis) {
 
    // Skoro to notify, to rysujemy go NA wszystkim...
    if (notify)
-       Ico[icon].draw(dis->hDC , dis->rcItem.left+icoXOffset , dis->rcItem.top+icoYOffset , 0, ILS_SHADOW , 0 , 0 , 0x0);
+       Ico[icon].draw(dis->hDC , dis->rcItem.left+icoXOffset , dis->rcItem.top+icoYOffset , 0, 0 , 0 , 0 , 0x0);
    // Nakladka zalezna od sieci...
    if (pCnt->net != NET_NONE && parent->_samestatus) {
       Ico[UIIcon(IT_OVERLAY,pCnt->net,0,0)].draw(dis->hDC , dis->rcItem.left+icoXOffset , dis->rcItem.top+icoYOffset);
@@ -1169,8 +1169,8 @@ void cCntListWindow::drawListItem(DRAWITEMSTRUCT * dis) {
 
 cCntListTip::cCntListTip(HWND parent , bool docked) {
     this->docked = docked;
-    _hwnd = CreateWindowEx(WS_EX_TOPMOST,"LISTTIP","",
-        WS_POPUP | WS_BORDER,
+    _hwnd = CreateWindowEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW,"LISTTIP","",
+        WS_POPUP/* | WS_BORDER*/,
         0,0,100,108,
         parent,NULL,0,NULL);
     SetProp(_hwnd , "cCntListTip" , (HANDLE)this);
@@ -1424,6 +1424,7 @@ void cCntListTip::paint(){
 		drawItem(hdc , &rt , "i" , formatTitle(infoFormat, this->cnt, FT_TIP) , IDI_TIP_INFO , 1000, true);
 	}
 
+	FrameRect(hdc, &rc, GetSysColorBrush(COLOR_INFOTEXT));
 
     //SelectObject(hdc, holdfnt);
     DeleteObject(hbr);

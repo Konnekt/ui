@@ -45,6 +45,7 @@ HFONT fontB = 0;
 HFONT fontBig = 0;
 HFONT fontNormal = 0;
 HFONT fontSmall = 0;
+HFONT fontSmallB = 0;
 HFONT fontLabel = 0;
 HFONT fontMain = 0;
 HFONT fontDing = 0;
@@ -53,6 +54,12 @@ HFONT fontTipB = 0;
 HFONT fontMsgSend = 0;
 int fontHeight = 0;
 
+LOGFONTEX fontMenu;
+LOGFONTEX fontMenuDefault;
+LOGFONTEX fontMenuActive;
+
+
+MenuType menuType = menuTypeNormal;
 
 bool cursorInList = false;
 HMENU hDestroyMenu=0;
@@ -117,6 +124,7 @@ int Init() {
   fontB=GetLogFont("Tahoma" , 13 , 1);//GetStockObject(ANSI_VAR_FONT);
   fontNormal=GetLogFont("Tahoma" , 13 , 0);//GetStockObject(ANSI_VAR_FONT);
   fontSmall=GetLogFont("Tahoma" , 12 , 0);//GetStockObject(ANSI_VAR_FONT);
+  fontSmallB=GetLogFont("Tahoma" , 12 , 1);//GetStockObject(ANSI_VAR_FONT);
   fontLabel=GetLogFont("Tahoma" , 11 , 2);//GetStockObject(ANSI_VAR_FONT);
   fontBig=GetLogFont("Tahoma" , 16 , 1);//GetStockObject(ANSI_VAR_FONT);
   fontDing=GetLogFont("Wingdings" , 18 , 0);
@@ -163,6 +171,8 @@ int ISetCols() {
 	SetColumn(DTCFG , CFG_UIMAINALPHA , DT_CT_INT , 75 , "UI/wnd/alpha");
 	SetColumn(DTCFG , CFG_UIUSEMAINALPHA , DT_CT_INT , 0, "UI/wnd/alphaUse");
 	SetColumn(DTCFG , CFG_UIMAINTASKBAR , DT_CT_INT , 0 , "UI/wnd/onTaskBar");
+
+	SetColumn(DTCFG , CFG_UIMENUTYPE , DT_CT_INT , menuTypeNormal , "UI/menu/type");
 
 	SetColumn(DTCFG , CFG_UICANDOCK , DT_CT_INT , 1 , "UI/dock");
 	SetColumn(DTCFG , CFG_UIDOCKSPACE ,  DT_CT_INT , 20 , "UI/dock/space");
@@ -230,6 +240,7 @@ int ISetCols() {
 	SetColumn(DTCFG , CFG_UIFILTERACTION , DT_CT_INT , Konnekt::UI::CFG::gtypeHidden , "UI/list/filters/actionType");
 	SetColumn(DTCFG , CFG_UICL_DISPLAY_FORMAT , DT_CT_PCHAR , 0 , "UI/list/displayFormat");
 
+
 	SetColumn(DTCFG , CFG_UICNT_CREATEDISPLAY_FORMAT , DT_CT_PCHAR , "" , "UI/cnt/createDisplayFormat");
 
 
@@ -275,6 +286,9 @@ int ISetCols() {
 
 	SetColumn(DTCFG , CFG_UICNTTIPFONT , DT_CT_PCHAR , "Tahoma;238;-9;;0xffffff;0x804000;" , "UI/font/tip");
 
+	SetColumn(DTCFG , CFG_UIF_MENU , DT_CT_PCHAR , "Tahoma;238;-11;;0x0;0xffffff;" , "UI/menu/font");
+	SetColumn(DTCFG , CFG_UIF_MENUDEFAULT , DT_CT_PCHAR , "Tahoma;238;-11;b;0x0;0xffffff;" , "UI/menu/fontDefault");
+	SetColumn(DTCFG , CFG_UIF_MENUACTIVE , DT_CT_PCHAR , "Tahoma;238;-11;b;0xffffff;0x804000;" , "UI/font/fontActive");
 
 	SetColumn(DTCNT , CNT_STATUS_ICON , DT_CT_INT , 0 , "UI/status/icon");
   return 1;
@@ -388,6 +402,9 @@ void UISetAlpha() {
 
 UISet() {
     IMLOG("UISet");
+
+	menuType = (MenuType) GETINT(CFG_UIMENUTYPE);
+
     // Fonty
     if (fontTip) DeleteObject(fontTip);
     if (fontTipB) DeleteObject(fontTipB);
@@ -398,6 +415,10 @@ UISet() {
     fontTipB = CreateFontIndirect(&lfe.lf);
     lfe = StrToLogFont(GETSTR(CFG_UIF_MSGSEND));
     fontMsgSend = CreateFontIndirect(&lfe.lf);
+
+	fontMenu = StrToLogFont(GETSTR(CFG_UIF_MENU));
+	fontMenuDefault = StrToLogFont(GETSTR(CFG_UIF_MENUDEFAULT));
+	fontMenuActive = StrToLogFont(GETSTR(CFG_UIF_MENUACTIVE));
 
 
   string title = formatTitle((char*)GETSTR(CFG_UIMAINTITLE), 0 , FT_WINDOW);
@@ -957,7 +978,8 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
          {
 			// ISRUNNING();
            IMESSAGE_TS();
-           a = msg->p1;
+           sd = (sDIALOG*)msg->p1;
+		   a = 1;
            if (sd) {
              sd->handle=0;
              if (longOnly) sd->flag |= DLONG_NODLG;

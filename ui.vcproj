@@ -518,13 +518,13 @@
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
 			<File
-				RelativePath="..\res\ui\resource.h">
+				RelativePath=".\resource.h">
 			</File>
 			<File
-				RelativePath="..\res\ui\resource_ui.h">
+				RelativePath=".\resource_ui.h">
 			</File>
 			<File
-				RelativePath="..\res\ui\resource_ui.rc">
+				RelativePath=".\resource_ui.rc">
 			</File>
 			<Filter
 				Name="RES"

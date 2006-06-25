@@ -23,7 +23,7 @@
 #endif
 
 #include "konnekt/plug_export.h"
-#include "CORe/plug_sharedex.h"
+#include "plug_sharedex.h"
 #include "konnekt/ui.h"
 #include "konnekt/plug_func.h"       // chyba nie jest tu potrzebny
 #include "konnekt/ui_message_controls.h"       // chyba nie jest tu potrzebny
@@ -165,12 +165,17 @@ extern HFONT fontB;
 extern HFONT fontBig;
 extern HFONT fontNormal;
 extern HFONT fontSmall;
+extern HFONT fontSmallB;
 extern HFONT fontLabel;
 extern HFONT fontDing;
 extern HFONT fontTip;
 extern HFONT fontTipB;
 extern HFONT fontMsgSend;
 extern int fontHeight;
+
+extern LOGFONTEX fontMenu;
+extern LOGFONTEX fontMenuDefault;
+extern LOGFONTEX fontMenuActive;
 
 extern int listSelNet;
 extern int listSelScroll;
@@ -196,6 +201,13 @@ extern int docked; // 1 - z hide'em , 2 - na sztywno
 extern int docked_h;
 extern bool docked_right;
 UIEXTERN RECT docked_rect;
+
+enum MenuType {
+	menuTypeNormal = 0,
+	menuTypeSmall = 1
+};
+
+extern MenuType menuType;
 
 extern int lastUIdata [4]; // ostatnie - pozycja i aktywne okienka ...
 extern bool away;

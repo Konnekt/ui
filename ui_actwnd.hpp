@@ -22,6 +22,164 @@ cUIAction * UIPopupMenu(cUIGroup & act , UINT uFlags, int x, int y, int nReserve
     return pAct;
 }
 
+int UIMessageMenuProc(cUIAction* pAct, int curCnt , HWND hWnd , UINT message , WPARAM wParam , LPARAM lParam) {
+
+	int paddingV;
+	int icoMarginL, icoMarginR;
+	switch(menuType) {
+		case menuTypeSmall:
+			paddingV = 2;
+			icoMarginL = 4;
+			icoMarginR = 8;
+			break;
+		default:
+			paddingV = max(7, (-fontMenu.lf.lfHeight) / 2);
+			icoMarginL = 4;
+			icoMarginR = 8;
+	}
+
+
+	switch (message) {
+		case WM_MEASUREITEM: {
+             MEASUREITEMSTRUCT *mis ; mis=(MEASUREITEMSTRUCT *)lParam;
+
+			if (pAct->status & ACTS_HIDDEN) {
+				mis->itemWidth = 0;
+				mis->itemHeight = 0;
+				return 1;
+			}
+
+			if ((pAct->status & ACTM_TYPE) == ACTT_SEP) {
+				mis->itemWidth = 0;
+				mis->itemHeight = 5;
+				return 1;
+			}
+
+			LOGFONTEX* menuFont = (pAct->status & ACTSMENU_BOLD) ? &fontMenuDefault : &fontMenu;
+			if (fontMenuActive.isBold()) {
+				menuFont = &fontMenuActive;
+			}
+			SIZE textSize = GetTextSize(hwndMain, menuFont->getFont(), pAct->txt.c_str(), 0);
+
+			mis->itemWidth = textSize.cx;
+			mis->itemHeight = max(textSize.cy + paddingV, 10);
+
+			/*
+			int checkSpace = GetSystemMetrics(SM_CXMENUCHECK); 
+			if (1 || pAct->pparent->status & ACTSMENU_CHECKSPACE) {
+				mis->itemWidth += checkSpace;
+			}
+			*/
+
+			int icoWidth = 16;
+			int icoHeight = 16;
+			if (Ico.find(pAct->p1)) {
+	            Ico[pAct->p1].measure((int*)&icoWidth , (int*)&icoHeight);
+			}
+			mis->itemWidth += icoWidth + icoMarginL + icoMarginR;
+			mis->itemHeight = max(icoHeight + paddingV, mis->itemHeight);
+
+            if ((pAct->status & ACTM_TYPE) == ACTT_BAND) mis->itemWidth-=100;
+			else { 
+			//	mis->itemHeight=0;
+			}
+
+			return 1;}
+
+		case WM_DRAWITEM: {
+             DRAWITEMSTRUCT * dis;
+             dis=(DRAWITEMSTRUCT *)lParam;
+
+            if (pAct->status & ACTS_HIDDEN) {
+				return 0;
+			}
+
+
+			// If the user has selected the item, use the selected 
+			// text and background colors to display the item. 
+
+			COLORREF oldTextCr, oldBckCr;
+			HFONT oldFont;
+			COLORREF textCr, bckCr;
+			HBRUSH bckBrush;
+
+			LOGFONTEX* menuFont = &fontMenu;
+
+
+			if (dis->itemState & ODS_DISABLED) {
+				menuFont = &fontMenu;
+				textCr = RGB_ALPHA(menuFont->color, menuFont->bgColor, 50);
+				bckCr = menuFont->bgColor;
+			} else if (dis->itemState & ODS_SELECTED) { 
+				menuFont = &fontMenuActive;
+				textCr = menuFont->color;
+				bckCr = menuFont->bgColor;
+			} else {
+				menuFont = (pAct->status & ACTSMENU_BOLD) ? &fontMenuDefault : &fontMenu;
+				textCr = menuFont->color;
+				bckCr = menuFont->bgColor;
+			}
+
+			oldTextCr = SetTextColor(dis->hDC, textCr); 
+			oldBckCr = SetBkColor(dis->hDC, bckCr); 
+			oldFont = (HFONT)SelectObject(dis->hDC, menuFont->getFont());
+			bckBrush = CreateSolidBrush(bckCr);
+			FillRect(dis->hDC, &dis->rcItem, bckBrush );
+
+			DeleteObject(bckBrush);
+
+			int icoWidth = 16;
+			int icoHeight = 16;
+
+			if (Ico.find(pAct->p1)) {
+				Ico[pAct->p1].measure((int*)&icoWidth , (int*)&icoHeight);
+			}
+
+			RECT rcIcoBck;
+			if ((dis->itemState & ODS_SELECTED) == 0 || dis->itemState & ODS_DISABLED || (pAct->status & ACTM_TYPE) == ACTT_SEP) { 
+				HBRUSH icoBrush = CreateSolidBrush( RGB_ALPHA(bckCr, menuFont->color, 95) );
+				rcIcoBck = dis->rcItem;
+				rcIcoBck.right = rcIcoBck.left + icoWidth + icoMarginL + icoMarginR / 2;
+				FillRect(dis->hDC, &rcIcoBck, icoBrush);
+				DeleteObject(icoBrush);
+			}
+
+			if ((pAct->status & ACTM_TYPE) == ACTT_SEP) {
+				RECT rc;
+				rc.left = rcIcoBck.right + icoMarginR / 2;
+				rc.right = dis->rcItem.right - icoMarginR;
+				rc.top = dis->rcItem.top + 2;
+				rc.bottom = rc.top + 1;
+				HBRUSH sepBrush = CreateSolidBrush( RGB_ALPHA(bckCr, textCr, 50) );
+				FillRect(dis->hDC, &rc, sepBrush);
+				DeleteObject(sepBrush);
+				return 1;
+			}
+
+			RECT rcTxt = dis->rcItem;
+
+			if (Ico.find(pAct->p1)) {
+				Ico[pAct->p1].draw(dis->hDC , dis->rcItem.left + icoMarginL , dis->rcItem.top + (dis->rcItem.bottom - dis->rcItem.top - icoHeight) / 2 , 0, 0);
+			}
+			rcTxt.left += icoWidth + icoMarginL + icoMarginR;
+			if (dis->itemState & ODS_CHECKED) {
+				Ico[ICON_CHECKED].measure((int*)&icoWidth , (int*)&icoHeight);
+				Ico[ICON_CHECKED].draw(dis->hDC , dis->rcItem.left + icoMarginL , dis->rcItem.top + (dis->rcItem.bottom - dis->rcItem.top - icoHeight) / 2 , 0, 0);
+			}
+
+			DrawText(dis->hDC, pAct->txt.c_str(), pAct->txt.length(), &rcTxt, DT_HIDEPREFIX | DT_SINGLELINE | DT_VCENTER);
+			
+			// Return the text and background colors to their 
+			// normal state (not selected). 
+	
+			SetTextColor(dis->hDC, oldTextCr); 
+			SetBkColor(dis->hDC, oldBckCr); 
+			SelectObject(dis->hDC, oldFont);
+			return 1;}
+	}
+	return 0;
+
+}
 
 int UIMessageProc(int curCnt , HWND hWnd , UINT message , WPARAM wParam , LPARAM lParam) {
     cUIAction * pAct;
@@ -60,35 +218,19 @@ int UIMessageProc(int curCnt , HWND hWnd , UINT message , WPARAM wParam , LPARAM
              MEASUREITEMSTRUCT *mis ; mis=(MEASUREITEMSTRUCT *)lParam;
              if (!wParam) { // MENU
                 if (!mis->itemData) return 0;
-                pAct=(cUIAction*)mis->itemData;
-				//SIZE sz = GetTextSize(hwndMain, 0, pAct->txt.c_str());
-				mis->itemWidth = 0;
-				mis->itemHeight = 0;
-                if (!Ico.find(pAct->p1)) return 1;
-				int icoWidth = 0;
-				int icoHeight = 0;
-                Ico[pAct->p1].measure((int*)&icoWidth , (int*)&icoHeight);
-				mis->itemWidth += icoWidth;
-				mis->itemHeight = max(icoHeight, mis->itemHeight);
-				//mis->itemHeight=16;
-                mis->itemWidth+=2;
-                if ((pAct->status & ACTM_TYPE) == ACTT_BAND) mis->itemWidth-=100;
-				else { 
-				//	mis->itemHeight=0;
-				}
-                return 1;
+
+				return UIMessageMenuProc((cUIAction*)mis->itemData, curCnt, hWnd, message, wParam, lParam);
              }
              return 0;
+
         case WM_DRAWITEM:
              DRAWITEMSTRUCT * dis;
              dis=(DRAWITEMSTRUCT *)lParam;
              if (!wParam) { // MENU
                 if (!dis->itemData) return 0;
-                pAct=(cUIAction*)dis->itemData;
-                if (pAct->status & ACTS_HIDDEN) {return 0;}
-                if (!Ico.find(pAct->p1)) return 0;
-				Ico[pAct->p1].draw(dis->hDC , (pAct->pparent->status & ACTSMENU_CHECKSPACE) ? 16 : 1 , 1 , 0, ILS_SHADOW);
-                return 1;
+
+				return UIMessageMenuProc((cUIAction*)dis->itemData, curCnt, hWnd, message, wParam, lParam);
+
              }
              return 0;
 		case WM_ENTERIDLE:

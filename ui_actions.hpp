@@ -122,11 +122,14 @@ WNDPROC GroupBoxFilledSubClass::oldProc = 0;
          mi.dwTypeData=(char *)g[i].txt.c_str();
          mi.cch=g[i].txt.size();
        }
-     if (g[i].p1) {
-         mi.fMask|=MIIM_BITMAP;
+	 
+     if (1 || g[i].p1 || mi.fType == 0 || (mi.fType & MFT_SEPARATOR)) {
+         //mi.fMask |= MIIM_BITMAP;
 //         mi.hbmpItem=(HBITMAP)g[i].bmp;
-         mi.hbmpItem=HBMMENU_CALLBACK;
+         //mi.hbmpItem = HBMMENU_CALLBACK;
+		 mi.fType |= MFT_OWNERDRAW;
      }
+	 
      mi.fState=MFS_ENABLED;
      if (g[i].status & ACTS_CHECKED)
        mi.fState |= MFS_CHECKED;
@@ -144,7 +147,8 @@ WNDPROC GroupBoxFilledSubClass::oldProc = 0;
      mi.dwItemData=(ULONG_PTR)&g[i];
 
      if (!InsertMenuItem((HMENU)handle , g.count ,1,&mi)) {
-      ShowLastError();
+		 IMDEBUG(DBG_ERROR, "InsertMenuItem error = %d", GetLastError());
+		 //ShowLastError();
      }
    }
    return (HMENU)handle;

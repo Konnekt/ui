@@ -924,6 +924,10 @@ INT_PTR CALLBACK EditMsgControlProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM 
 	   UIPopupMenu(Act[UI::ACT::msg_ctrlsend_menu], TPM_LEFTALIGN|TPM_TOPALIGN|TPM_RIGHTBUTTON|TPM_RETURNCMD, LOWORD(lParam), HIWORD(lParam), 0, hwnd, 0, 0);
 	   break;
 		}
+   case WM_MEASUREITEM:
+   case WM_DRAWITEM: {
+       cnt=(sUICnt*)GetProp(GetParent(hwnd) , "CNT");
+	   return UIMessageProc(cnt->ID, hwnd, message, wParam, lParam);}
      case WM_SYSKEYDOWN:
          //Beep(200,200);
 //         goto send;

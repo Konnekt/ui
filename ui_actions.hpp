@@ -136,9 +136,11 @@ WNDPROC GroupBoxFilledSubClass::oldProc = 0;
      if (g[i].status & ACTS_DISABLED) {
        mi.fState |= MFS_DISABLED;
      } 
+	 /*
      if (g[i].status & ACTSMENU_BOLD) {
 		 mi.fState |= MFS_DEFAULT;
      } 
+	 */
      mi.wID=g[i].index;
      if (g[i].status & ACTS_GROUP) {
        mi.fMask|=MIIM_SUBMENU;

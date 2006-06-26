@@ -57,6 +57,7 @@ int fontHeight = 0;
 LOGFONTEX fontMenu;
 LOGFONTEX fontMenuDefault;
 LOGFONTEX fontMenuActive;
+LOGFONTEX fontMenuDefaultActive;
 
 
 MenuType menuType = menuTypeNormal;
@@ -419,7 +420,8 @@ UISet() {
 	fontMenu = StrToLogFont(GETSTR(CFG_UIF_MENU));
 	fontMenuDefault = StrToLogFont(GETSTR(CFG_UIF_MENUDEFAULT));
 	fontMenuActive = StrToLogFont(GETSTR(CFG_UIF_MENUACTIVE));
-
+	fontMenuDefaultActive = fontMenuActive;
+	fontMenuDefaultActive.lf.lfWeight = (fontMenuDefault.isBold() || fontMenuActive.isBold()) ? FW_BOLD : FW_NORMAL;
 
   string title = formatTitle((char*)GETSTR(CFG_UIMAINTITLE), 0 , FT_WINDOW);
   SetWindowText(hwndMain , title.c_str());

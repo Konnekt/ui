@@ -64,6 +64,10 @@ int UIMessageMenuProc(cUIAction* pAct, int curCnt , HWND hWnd , UINT message , W
 			mis->itemWidth = textSize.cx;
 			mis->itemHeight = max(textSize.cy + paddingV, 10);
 
+			if (pAct->status & ACTS_GROUP) {
+				mis->itemWidth += 4;
+			}
+
 			/*
 			int checkSpace = GetSystemMetrics(SM_CXMENUCHECK); 
 			if (1 || pAct->pparent->status & ACTSMENU_CHECKSPACE) {
@@ -111,7 +115,7 @@ int UIMessageMenuProc(cUIAction* pAct, int curCnt , HWND hWnd , UINT message , W
 				textCr = RGB_ALPHA(menuFont->color, menuFont->bgColor, 50);
 				bckCr = menuFont->bgColor;
 			} else if (dis->itemState & ODS_SELECTED) { 
-				menuFont = &fontMenuActive;
+				menuFont = (pAct->status & ACTSMENU_BOLD) ? &fontMenuDefaultActive : &fontMenuActive;
 				textCr = menuFont->color;
 				bckCr = menuFont->bgColor;
 			} else {

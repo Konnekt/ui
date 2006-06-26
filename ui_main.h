@@ -176,6 +176,7 @@ extern int fontHeight;
 extern LOGFONTEX fontMenu;
 extern LOGFONTEX fontMenuDefault;
 extern LOGFONTEX fontMenuActive;
+extern LOGFONTEX fontMenuDefaultActive;
 
 extern int listSelNet;
 extern int listSelScroll;

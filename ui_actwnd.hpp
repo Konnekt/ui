@@ -363,7 +363,7 @@ void resizeProp(HWND hwndParent) {
    if (g[i].status & (ACTS_GROUP) || (!g[i].handle && t!=ACTT_GROUPEND)) continue;
    if (g[i].status & ACTR_RESIZE) {
          sUIActionNotify an = g[i].notify(ACTN_RESIZE , MAKELONG(rw , h) , (int)g.ghandle);
-         IMessageDirect(IM_UIACTION , g[i].owner , (int)&an);
+         IMessageDirect(IM_UIACTION , (tPluginId)g[i].owner , (int)&an);
    }
    if (t==ACTT_GROUPEND) indent-=INDENT_GROUP;
    if (t != ACTT_HOLDER && g[i].handle && GetWindowRect((HWND)g[i].handle , &rc)) {
@@ -533,18 +533,21 @@ int CALLBACK PropClassProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam) {
                 grp->cnt=act->cnt;//=(unsigned int)GetProp(hWnd , "CNTID");
                 switch (HIWORD(wParam)) {
 
-                 case EN_CHANGE:
+		case EN_CHANGE: {
  		 			 tooltip.hideAuto();
 
                      if (GetProp((HWND)lParam , "PART")) return 0;
                      PropClassCanApply(hWnd);
                      if (!(act->status & ACTR_CHECK)) return 0;
-                     SendMessage((HWND)lParam , WM_GETTEXT , MAX_STRING , (LPARAM)TLS().buff);
-                     str=(char *)checkCfgValue(*act , TLS().buff);
+					 String value;
+                     SendMessage((HWND)lParam , WM_GETTEXT , MAX_STRING , (LPARAM)value.useBuffer<char>(MAX_STRING));
+					 value.releaseBuffer<char>();
+                     String checked = checkCfgValue(*act , value);
                      /*TODO: Z³e porównanie! */
-                     if (strcmp(TLS().buff , str))
-                       SendMessage((HWND)lParam , WM_SETTEXT , 0 , (LPARAM)str);
-                     break;
+					 if (value != checked) {
+						 SendMessage((HWND)lParam , WM_SETTEXT , 0 , (LPARAM)checked.c_str());
+				     }
+					 break;}
                  case CBN_SELCHANGE:
  		 			 tooltip.hideAuto();
                      PropClassCanApply(hWnd);

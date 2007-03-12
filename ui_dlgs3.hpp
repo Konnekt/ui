@@ -40,7 +40,7 @@ int CALLBACK PassDialogProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam) 
 					if (GetDlgItem(hwnd , IDC_PASS2) && IsWindowVisible(GetDlgItem(hwnd , IDC_PASS2))) {
 					  GetDlgItemText(hwnd , IDC_PASS2 , TLS().str.GetBuffer(MAX_STRBUFF) , MAX_STRBUFF);
 					  TLS().str.ReleaseBuffer();
-                      if (TLS().str != TLS().buff) {IMessage(IMI_WARNING , 0 , 0 , (int)"Zrobi³eœ b³¹d przy potwierdzaniu has³a! \nWpisz w oba pola TO SAMO has³o!");
+                      if (TLS().str != TLS().buff) {ICMessage(IMI_WARNING , (int)"Zrobi³eœ b³¹d przy potwierdzaniu has³a! \nWpisz w oba pola TO SAMO has³o!");
                                                        break;}
                     }
                     dlg->pass = TLS().buff;

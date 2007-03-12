@@ -799,14 +799,15 @@
 						int c = ICMessage(IMC_PLUG_COUNT);
 						int found = 0;
 						for (int i=1; i<c; i++) {
-							IMessageDirect(IM_GET_STATUS, i);
+							oPlugin plugin = Ctrl->getPlugin((tPluginId)i);
+							plugin->IMessageDirect(IM_GET_STATUS);
 							if (Ctrl->getError() == IMERROR_NORESULT)
 								continue;
 							if (lastNet) lastNet->status |= ACTSC_INLINE;
-							Act[IMIG_CFG_UI_NOTIFY].insert(0 , -1 , ("reg://IML16/" + inttostr(UIIcon(IT_LOGO, IMessageDirect(IM_PLUG_NET, i, 0, 0), 0, 0)) + ".ico").c_str() , ACTT_IMAGE | ACTSC_INLINE , 0, 16, 16);
-							CStdString txt = (char*) IMessageDirect(IM_PLUG_NETNAME, i);
-							txt = SetActParam(txt, AP_VALUE, inttoch(IMessageDirect(IM_PLUG_NET, i)));
-							lastNet = Act[IMIG_CFG_UI_NOTIFY].insert(0 , -1 , txt , ACTT_RADIO | ACTR_NODATASTORE , CFG_UISTATUSINTRAY);
+							Act[IMIG_CFG_UI_NOTIFY].insert(0 , -1 , ("reg://IML16/" + inttostr(UIIcon(IT_LOGO, plugin->getNet(), 0, 0)) + ".ico").c_str() , ACTT_IMAGE | ACTSC_INLINE , 0, 16, 16);
+							String txt = plugin->getNetName();
+							txt = SetActParam(txt, AP_VALUE, inttoch(plugin->getNet()));
+							lastNet = Act[IMIG_CFG_UI_NOTIFY].insert(0 , -1 , txt.a_str(), ACTT_RADIO | ACTR_NODATASTORE , CFG_UISTATUSINTRAY);
 							if (++found % 3 == 0) lastNet = 0; // ¿eby wskoczy³ do nowej linijki...
 						}
 
@@ -1076,12 +1077,13 @@
          {string lista="";
           int c = IMessage(IMC_PLUG_COUNT);
           for (int i=0;i<c;i++) {
-              int b=IMessage(IMC_PLUG_ID,0,0,i);
-              if (IMessageDirect(IM_PLUG_TYPE , b) & IMT_NET) {
-                lista += (char*)IMessageDirect(IM_PLUG_NETNAME , b);
-                lista += CFGICO + string(inttoch(UIIcon(2, IMessageDirect(IM_PLUG_NET , b) ,0,0)));
-                lista += CFGVALUE + string(inttoch(IMessageDirect(IM_PLUG_NET , b)));
-                lista += '\n';
+			  oPlugin plugin = Ctrl->getPlugin((tPluginId)i);
+              
+			  if (plugin->getType() & IMT_NET) {
+				  lista += plugin->getNetName();
+				  lista += CFGICO + string(inttoch(UIIcon(2, plugin->getNet() ,0,0)));
+				  lista += CFGVALUE + string(inttoch(plugin->getNet()));
+				  lista += '\n';
               }
           }
           Act[IMIG_NFO_DETAILS].insert(IMIB_CNT , -1 , lista.c_str() , ACTT_COMBO|ACTSCOMBO_LIST | ACTSC_INLINE | ACTR_SHOW , CNT_NET);

@@ -198,7 +198,7 @@ INT_PTR CALLBACK    ListControlProc (HWND hwnd,UINT message,WPARAM wParam,LPARAM
 LRESULT CALLBACK ListTipClassProc(HWND hwnd , UINT message, WPARAM wParam, LPARAM lParam);
 INT_PTR CALLBACK ListControlProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam);
 
-dragdropList(HWND hwnd = 0, UINT message = 0 , WPARAM wParam = 0, LPARAM lParam = 0);
+int dragdropList(HWND hwnd = 0, UINT message = 0 , WPARAM wParam = 0, LPARAM lParam = 0);
 
 
 void fillGroups();

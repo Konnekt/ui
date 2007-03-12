@@ -136,7 +136,7 @@ void sUICnt::MsgSend() {
     ActionStatus(sUIAction(IMIG_MSGTB , IMIA_MSG_SEND , this->ID) , ACTS_DISABLED);
     SetProp(hwndMsg , "SENDING" , (void*)1);
 	m.body = (char*)buff.c_str(); //wrzucamy najaktualniejsza wersje
-    IMessage(IMC_NEWMESSAGE , 0 , 0 , (int)&m);
+	ICMessage(IMC_NEWMESSAGE , (int)&m);
     int session = (int)GetProp(hwndMsg , "MsgSession");
     hist_add(&m , HISTDIR_MSG , this , 0 , session);
     if (!session) SetProp(hwndMsg , "MsgSession" , (void*)1);
@@ -167,9 +167,12 @@ void sUICnt::MsgWndOpen(bool queue , bool autoPopup) {
 		SetActiveWindow(hwndMsg);
 		SetWindowPos(hwndMsg , HWND_TOP , 0 , 0 , 0 , 0 , SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
 		SetFocus(GetDlgItem(hwndMsg , Act(sUIAction(IMIG_MSGWND , Konnekt::UI::ACT::msg_ctrlsend , this->ID)).index));
-	} else
+	} else {
 		ShowWindow(hwndMsg, popup == CFG::mpBackground ? SW_SHOWNOACTIVATE : popup == CFG::mpMinimized ? SW_SHOWMINNOACTIVE : SW_SHOW);
-	if (queue) ICMessage(IMC_MESSAGEQUEUE , (int)&sMESSAGESELECT(net , GETCNTC(this->ID,CNT_UID) , -1 , 0 , MF_SEND));
+	}
+	if (queue) {
+		ICMessage(IMC_MESSAGEQUEUE , (int)&sMESSAGESELECT(net , GETCNTC(this->ID,CNT_UID) , -1 , 0 , MF_SEND));
+	}
 }
 void sUICnt::MsgWndClose(){
     this->hwndMsg = 0;
@@ -324,7 +327,7 @@ void cUICnts::closeAll() {
   }
 
   void cUICnts::checkActivity(bool force) {
-	  static lastCheck = time(0);
+	  static int lastCheck = time(0);
 	  if (force || time(0)-lastCheck > 600) {
 		  for (Cnt_it_t it=this->Cnt.begin(); it!=Cnt.end(); it++)
 			  it->second->checkActivity();
@@ -642,7 +645,7 @@ int CALLBACK sortList_compare(LPARAM p1, LPARAM p2, LPARAM lParam) {
 
 
 
-dragdropList(HWND hwnd, UINT message , WPARAM wParam , LPARAM lParam )
+int dragdropList(HWND hwnd, UINT message , WPARAM wParam , LPARAM lParam )
 {
    static bool dragging = false;
    static int dragIndex = -1;

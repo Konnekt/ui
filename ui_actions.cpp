@@ -113,13 +113,13 @@ void HTMLInfoStyleCB(const CStdString & token , const CStdString & style , cRich
 int cUIAction::call(unsigned int code , int notify1,int notify2,int cnt) {
   sUIActionNotify_2params an = notify(code , notify1 , notify2);
   if (cnt != AC_CURRENT) an.act.cnt = cnt;
-  return IMessageDirect(IM_UIACTION , owner , (int)&an);
+  return IMessageDirect(IM_UIACTION , (tPluginId)owner , (int)&an);
 }
 
 int cUIAction::call(sUIActionNotify_base * an) {
 	an->act = this->act((an->act.cnt == AC_CURRENT)? this->cnt : an->act.cnt);
 //	this->setCnt(an->act.cnt);
-    return IMessageDirect(IM_UIACTION , owner , (int)an);
+    return IMessageDirect(IM_UIACTION , (tPluginId)owner , (int)an);
 }
 
 void cUIAction::getInfo(sUIActionInfo * ai) {
@@ -207,7 +207,7 @@ cUIGroup::setId(int id,cUIAction & v) {
 }
 */
 
-cUIAction * cUIGroup::insert (int id , int pos , const char * txt, int status,int p1 , short w , short h , int p2 , int param , int exstyle , int owner) {
+cUIAction * cUIGroup::insert (int id , int pos , const char * txt, int status,int p1 , short w , short h , int p2 , int param , int exstyle , tPluginId owner) {
   sUIActionInfo ai;
   ai.act.id = id;
   ai.act.parent = this->id;
@@ -224,7 +224,7 @@ cUIAction * cUIGroup::insert (int id , int pos , const char * txt, int status,in
   return insert(&ai , owner);
 }
 
-cUIAction * cUIGroup::cfginsert (int id , int pos , const char * txt, int status,int p1 , short x , short y , short w , short h , int p2 , int param , int exstyle , int owner) {
+cUIAction * cUIGroup::cfginsert (int id , int pos , const char * txt, int status,int p1 , short x , short y , short w , short h , int p2 , int param , int exstyle , tPluginId owner) {
   sUIActionInfo_cfg ai;
   ai.act.id = id;
   ai.act.parent = this->id;
@@ -348,7 +348,7 @@ int cUIGroup::findHandle (void * handle) {
   return -1;
 }
 
-cUIAction * cUIGroup::insert (sUIActionInfo * ai , int owner) {
+cUIAction * cUIGroup::insert (sUIActionInfo * ai , tPluginId owner) {
   if (ai->act.id==-1 || ai->act.id == IMIB_CFG) ai->act.id = IMIB_CFG|ai->p1;
   else if (ai->act.id==-2 || ai->act.id == IMIB_CNT) ai->act.id = IMIB_CNT|ai->p1;
 
@@ -418,7 +418,8 @@ cUIAction::cUIAction() {type = parent = id = status = exstyle = w = h = 0;
                         pparent = 0;
                         txt="";
                         params="";
-                        index=owner=p1=p2=userParam=0;
+                        index=p1=p2=userParam=0;
+						owner=(tPluginId)0;
                         #ifdef __DEBUG
                           dbg=0;
                         #endif
@@ -620,20 +621,22 @@ void TipActionTaskBar::fillCache() {
 	if (GETINT(CFG_UITRAYTOOLTIPSHOWSTATUS)) {
 		int c = IMessage(IMC_PLUG_COUNT);
 		for (int i=0;i<c;i++) {
-			int id=IMessage(IMC_PLUG_ID,0,0,i);
-			if (IMessageDirect(IM_PLUG_TYPE , id) & (IMT_PROTOCOL | IMT_NET)) {
-				int status = IMessageDirect(IM_GET_STATUS, id);
+			oPlugin plugin = Ctrl->getPlugin((tPluginId)i);
+			if (plugin->getType() & (IMT_PROTOCOL | IMT_NET)) {
+				int status = plugin->IMessageDirect(IM_GET_STATUS);
 				if (Ctrl->getError() == IMERROR_NORESULT) continue;
-				int net = IMessageDirect(IM_PLUG_NET, id);
-				CStdString statusInfo = SAFECHAR((char*)IMessageDirect(IM_GET_STATUSINFO , id));
-				CStdString netName = SAFECHAR((char*)IMessageDirect(IM_PLUG_NETNAME , id));
+				int net = plugin->getNet();
+				String statusInfo = SAFECHAR((char*)plugin->IMessageDirect(IM_GET_STATUSINFO));
+				String netName = plugin->getNetName();
 	//			tip->add(new ToolTipX::TipOnlyTitle(netName + string(": ") + getStatusName(status), Ico.getImageList(IML_16), Ico.getIconIndex(UIIcon(IT_STATUS, net, status, 0), IML_16), font));
 				tip->add(new ToolTipX::TipOnlyTitle("", (HICON)Ico.iconGet(UIIcon(IT_STATUS, net, status, 0), IML_ICO2), true, font), ToolTipX::Tip::alignWrap);
-				CStdString text = netName + string(": ") + getStatusName(status);
+				String text = netName;
+				text += ": ";
+				text += getStatusName(status);
 				if (!statusInfo.empty()) {
 					text += "\r\n" + statusInfo;
 				}
-				tip->add(new ToolTipX::TipText(text, font, 150), ToolTipX::Tip::alignRight);
+				tip->add(new ToolTipX::TipText(text.c_str(), font, 150), ToolTipX::Tip::alignRight);
 
 //				tip->add(new ToolTipX::TipOnlyTitle(netName + string(": ") + getStatusName(status), (HICON)Ico.iconGet(UIIcon(IT_STATUS, net, status, 0), IML_ICO2), true, font));
 			}

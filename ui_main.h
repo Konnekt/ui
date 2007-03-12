@@ -227,7 +227,7 @@ UIEXTERN str_critical critical; // Critical Sections
 
 int CNotify(int pos);
 int IPrepare();
-UISet();
+int UISet();
 void UISetAlpha();
 
 int CALLBACK InfoDialogProc(HWND hwndDlg,UINT uMsg,WPARAM wParam,LPARAM lParam);

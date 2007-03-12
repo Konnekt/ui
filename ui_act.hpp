@@ -24,7 +24,7 @@ int ActionProc(sUIActionNotify_base * anBase) {
        } else
        if (an->code == ACTN_ACTION) {
          if (uiPos<0) return 0;
-         IMessageDirect(IMI_CNT_DETAILS,0,an->act.cnt);
+         ICMessage(IMI_CNT_DETAILS,an->act.cnt);
        }
        break;
     case IMIA_CNT_HISTORY:
@@ -94,7 +94,7 @@ int ActionProc(sUIActionNotify_base * anBase) {
                mw.type = MT_MESSAGE;
                mw.woflag = MF_SEND;
                ActionStatus(an->act ,
-					(IMessage(IMC_MESSAGEWAITING ,0,0,(int)&mw))
+					(ICMessage(IMC_MESSAGEWAITING ,(int)&mw))
 					? 0 : ACTS_HIDDEN);
             }
        }
@@ -105,7 +105,7 @@ int ActionProc(sUIActionNotify_base * anBase) {
        break;
     case IMIA_MAIN_OPTIONS_CFG: case IMIG_MAIN_OPTIONS:
        ACTIONONLY(an);
-         IMessageDirect(IMI_CONFIG);
+         IMessageDirect(IMI_CONFIG, pluginUI);
        break;
 	case IMIG_MSGWND:
 		if (anBase->code == ACTN_SETCNT) {
@@ -126,7 +126,7 @@ int ActionProc(sUIActionNotify_base * anBase) {
        break;
     case IMIA_MSG_INFO:
        ACTIONONLY(an);
-       IMessageDirect(IMI_CNT_DETAILS,0,an->act.cnt);
+       ICMessage(IMI_CNT_DETAILS,an->act.cnt);
        break;
     case IMIA_MSG_HISTORY:
        ACTIONONLY(an);
@@ -168,7 +168,7 @@ int ActionProc(sUIActionNotify_base * anBase) {
 
     case IMIA_MAIN_DEBUG:
        ACTIONONLY(an);
-       IMessage(IMC_DEBUG , 0 , 0 , 1);
+       ICMessage(IMC_DEBUG , 1);
        break;
 	case IMIA_MAIN_DEBUG_ICO:
 		ACTIONONLY(an);
@@ -183,12 +183,12 @@ int ActionProc(sUIActionNotify_base * anBase) {
 		if (an->code == ACTN_CREATE) {
 			ActionStatus(an->act , ICMessage(IMC_GETBETAANONYMOUS) ? ACTS_HIDDEN : 0);
 		} else if (an->code == ACTN_ACTION) {
-			IMessage(IMC_REPORT , 0 , 0 , 1);
+			ICMessage(IMC_REPORT , 1);
 		}
        break;
     case IMIA_MAIN_BETA:
        ACTIONONLY(an);
-       IMessage(IMC_BETA , 0 , 0 , 1);
+       ICMessage(IMC_BETA , 1);
        break;
 
 	case IMIA_MAIN_ABOUT: case IMIG_MAIN: {
@@ -243,7 +243,7 @@ int ActionProc(sUIActionNotify_base * anBase) {
            sDIALOG_enter sd;
            sd.title = "nowy Profil";
            sd.info = "Podaj nazwê nowego profilu ...";
-           if (!IMessage(IMI_DLGENTER , 0 , 0 , (int)&sd)) return 0;
+           if (!ICMessage(IMI_DLGENTER , (int)&sd)) return 0;
            if (!*sd.value) return 0;
            ICMessage(IMC_PROFILECHANGE , (int)sd.value , 1);
          }
@@ -276,7 +276,7 @@ int ActionProc(sUIActionNotify_base * anBase) {
                   mw.uid = "";
                   mw.type = MT_SERVEREVENT;
                   ActionStatus(an->act ,
-                    (IMessage(IMC_MESSAGEWAITING ,0,0,(int)&mw))
+                    (ICMessage(IMC_MESSAGEWAITING ,(int)&mw))
                     ? 0 : ACTS_HIDDEN);
                 }
        break;
@@ -418,7 +418,7 @@ int ActionProc(sUIActionNotify_base * anBase) {
                        m.body = "Testooooowaaaaa\r\nWiadomoœæ\r\nDo Ciebie";
                        m.ext = "";
                        m.flag = MF_HANDLEDBYUI;
-                       IMessage(IMC_NEWMESSAGE , 0,0,(int)&m,0);
+                       ICMessage(IMC_NEWMESSAGE , (int)&m,0);
                        ICMessage(IMC_MESSAGEQUEUE , (int)&sMESSAGESELECT(m.net , m.fromUid , m.type , 0 , MF_SEND));
        }
        break;
@@ -433,7 +433,7 @@ int ActionProc(sUIActionNotify_base * anBase) {
                        m.body = "Wiadomoœæ od serwera";
                        m.ext = "";
                        m.flag = MF_HANDLEDBYUI;
-                       IMessage(IMC_NEWMESSAGE , 0,0,(int)&m,0);
+                       ICMessage(IMC_NEWMESSAGE , (int)&m,0);
                        ICMessage(IMC_MESSAGEQUEUE , (int)&sMESSAGESELECT(m.net , m.fromUid , m.type , 0 , MF_SEND));
        }
        break;
@@ -511,7 +511,7 @@ int ActionProc(sUIActionNotify_base * anBase) {
 				SendMessage(ancw->hwnd , EM_SETCHARFORMAT , SCF_ALL , (LPARAM)&cf);
 			    //SendMessage(ancw->hwnd , EM_SETCHARFORMAT , SCF_SELECTION , (LPARAM)&cf);
                 SetProp(ancw->hwnd, "OldWindowProc", (HANDLE)SetWindowLong(ancw->hwnd , GWL_WNDPROC , (long)EditMsgControlProc));
-				SendMessage(ancw->hwnd , EM_LIMITTEXT , IMessage(IM_MSG_CHARLIMIT , GETCNTI(anBase->act.cnt , CNT_NET)) , 0);
+				SendMessage(ancw->hwnd , EM_LIMITTEXT , IMessage(IM_MSG_CHARLIMIT , (Net::tNet)GETCNTI(anBase->act.cnt , CNT_NET)) , 0);
 				ShowCaret(ancw->hwnd);
 				break;}
 			case ACTN_DESTROYWINDOW: {

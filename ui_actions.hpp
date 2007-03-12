@@ -55,8 +55,9 @@ struct GroupBoxFilledSubClass {
 		// Call the original window procedure for default processing. 
 		return CallWindowProc(oldProc, hwnd, msg, wParam, lParam); 
 	}
-	static SubClass(HWND hwnd) {
+	static int SubClass(HWND hwnd) {
 		oldProc = (WNDPROC)SetWindowLong(hwnd , GWL_WNDPROC , (LONG)WndProc);
+		return 1;
 	}
 };
 WNDPROC GroupBoxFilledSubClass::oldProc = 0;
@@ -209,70 +210,78 @@ string funkcja() {
   return str;
 }
 
-const char * getCfgValue(cUIAction & a , char * buff , int size) {
+String getCfgValue(cUIAction & a) {
 	int type;
-	const char * ch = "";
+	String value;
 	if ((a.type & ACT_FORCNT && a.cnt == AC_NONE)) return "";
 	if (a.p1 && !(a.status & ACTR_NODATASTORE)) {
-		type=Ctrl->DTgetType((a.type & ACT_FORCNT)?DTCNT:DTCFG , a.p1&0x0FFFFFFF);
-	//    if (!buff) {buff = TLS().buff;size = MAX_STRING;}
 
-		tTableId db = (a.type & ACT_FORCNT)?DTCNT : DTCFG;
-		int row = (a.type & ACT_FORCNT)?a.cnt : 0;
-		Tables::Value v(Tables::ctypeString);
-		Ctrl->DTget(db , row , a.p1&0x0FFFFFFF , &v);
-		ch = v.vCChar?v.vCChar:"";
-		if (buff/* != TLS().buff*/) {strncpy(buff , ch , size);ch = buff;}
+		Tables::oTable dt = Ctrl->getTable((a.type & ACT_FORCNT)?DTCNT : DTCFG);
+		Tables::oColumn col = dt->getColumn((Tables::tColId)(a.p1&0x0FFFFFFF));
+		Tables::oRow row = dt->getRow((Tables::tRowId) ((a.type & ACT_FORCNT) ? a.cnt : 0));
+
+		type = col->getType();
+		value = col->getString(row);
+
 	};
 	if (a.id && (!a.p1 || a.status & ACTR_CONVERT)) { // Pobieramy cala wartosc, lub tylko sprawdzamy to, co juz pobralismy...
 		sUIActionNotify_buff an;
 		an.act = a.act();
-		type=!(a.status & ACTSC_INT);
-		if (!buff) {buff = TLS().buff;size = MAX_STRING;
-			strncpy(buff , ch , size);
-		} else if (!*ch) buff[0]=0;
-  		an.buff=buff;
-		an.buffSize=size;
+		type = !(a.status & ACTSC_INT);
+
+		String buff = value;
+
+		an.buff = buff.useBuffer<char>(MAX_STRING);
+		an.buffSize = buff.getBufferSize<char>();
+
 		an.code = ACTN_GET;
 		a.call(&an);
 		an.code = ACTN_CONVERT_TO;
 		a.call(&an);
 	//    if (a.status & ACTS_CHECK) IMessageDirect(IM_UIACTION , a.owner , (int)sa , ACTF_CHECK);
-		return (char*)SAFECHAR(an.buff);
+		
+		value = (char*)SAFECHAR(an.buff);
   }
-  return ch;
+  return value;
 }
 
-void setCfgValue(cUIAction & a , char * v , size_t size) {
+void setCfgValue(cUIAction & a , StringRef v) {
     if ((a.type & ACT_FORCNT && a.cnt == AC_NONE)) return;
 	sUIActionNotify_buff an;
 	an.act = a.act();
     if (a.id && (!a.p1 || a.status & ACTR_CONVERT)) {
-        an.buff=v;
-		an.buffSize=size;
+		char* tempBuff = v.useBuffer<char>();
+		an.buff = tempBuff;
+		an.buffSize = v.getBufferSize<char>();
 		an.code = ACTN_CONVERT_FROM;
 		a.call(&an);
 		an.code = ACTN_SET;
 		a.call(&an);
-        if (an.buff) v=an.buff; else return;
+		if (an.buff) {
+			v.releaseBuffer<char>();
+			v = an.buff;
+		} else {
+			return;
+		}
     }
     if (a.p1 && !(a.status & ACTR_NODATASTORE)) {
-        tTableId db = (a.type & ACT_FORCNT)?DTCNT : DTCFG;
-        int row = (a.type & ACT_FORCNT)?a.cnt : 0;
-		Tables::Value val(Tables::ctypeString);
+		Tables::oTable dt = Ctrl->getTable((a.type & ACT_FORCNT)?DTCNT : DTCFG);
+		Tables::oColumn col = dt->getColumn((Tables::tColId)(a.p1&0x0FFFFFFF));
+		Tables::oRow row = dt->getRow((Tables::tRowId) ((a.type & ACT_FORCNT) ? a.cnt : 0));
+
         if (a.status & ACTSC_NEEDRESTART) {
-            Ctrl->DTget(db , row , a.p1&0x0FFFFFFF , &val);
-            if (strcmp(v , val.vCChar)) {cfgNeedRestart++;}
+			if (col->getString(row) != v) {
+				cfgNeedRestart++;
+			}
         }
-        val.vCChar = v;
-        Ctrl->DTset(db , row , a.p1&0x0FFFFFFF , &val);
+		col->setString(row, v);
     }
 }
 
-const char * checkCfgValue(cUIAction & a,char * v) {
-  sUIActionNotify an=sUIActionNotify(a.act() , ACTN_CHECK , (int)v , 0);
-  IMessageDirect(IM_UIACTION , a.owner , (int)&an);
-  return (char*)an.notify1;
+String checkCfgValue(cUIAction & a,const StringRef& v) {
+	sUIActionNotify an=sUIActionNotify(a.act() , ACTN_CHECK , (int)v.a_str() , 0);
+	IMessageDirect(IM_UIACTION , (tPluginId)a.owner , (int)&an);
+	return (char*)an.notify1;
 }
 
 HWND getCfgHandle(cUIAction & act) {
@@ -333,7 +342,7 @@ HWND makeCfgProp(cUIGroup & g ) {
        an.act=g[i].act();
        an.code=ACTN_CREATE;
        an.notify1 = (int)hWnd;
-       IMessageDirect(IM_UIACTION , g[i].owner , (int)&an);
+       IMessageDirect(IM_UIACTION , (tPluginId)g[i].owner , (int)&an);
 //       if ((g[i].status & ACTS_TYPEMASK)==ACTS_TWND) { // ustawia x,y dla TWND
 //         x=LOWORD(sa->p1);
 //         y=HIWORD(sa->p1);
@@ -454,7 +463,7 @@ HWND makeCfgProp(cUIGroup & g ) {
             ,x,y,w,h,hWnd,(HMENU)g[i].index,hInst,0);
           wndCreate=false;
           //if (!(g[i].status & ACTSC_INLINE)) g[i].status |= ACTSC_FULLWIDTH;
-          SendMessage((HWND)g[i].handle , BM_SETCHECK , (getCfgValue(g[i])[0]!='0')?BST_CHECKED:BST_UNCHECKED , 0);
+          SendMessage((HWND)g[i].handle , BM_SETCHECK , (getCfgValue(g[i])!="0")?BST_CHECKED:BST_UNCHECKED , 0);
           break;
        case ACTT_IMAGE: {
           wndCreate=false;
@@ -530,7 +539,7 @@ HWND makeCfgProp(cUIGroup & g ) {
             | ((g[i].status & ACTM_TYPE)==ACTT_PASSWORD ? ES_PASSWORD:0)
 			| (g[i].status & ACTSEDIT_READONLY?ES_READONLY:0)
 			;
-          wndTxt = getCfgValue(g[i]);
+		  wndTxt = getCfgValue(g[i]).c_str();
           break;
        case ACTT_TEXT:
           h = h?h : -4;
@@ -543,7 +552,7 @@ HWND makeCfgProp(cUIGroup & g ) {
             | (g[i].status&ACTSC_INT?ES_NUMBER:0)  |WS_TABSTOP | ES_MULTILINE |ES_WANTRETURN|WS_VSCROLL
 			| (g[i].status & ACTSEDIT_READONLY?ES_READONLY:0)
 			;
-          wndTxt = getCfgValue(g[i]);
+		  wndTxt = getCfgValue(g[i]).c_str();
           break;
        case ACTT_GROUP:
           if (!w) {
@@ -574,7 +583,7 @@ HWND makeCfgProp(cUIGroup & g ) {
 	   case ACTT_FILE: case ACTT_DIR:{
           w = w?w:200;
           h = h?h:fontHeight + 6;
-          g[i].handle=CreateWindowEx(WS_EX_CLIENTEDGE , "EDIT",getCfgValue(g[i]) , WS_VISIBLE|WS_CHILD|ES_AUTOHSCROLL | WS_TABSTOP | CFGDISABLED(g[i])
+		  g[i].handle=CreateWindowEx(WS_EX_CLIENTEDGE , "EDIT", getCfgValue(g[i]).c_str() , WS_VISIBLE|WS_CHILD|ES_AUTOHSCROLL | WS_TABSTOP | CFGDISABLED(g[i])
             ,x,y,w,h,hWnd,(HMENU)g[i].index,hInst,0);
 //          item = CreateWindow("BUTTON","..." , WS_VISIBLE|WS_CHILD|BS_PUSHBUTTON |  CFGDISABLED(g[i])
 //            ,x+w+2,y,2*h,h,hWnd,0,hInst,0);
@@ -593,7 +602,7 @@ HWND makeCfgProp(cUIGroup & g ) {
        case ACTT_COLOR: {
           w = w?w:50;              
           h = h?h:fontHeight + 6;
-          CColorPicker * CP = new CColorPicker(atoi(getCfgValue(g[i])) , WS_VISIBLE|WS_CHILD|CFGDISABLED(g[i])
+		  CColorPicker * CP = new CColorPicker(atoi(getCfgValue(g[i]).a_str()) , WS_VISIBLE|WS_CHILD|CFGDISABLED(g[i])
               | (g[i].status & ACTSCOLOR_CHECKBOX?CP_CHECKBOX:0)
               ,x,y,w,h,hWnd,(HMENU)g[i].index,hInst,0);
           g[i].handle = (HWND) CP->_hwnd;
@@ -604,7 +613,7 @@ HWND makeCfgProp(cUIGroup & g ) {
        case ACTT_FONT: {
           w = w?w:100;              
           h = h?h:fontHeight + 6;
-          CFontPicker * FP = new CFontPicker(g[i].txt.c_str(), getCfgValue(g[i]) 
+		  CFontPicker * FP = new CFontPicker(g[i].txt.c_str(), getCfgValue(g[i]).c_str() 
               ,  (g[i].status & ACTSFONT_NOCOLOR?CF_NOCOLORSEL:0) 
                 |(g[i].status & ACTSFONT_NOBGCOLOR?CF_NOBGCOLORSEL:0)
                 |(g[i].status & ACTSFONT_NOFACE?CF_NOFACESEL|CF_NOSCRIPTSEL:0)
@@ -719,7 +728,7 @@ HWND makeCfgProp(cUIGroup & g ) {
 	   case ACTT_SPINNER:  {
           w = w?w:100;
           h = h?h:fontHeight + 6;
-          g[i].handle=CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT",getCfgValue(g[i]) 
+		  g[i].handle=CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT",getCfgValue(g[i]).c_str() 
 			  , WS_VISIBLE|WS_CHILD|CFGDISABLED(g[i])|ES_AUTOHSCROLL|ES_NUMBER
                 | (curType!=lastType?WS_TABSTOP:0)
             ,x,y,w,h,hWnd,(HMENU)g[i].index,hInst,0);
@@ -977,12 +986,12 @@ void destroyActionsTree(cUIGroup & g) {
 	g.handle = 0;
 }
 
-const char * getActionValue(cUIAction & act , char * buff, size_t size , bool convert , size_t * newSize) {
-	   bool strUsed = false;
-	   if (!buff) {size = BIG_STRING; buff = TLS().str.GetBuffer(size+1);strUsed=true;}
+String getActionValue(cUIAction & act , bool convert) {
        cUIAction_cfg * actc = (cUIAction_cfg *)&act;
-       *buff = 0; 
+	   String value;
 	   if (act.handle) {
+		   char* buff = value.useBuffer<char>(BIG_STRING);
+		   int size = BIG_STRING;
          switch (act.status & ACTM_TYPE) {
            case ACTT_COMBO:
                actc->getComboValue(buff , size);
@@ -1004,51 +1013,55 @@ const char * getActionValue(cUIAction & act , char * buff, size_t size , bool co
              SendMessage((HWND)act.handle , WM_GETTEXT , size,(LPARAM)buff);
              break;
          }
+		 value.releaseBuffer<char>();
 	   } else { /* skoro nie zosta³a stworzona kontrolka, spróbujemy odczytaæ wartoœæ z tablicy... */
-		   getCfgValue(act , buff , size);
+		   value = getCfgValue(act);
 	   }
 	   if (convert && act.id && (!act.p1 || act.status & ACTR_CONVERT)) {
+		   char* buff = value.useBuffer<char>(BIG_STRING);
+		   int size = BIG_STRING;
 		   sUIActionNotify_2params n (ACTN_CONVERT_FROM , (int)buff , size);
 		   act.call(&n);
-		   buff = (char *) n.notify1;
-		   size = n.notify2;
+		   if (buff != (char*)n.notify1) {
+			   value = (char *) n.notify1;
+		   } else {
+			   value.releaseBuffer<char>();
+		   }
 	   }
-   	   if (newSize) 
-		   *newSize = size;
-	   if (strUsed) {TLS().str.ReleaseBuffer();}
-	   return buff;
+ 
+	   return value;
 }
-const char * setActionValue(cUIAction & act , const char * buff , bool convert) {
-       if (!buff) {buff = "";}
+String setActionValue(cUIAction & act , StringRef value , bool convert) {
        cUIAction_cfg * actc = (cUIAction_cfg *)&act;
 	   if (convert && act.id && (!act.p1 || act.status & ACTR_CONVERT)) {
-		   sUIActionNotify_2params n (ACTN_CONVERT_TO , (int)buff , strlen(buff)+1);
+		   sUIActionNotify_2params n (ACTN_CONVERT_TO , (int)value.useBuffer<char>() , value.getBufferSize<char>());
 		   act.call(&n);
-		   buff = (char*) n.notify1;
+		   value.releaseBuffer<char>();
+		   value = (char*) n.notify1;
 	   }
 	   if (act.handle) {
          switch (act.status & ACTM_TYPE) {
            case ACTT_COMBO:
-               actc->setComboValue(buff);
+			   actc->setComboValue(value.a_str());
                break;
            case ACTT_TIME:
-               actc->setTimeValue(buff);
+               actc->setTimeValue(value.a_str());
                break;
            case ACTT_CHECK:
-             SendMessage((HWND)act.handle , BM_SETCHECK , *buff=='1'?BST_CHECKED:BST_UNCHECKED,0);
+             SendMessage((HWND)act.handle , BM_SETCHECK , value == "1" ? BST_CHECKED:BST_UNCHECKED,0);
              break;
            case ACTT_RADIO:
-               actc->setRadioValue(buff);
+               actc->setRadioValue(value.a_str());
                break;
            case ACTT_SLIDER:
-               actc->setSliderValue(buff);
+               actc->setSliderValue(value.a_str());
                break;
 		   case ACTT_EDIT: case ACTT_TEXT : case ACTT_PASSWORD: case ACTT_FILE : case ACTT_DIR: case ACTT_COLOR: case ACTT_FONT: case ACTT_SPINNER:
-               SendMessage((HWND)act.handle , WM_SETTEXT , 0 , (LPARAM)buff);
+               SendMessage((HWND)act.handle , WM_SETTEXT , 0 , (LPARAM)value.a_str());
              break;
          }
 	   }
-       return buff;
+       return value;
 }
 
 void saveCfg(cUIAction * a) {
@@ -1057,16 +1070,14 @@ void saveCfg(cUIAction * a) {
        if (g[i].status & ACTR_SAVE) g[i].call(ACTN_SAVE , 0 , 0);
        if (g[i].status & ACTS_GROUP) {saveCfg(&g[i]);continue;}
        if (g[i].handle) {
-		   size_t size = 0;
-		   char * buff = (char *)getActionValue(g[i] , 0 , 0 , false , &size);
-           setCfgValue(g[i] , buff , size);
+           setCfgValue(g[i] , getActionValue(g[i], false));
        }
      }
 //     IMessageDirect(IM_UIACTION , g.owner , (int)g.fill() , ACTF_DESTROY);
      if (!(g.pparent->type & ACT_CFGBRANCH)) { // Pierwszy w confige'u
          if (g.type & ACT_WNDCFG) {
               IMessage(IM_CFG_CHANGED,NET_BC , IMT_CONFIG);
-              IMessageDirect(IM_CFG_CHANGED);
+			  IMessageDirect(IM_CFG_CHANGED, pluginUI);
               ICMessage(IMC_SAVE_CFG);
               ICMessage(IMC_SAVE_CNT);
          }

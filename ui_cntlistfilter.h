@@ -29,7 +29,7 @@ namespace UI {
 				this->hidden = hidden;
 				this->ico = ico;
 				this->name = name;
-				static lastID = 0;
+				static int lastID = 0;
 				this->id = lastID ++;
 				this->cfgID = cfgID;
 			}

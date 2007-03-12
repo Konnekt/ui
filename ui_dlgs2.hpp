@@ -219,7 +219,7 @@ void SearchDialogSearch(HWND hwnd) {
   EnableWindow(GetDlgItem(hwnd , IDOK) , 0);
   src.net = cbi.lParam;
   src.handle = hwnd;
-  IMessage(IM_CNT_SEARCH , cbi.lParam , IMT_PROTOCOL , (int)&src);
+  IMessage(IM_CNT_SEARCH , (Net::tNet)cbi.lParam , IMT_PROTOCOL , (int)&src);
   EnableWindow(hwnd , true);
   SetForegroundWindow(hwnd);
   SetActiveWindow(hwnd);
@@ -324,7 +324,7 @@ int CALLBACK SearchDialogProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam
    HWND item;
    int i , b , c;
    static HIMAGELIST himl;
-   static sort = 1;
+   static int sort = 1;
    __int64 big;
    switch (message)
    {

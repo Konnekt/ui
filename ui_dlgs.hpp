@@ -8,35 +8,31 @@ void InfoDialogLoad(HWND hwndDlg , int pos) {
 
 string InfoGetDisplay(int cntID) {
     sUIAction act = sUIAction(IMIG_NFO_DETAILS , CNT_DISPLAY|IMIB_CNT , cntID);
-    getActionValue(Act(act) , TLS().buff , MAX_STRING);
-    CStdString s = TLS().buff+string("\n");
+    String s = getActionValue(Act(act)) + "\n";
 
 	CStdString format = GETSTR(CFG_UICNT_CREATEDISPLAY_FORMAT);
 	if (format.empty()) {// standardowe podejœcie
 		act.id = IMIB_CNT|CNT_NICK;
-		getActionValue(Act(act) , TLS().buff , MAX_STRING2);
-		if (*TLS().buff) s+=TLS().buff + string("\n");
+		String nick = getActionValue(Act(act));
+		if (nick.empty() == false) s += nick + "\n";
 		act.id = IMIB_CNT|CNT_NAME;
-		getActionValue(Act(act) , TLS().buff , MAX_STRING2);
+		String name = getActionValue(Act(act));
 		act.id = IMIB_CNT|CNT_SURNAME;
-		getActionValue(Act(act) , TLS().buff2 , MAX_STRING2);
-		if (*TLS().buff || *TLS().buff2) {
-			if (*TLS().buff2) s+=TLS().buff2;
-			if (TLS().buff && *TLS().buff2) s+=" ";
-			if (*TLS().buff) s+=TLS().buff;
+		String surname = getActionValue(Act(act));
+		if (name.empty() != false || surname.empty() != false) {
+			if (surname.empty() != false) s += surname;
+			if (name.empty() != false && surname.empty() != false) s+=" ";
+			if (name.empty() != false) s+=name;
 			s+="\n";
 		}
-		if (*TLS().buff) {TLS().buff[1]='.'; TLS().buff[2]=' '; strcpy(TLS().buff+3, TLS().buff2);}
-			else strcpy(TLS().buff , TLS().buff2);
-		if (*TLS().buff) s+=TLS().buff + string("\n");
 		act.id = IMIB_CNT|CNT_UID;
-		getActionValue(Act(act) , TLS().buff , MAX_STRING2);
-		if (*TLS().buff) s+=TLS().buff + string("\n");
+		String uid = getActionValue(Act(act));
+		if (!uid.empty()) s += uid + "\n";
 	} else {
 		s += formatTitle(format, cntID, FT_DISPLAYPROPOSAL) + "\n";
 		cPreg preg(false);
-		s.Replace("\r","");
-		s = preg.replace("/\\n{2,}/","\n", s);
+		s.replace("\r","");
+		s = preg.replace("/\\n{2,}/","\n", s.a_str());
 	}
     return s;
 }
@@ -54,7 +50,7 @@ void InfoDialogSave(int cntID , bool upload) {
             display = display.substr(display.find('\n')+1);
             display = display.substr(0,display.find('\n'));
         }
-        setActionValue(Act(sUIAction(IMIG_NFO_DETAILS , CNT_DISPLAY|IMIB_CNT , cntID)) , display.c_str());
+        setActionValue(Act(sUIAction(IMIG_NFO_DETAILS , CNT_DISPLAY|IMIB_CNT , cntID)) , display);
     }
     bool fill = false;
     CStdString oldUID = GETCNTC(cntID , CNT_UID);
@@ -67,8 +63,8 @@ void InfoDialogSave(int cntID , bool upload) {
 	bool changedGroup = GETCNTC(cntID , CNT_GROUP) != oldGroup;
     if (1 /*zakladamy ze zawsze sie cos zmienia*/ || changedNet || changedUid || changedGroup || GETCNTI(cntID , CNT_INTERNAL)&CNT_INTERNAL_adding) {
         sIMessage_CntChanged icc(IMC_CNT_CHANGED , cntID);
-        icc.net = 0;
-        icc.type = 0;
+		icc.net = Net::core;
+		icc.type = imtCore;
         if (changedGroup) {
 			icc._changed.group = 1;
 		}
@@ -89,7 +85,7 @@ void InfoDialogSave(int cntID , bool upload) {
 		IMessage(IM_CNT_UPLOAD,NET_BC,IMT_CONTACT,cntID,0);
 		EnableWindow(Cnt[cntID].hwndInfo , true);
 	}
-    IMessageDirect(IMI_REFRESH_CNT ,0, cntID);
+    ICMessage(IMI_REFRESH_CNT ,cntID);
 //    checkinList(cntID);
     if (fill) {
         cntList.refill();
@@ -137,14 +133,16 @@ void NetFillIn(HWND item , int type , int sel = -1) {
     cbi.iItem = -1;
     int c = IMessage(IMC_PLUG_COUNT);
     for (int i=0;i<c;i++) {
-            int b=IMessage(IMC_PLUG_ID,0,0,i);
-            if (IMessageDirect(IM_PLUG_TYPE , b) & type) {
-                cbi.pszText = (char*)IMessageDirect(IM_PLUG_NETNAME , b);
-                cbi.lParam = IMessageDirect(IM_PLUG_NET , b);
-                cbi.iImage = cbi.iSelectedImage = Ico[UIIcon(2, cbi.lParam ,0,0)].index[0];
-                int pos = SendMessage(item , CBEM_INSERTITEM , 0 , (LPARAM)&cbi);
-                if (sel>=0 && sel==cbi.lParam) {SendMessage(item , CB_SETCURSEL , pos , 0); sel = -2;}
-            }
+		oPlugin plugin = Ctrl->getPlugin((tPluginId) i);
+            
+		if (plugin->getType() & type) {
+			String name = plugin->getNetName();
+			cbi.pszText = (char*)name.a_str();
+			cbi.lParam = plugin->getNet();
+            cbi.iImage = cbi.iSelectedImage = Ico[UIIcon(2, cbi.lParam ,0,0)].index[0];
+            int pos = SendMessage(item , CBEM_INSERTITEM , 0 , (LPARAM)&cbi);
+            if (sel>=0 && sel==cbi.lParam) {SendMessage(item , CB_SETCURSEL , pos , 0); sel = -2;}
+        }
     }
     if (sel != -2) SendMessage(item , CB_SETCURSEL , 0 , 0);
 }
@@ -185,7 +183,7 @@ void InfoDialogSummary(int cnt , bool local) {
     CStdString sum = "";
 	cPreg preg(false);
     Act[IMIG_NFO].setCnt(cnt , true);
-    int d_gender = local?atoi(getActionValue(Act(CNT_GENDER|IMIB_CNT) , 0 , 0)) : GETCNTI(cnt , CNT_GENDER);
+	int d_gender = local?atoi(getActionValue(Act(CNT_GENDER|IMIB_CNT)).c_str()) : GETCNTI(cnt , CNT_GENDER);
 #define D_STRING(var , col) \
     CStdString var = CntGetInfoValue(local , cnt , col)
     D_STRING(d_name , CNT_NAME);
@@ -227,10 +225,10 @@ void InfoDialogSummary(int cnt , bool local) {
     D_STRING(d_uid , CNT_UID);
 
     int d_born = 0;
-    int d_net = local?atoi(getActionValue(Act(CNT_NET|IMIB_CNT) , 0 , 0)) : GETCNTI(cnt , CNT_NET);
+	int d_net = local?atoi(getActionValue(Act(CNT_NET|IMIB_CNT)).c_str()) : GETCNTI(cnt , CNT_NET);
 
     if (local) {
-        cDate64 time = _atoi64(getActionValue(Act(CNT_BORN|IMIB_CNT) , 0 , 0));
+		cDate64 time = _atoi64(getActionValue(Act(CNT_BORN|IMIB_CNT)).c_str());
         d_born = (BYTE)time.day | (BYTE)time.month << 8 | (WORD)time.year << 16;
     } else 
         d_born = GETCNTI(cnt , CNT_BORN);
@@ -269,7 +267,7 @@ void InfoDialogSummary(int cnt , bool local) {
     }
     sum+="</p><br/>"; // center
     if (d_net) {
-        char * net_name = (char*)IMessage(IM_PLUG_NETNAME , d_net , IMT_NET);
+		char * net_name = (char*)IMessage(IM_PLUG_NETNAME , (Net::tNet) d_net  , IMT_NET);
         if (net_name)
             sum+="<div class='var'>Sieæ:\t<span class='value'>" + string(net_name)
                 + "  #" + string(d_uid) + "</span></div>";

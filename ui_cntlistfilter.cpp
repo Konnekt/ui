@@ -70,7 +70,7 @@ enFilterResult cFilter_offline::Apply(const sUICnt * cnt) {
 
 cFilter_net::cFilter_net(int net) {
 	this->net = net;
-	char * netName = (char*)IMessage(IM_PLUG_NETNAME , net , IMT_NETUID);
+	char * netName = (char*)IMessage(IM_PLUG_NETNAME , (Net::tNet)net , IMT_NETUID);
 	if (!netName || !*netName) {
 		this->name = "Sieæ nr ";
 		this->name += inttoch(net);
@@ -145,9 +145,9 @@ void cFilters::Prepare() {
 	push_back(new cFilter_offline());
     int c = IMessage(IMC_PLUG_COUNT);
     for (int i=0;i<c;i++) {
-		int id=IMessage(IMC_PLUG_ID,0,0,i);
-		if (IMessageDirect(IM_PLUG_TYPE , id) & IMT_NETUID) {
-			push_back(new cFilter_net(IMessageDirect(IM_PLUG_NET , id)));
+		oPlugin plugin = Ctrl->getPlugin((tPluginId)i);
+		if (plugin->getType() & IMT_NETUID) {
+			push_back(new cFilter_net(plugin->getNet()));
         }
     }
 	push_back(new cFilter(ICON_USER , "__OTH" , "Pozosta³e" , false));

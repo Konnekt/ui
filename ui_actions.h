@@ -26,7 +26,7 @@ class cUIAction {
    int status; // flagi statusu
    int exstyle;  // dodatkowe flagi
    void * handle; // uchwyt
-   int owner;  // identyfikator wtyczki , ktora dodala akcje
+   tPluginId owner;  // identyfikator wtyczki , ktora dodala akcje
    int userParam;  // parametr uzytkownika
    int p1,p2;  // p1 - parametr typu grupy (np. konfiguracji)
                // w menu - ikonka , w cfg - kolumna do automatycznego zapisywania
@@ -99,16 +99,16 @@ class cUIGroup : public cUIAction {
   tAct Act;
   typedef deque <cUIAction*>::iterator t_Act_it;
   typedef t_Act_it Act_it_t ;
-  cUIGroup ():cUIAction() {count=0;handle=ghandle=0;owner=0;}
+  cUIGroup ():cUIAction() {count=0;handle=ghandle=0;owner=(tPluginId)0;}
   ~cUIGroup();
   cUIAction & operator [](int pos);
   cUIAction & operator ()(int id);
 
   int size() {return Act.size();}
 
-  cUIAction * insert (int id , int pos=-1 , const char * txt="", int status=0,int p1=0 , short w = 0 , short h = 0 , int p2=0, int param=0 , int exstyle=0 , int owner = 0);
-  cUIAction * cfginsert (int id , int pos=-1 , const char * txt="", int status=0,int p1=0 , short x=0 , short y=0 , short w = 0 , short h = 0 , int p2=0, int param=0 , int exstyle=0 , int owner = 0);
-  cUIAction * insert (sUIActionInfo * ai , int owner);
+  cUIAction * insert (int id , int pos=-1 , const char * txt="", int status=0,int p1=0 , short w = 0 , short h = 0 , int p2=0, int param=0 , int exstyle=0 , tPluginId owner = pluginUI);
+  cUIAction * cfginsert (int id , int pos=-1 , const char * txt="", int status=0,int p1=0 , short x=0 , short y=0 , short w = 0 , short h = 0 , int p2=0, int param=0 , int exstyle=0 , tPluginId owner = pluginUI);
+  cUIAction * insert (sUIActionInfo * ai , tPluginId owner);
   void move(int old_pos , int pos); // Przenosi akcje na nowa pozycje
   int remove (int pos);
   bool setCnt(unsigned int _cnt  , bool recursive=false);
@@ -199,7 +199,7 @@ class cUIActions {
   bool exists(int parent_id) {return Grp.find(parent_id)!=Grp.end();}
   bool exists(int parent , int id) {return exists(parent) && Grp[parent]->find(id)>=0;}
   bool exists(sUIAction & act) {return exists(act.parent) && Grp[act.parent]->find(act.id)>=0;}
-  cUIAction * insert (sUIActionInfo * ai , int owner) {
+  cUIAction * insert (sUIActionInfo * ai , tPluginId owner) {
     if (!exists(ai->act.parent)) return 0;
     return Grp[ai->act.parent]->insert(ai , owner);
   }
@@ -365,11 +365,11 @@ HWND makeToolBar(HWND hwndOwner , cUIGroup & g);
 void saveCfg(cUIAction * a = 0);
 HMENU makeActionsMenu(cUIGroup &  , int startFrom=0 , bool create=true);
 void makeCfgTree(cUIGroup & g);
-const char * checkCfgValue(cUIAction & a,char * v);
-void setCfgValue(cUIAction & a , char * v , size_t size);
-const char * getCfgValue(cUIAction & a , char * buff = 0 , int size = 0);
-const char * getActionValue(cUIAction & act , char * buff = 0, size_t size = 0 , bool convert = false , size_t * newSize = 0);
-const char * setActionValue(cUIAction & act , const char * buff , bool convert = false);
+String checkCfgValue(cUIAction & a, const StringRef& v);
+void setCfgValue(cUIAction & a , StringRef v);
+String getCfgValue(cUIAction & a);
+String getActionValue(cUIAction & act, bool convert = false);
+String setActionValue(cUIAction & act , StringRef buff , bool convert = false);
 int ActionStatus(sUIAction & a , int status=-1 , char * text=0 , int ico=-1);
 
 
@@ -385,11 +385,11 @@ int ActionStatus(sUIAction & a , int status=-1 , char * text=0 , int ico=-1);
  void destroyActionsMenu(cUIGroup & g);
 void makeCfgTree(cUIGroup & g , HWND tree);
 
-const char * getCfgValue(cUIAction & a , char * buff , int size);
+String getCfgValue(cUIAction & a);
 
-void setCfgValue(cUIAction & a , char * v);
+void setCfgValue(cUIAction & a , StringRef v);
 
-const char * checkCfgValue(cUIAction & a,char * v);
+String checkCfgValue(cUIAction & a,const StringRef& v);
 
 HWND getCfgHandle(cUIAction & act);
 HWND makeCfgProp(cUIGroup & g );

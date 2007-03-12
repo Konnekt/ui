@@ -40,7 +40,7 @@ int ActionCfgProc(sUIActionNotify_base * anBase) {
 			break;}
        case CFG_PROXY:
        if (an->code == ACTN_CREATE || an->code == ACTN_STATUS || an->code == ACTN_ACTION) {
-         state = getActionValue(Act(an->act))[0]=='1';
+		   state = getActionValue(Act(an->act)) == "1";
          ua.id = CFG_PROXY_HTTP_ONLY | IMIB_CFG;
          IMLOG("PROXY");
          ActionStatus(ua , state?0:ACTS_DISABLED);
@@ -59,7 +59,7 @@ int ActionCfgProc(sUIActionNotify_base * anBase) {
        break;
        case CFG_PROXY_AUTH:
        if (an->code == ACTN_CREATE || an->code == ACTN_STATUS || an->code == ACTN_ACTION) {
-         state = getActionValue(Act(an->act))[0]=='1' && ~act.status & ACTS_DISABLED;
+		   state = getActionValue(Act(an->act))=="1" && ~act.status & ACTS_DISABLED;
          ua.id = CFG_PROXY_LOGIN | IMIB_CFG;
          ActionStatus(ua , state?0:ACTS_DISABLED);
          ua.id = CFG_PROXY_PASS | IMIB_CFG;
@@ -76,7 +76,7 @@ int ActionCfgProc(sUIActionNotify_base * anBase) {
        break;
        case CFG_UIMSGFROMOTHER:{
          if (an->code != ACTN_CREATE && an->code != ACTN_STATUS && an->code != ACTN_ACTION) break;
-         bool state = getActionValue(Act(an->act))[0]=='1';
+		 bool state = getActionValue(Act(an->act)) == "1";
          ua.id = IMIA_CFG_UIM_MSG_NIL_PASS | IMIB_CFG;
          ActionStatus(ua , state?ACTS_DISABLED:0);
          ua.id = IMIA_CFG_UIM_MSG_NIL_REPLY | IMIB_CFG;
@@ -247,18 +247,17 @@ int ActionCntProc(sUIActionNotify_base * anBase) {
     sUIActionNotify_2params * an = static_cast<sUIActionNotify_2params*>(anBase);
     sUIActionInfo ai;
     sUIAction act = an->act;
-    char * ch;
     switch (an->act.id & ~IMIB_) {
-        case CNT_NET:
+		case CNT_NET: {
             if (an->code != ACTN_ACTION && an->code != ACTN_SHOW) return 0;
-            getActionValue(Act(an->act),TLS().buff , MAX_STRING);
+            String v = getActionValue(Act(an->act));
             ai.act = sUIAction(an->act.parent , IMIB_CNT|CNT_UID , an->act.cnt);
             ai.mask = UIAIM_STATUS;
-            ch = TLS().buff;
-            ai.status = strcmp(TLS().buff,"0")?0:ACTS_DISABLED;
+			ai.status = (v != "0") ?0:ACTS_DISABLED;
             ai.statusMask = ACTS_DISABLED;
             ActionSet(ai);
-            break;
+			break;}
+
 
         case CNT_DISPLAY: {
             if (an->code != ACTN_DROP && an->code != ACTN_CREATE) return 0;

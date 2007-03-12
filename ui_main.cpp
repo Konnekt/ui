@@ -370,7 +370,7 @@ int IPrepare() {
 
   hInst=(HINSTANCE)IMessage(IMC_GETINSTANCE);
 
-  autostart = IMessage(IMC_ARGC) > 1 && !stricmp((char*)IMessage(IMC_ARGV,0,0,1) , "/autostart");
+  autostart = ICMessage(IMC_ARGC) > 1 && !stricmp((char*)ICMessage(IMC_ARGV,1) , "/autostart");
   docked = -GETINT(CFG_UIPOS_DOCKED);
   if (docked < 0) docked_h = GETINT(CFG_UIPOS_H);
   RECT rc;
@@ -401,7 +401,7 @@ void UISetAlpha() {
 	SetAlpha(hwndMain , (!GETINT(CFG_UIUSEMAINALPHA) || alpha >= 100) ? 255 : (char)ceil(alpha * 2.55));
 }
 
-UISet() {
+int UISet() {
     IMLOG("UISet");
 
 	menuType = (MenuType) GETINT(CFG_UIMENUTYPE);
@@ -557,7 +557,7 @@ int IEnd() {
 
 
 int IMsgOpen(cMessage * m) {
-  int pos = IMessage(IMC_FINDCONTACT , 0 , 0 , m->net , (int)m->fromUid);
+  int pos = ICMessage(IMC_FINDCONTACT , m->net , (int)m->fromUid);
   if (pos < 0) return IM_MSG_delete;
   if (!Cnt[pos].hwndMsg || !IsWindowVisible(Cnt[pos].hwndMsg))
       if (GETINT(CFG_UIMSGPOPUP))
@@ -606,19 +606,19 @@ int IMsgOpen(cMessage * m) {
 }
 
 
-int CStatus (int sender , int status , const char * descr){
+int CStatus (tPluginId sender , int status , const char * descr){
     if (!hwndMain) return 0;
     if (!descr) descr=""; 
 
     int inTray = GETINT(CFG_UISTATUSINTRAY);
-    if (inTray > 1 && !IMessage(IM_PLUG_NETNAME, inTray, IMT_PROTOCOL, 0, 0)) {
+	if (inTray > 1 && !IMessage(IM_PLUG_NETNAME, (Net::tNet)inTray, IMT_PROTOCOL, 0, 0)) {
 		// sprawdzamy czy sieæ istnieje...
 		inTray = -1;
 	}
 
-    int net = IMessageDirect(IM_PLUG_NET , sender);
+	int net = IMessageDirect(IM_PLUG_NET , sender);
     int ico = UIIcon(4 , net , status , 0);
-	static lastStatus = -1;
+	static int lastStatus = -1;
     for (int i = 0 ; i<Act[IMIG_STATUS].size() ; i++) {
       if (Act[IMIG_STATUS][i].owner == sender) {
 //        IMLOG("STATUS %d %d %x %d" , i , status , UIIcon(4 , IMessageDirect(IM_PLUG_NET , sender) , status , 0) , Ico.find(UIIcon(4 , IMessageDirect(IM_PLUG_NET , sender) , status , 0)));
@@ -662,7 +662,7 @@ bool CSetNotify(int pos , int * pNotify=0 , sUIAction * pAction=0 , unsigned int
             mn.net = GETCNTI(pos , CNT_NET);
             mn.uid = (char*)GETCNTC(pos , CNT_UID);
         }
-        IMessage(IMC_MESSAGENOTIFY,0,0,(int)&mn);
+        ICMessage(IMC_MESSAGENOTIFY,(int)&mn);
         notify = mn.notify;
         action = mn.action;
         if (msgID) *msgID = mn.id;
@@ -727,7 +727,7 @@ int CNotify(int pos) {
    return 0;
 }
 
-CNewNotify(sNOTIFY * n) {
+int CNewNotify(sNOTIFY * n) {
    n->cnt = Ctrl->DTgetPos(DTCNT , n->cnt);
    if (n->cnt == -1 || n->cnt == 0) {
      IMLOG("- Nowy trayNotify = %d" , trayNotify);
@@ -748,7 +748,7 @@ CNewNotify(sNOTIFY * n) {
    return 1;
 }
 
-ICfgChanged() {
+int ICfgChanged() {
    IMLOG("- Zmiana w konfiguracji");
    UISet();
    cntList.refresh(true);
@@ -772,11 +772,11 @@ int IACntDel(int cnt) {
          if (!ICMessage(IMI_CONFIRM , (int)"Usun¹æ zaznaczone kontakty?")) return 0;
          c = ListView_GetSelItems(hwndList , 500 , buff);
          for (int i=c-1; i>=0; i--)
-           IMessage(IMC_CNT_REMOVE,0,0,((sUICnt*)ListView_GetItemData(hwndList , buff[i]))->ID);
+           ICMessage(IMC_CNT_REMOVE,((sUICnt*)ListView_GetItemData(hwndList , buff[i]))->ID);
          ICMessage(IMI_REFRESH_LST);
        } else {
          buff[0] = cntListWnd->find(&Cnt[cnt]);
-         IMessage(IMC_CNT_REMOVE,0,0,cnt,1);
+         ICMessage(IMC_CNT_REMOVE,cnt,1);
        }
        if (c>0 && buff[0]>-1) ListView_SetCurSel(hwndList , buff[0]);
        return 1;
@@ -1071,7 +1071,7 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
                    if (!m->notify) m->notify = UIIcon(5,0,MT_URL,0);
                    return IM_MSG_ok;
                  case MT_QUICKEVENT:
-                   IMessage(IMI_MSG_OPEN , 0,0,msg->p1);
+                   ICMessage(IMI_MSG_OPEN , msg->p1);
                    return IM_MSG_delete; //quickMessage
               }
               return 0;
@@ -1147,7 +1147,14 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
            sUIActionInfo * ai = (sUIActionInfo*) msg->p1;
            if (!Act.exists(ai->act.parent, ai->act.id)) return 0;
            Act(ai->act).setCnt(ai->act.cnt);
-		   return (int)getActionValue(Act(ai->act) , ai->txt , ai->txtSize , ai->mask & UIAIM_VALUE_CONVERT);
+		   String value = getActionValue(Act(ai->act) , ai->mask & UIAIM_VALUE_CONVERT);
+		   if (ai->txt) {
+			   strncpy(ai->txt, value.a_str(), ai->txtSize);
+			   return (int)ai->txt;
+		   } else {
+			   strncpy(TLS().buff, value.a_str(), MAX_STRING);
+			   return (int)TLS().buff;
+		   }
          }
     case IMI_ACTION_SETVALUE:
          {
@@ -1156,7 +1163,9 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
            sUIActionInfo * ai = (sUIActionInfo*) msg->p1;
            if (!Act.exists(ai->act.parent, ai->act.id)) return 0;
            Act(ai->act).setCnt(ai->act.cnt);
-           return (int)setActionValue(Act(ai->act) , ai->txt , ai->mask & UIAIM_VALUE_CONVERT);
+           String value = setActionValue(Act(ai->act), ai->txt, ai->mask & UIAIM_VALUE_CONVERT);
+		   strncpy(TLS().buff, value.a_str(), MAX_STRING);
+		   return (int)TLS().buff;
          }
     case IMI_GROUP_ACTIONSCOUNT:
          ISRUNNING();
@@ -1260,7 +1269,7 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
          switch (m->type) {
            case MT_MESSAGE:
            case MT_QUICKEVENT:
-             return IMessageDirect(IMI_MSG_OPEN , 0 , msg->p1);
+             return ICMessage(IMI_MSG_OPEN , msg->p1);
            case MT_SERVEREVENT:
              ServerEventDialogNext();
              return 0;
@@ -1433,23 +1442,24 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
 		CStdString uid = preg.getSub(2);
 		CStdString msg = preg.result > 3 ? preg.getSub(3) : getArgV(pa->argv+1 , pa->argc-1 , "-msg" , true , "");
 		if (uid.empty()) return 0;
-		int netID;
+		Net::tNet netID;
 		if (net.empty() || atoi(net)>0) {
-			netID = atoi(net);
+			netID = (Net::tNet) atoi(net);
 			if (!*safeChar(IMessage(IM_PLUG_NETNAME , netID , IMT_NETUID)))
-				netID = -1;
+				netID = Net::broadcast;
 		} else { // szukamy sieci
 			int c = ICMessage(IMC_PLUG_COUNT);
-			netID = -1;
+			netID = Net::broadcast;
 			for (int i=1; i < c; i++) {
 //				int plugID = ICMessage(IMC_PLUGID_POS , i);
-				if (IMessageDirect(IM_PLUG_TYPE , i) & IMT_NETUID
-					&& (!stricmp(safeChar(IMessageDirect(IM_PLUG_NETNAME , i)),net) || !stricmp(safeChar(IMessageDirect(IM_PLUG_NETSHORTNAME , i)),net) || !stricmp(safeChar(IMessageDirect(IM_PLUG_UIDNAME , i)),net) )) {
-						netID = IMessageDirect(IM_PLUG_NET , i);
+				oPlugin plugin = Ctrl->getPlugin((tPluginId)i);
+				if (plugin->getType() & IMT_NETUID
+					&& (plugin->getNetName() == net) || plugin->getNetShortName() == net ||  plugin->getUIDName() == net ) {
+						netID = plugin->getNet();
 					}
 			}
 		}
-		if (netID == -1) return 0;
+		if (netID == Net::broadcast) return 0;
 		// szukamy identyfikatora sieci...
 		int cntID = ICMessage(IMC_CNT_FIND , netID , (int)uid.c_str());
 		if (cntID == -1 && ICMessage(IMI_CONFIRM , (int)("Czy na pewno chcesz dodaæ kontakt sieci " + string(safeChar(IMessage(IM_PLUG_NETNAME , netID , IMT_NETUID))) + " " + string(safeChar(IMessage(IM_PLUG_UIDNAME , netID , IMT_NETUID))) + ":"  + string(uid) + "?").c_str())) {

@@ -417,7 +417,7 @@ VOID CALLBACK timerHideProc(HWND hwnd,UINT uMsg,UINT_PTR idEvent,DWORD dwTime) {
 VOID CALLBACK timerAwayProc(HWND hwnd,UINT uMsg,UINT_PTR idEvent,DWORD dwTime);
 VOID CALLBACK timerAwayProc(HWND hwnd,UINT uMsg,UINT_PTR idEvent,DWORD dwTime) {
    POINT pt;
-   static time = 0;
+   static int time = 0;
    Cnt.checkActivity();
    GetCursorPos(&pt);
    int input = GetLastInputTime();
@@ -514,7 +514,7 @@ void onSizeMain(int w , int h) {
 //-------------------------------------
 
 void dockDesktop(bool show , bool repos) {
-  static Registered = false;
+  static int Registered = false;
   if (!Registered && docked != 2) return;
   RECT rc;
 //  SystemParametersInfo(SPI_GETWORKAREA,0,&rc,0);

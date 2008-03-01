@@ -27,14 +27,6 @@ int ActionProc(sUIActionNotify_base * anBase) {
          ICMessage(IMI_CNT_DETAILS,an->act.cnt);
        }
        break;
-    case IMIA_CNT_HISTORY:
-       if (an->code == ACTN_CREATE) {
-                  //ActionStatus(an->act , (an->act.cnt!=-1 && GETCNTI(an->act.cnt,CNT_NET)!=NET_NONE) ? 0 : ACTS_HIDDEN);
-       } else
-       if (an->code == ACTN_ACTION) {
-         hist_start(an->act.cnt);
-       }
-       break;
     case IMIA_CNT_SENDEMAIL:
        if (an->code == ACTN_CREATE) {
                   ActionStatus(an->act , (uiPos>0 && *GETCNTC(uiPos , CNT_EMAIL)) ? 0 : ACTS_HIDDEN);
@@ -88,13 +80,13 @@ int ActionProc(sUIActionNotify_base * anBase) {
 			       ActionStatus(an->act , use ? 0 : ACTS_HIDDEN);
 			   else return use;
            } else {
-               sMESSAGEWAITING mw;
+               MessageSelect mw;
                mw.net = GETCNTI(uiPos , CNT_NET);
-               mw.uid = (char*)GETCNTC(uiPos , CNT_UID);
-               mw.type = MT_MESSAGE;
-               mw.woflag = MF_SEND;
+               mw.setUid(GETCNTC(uiPos , CNT_UID));
+               mw.type = Message::typeMessage;
+               mw.woflag = Message::flagSend;
                ActionStatus(an->act ,
-					(ICMessage(IMC_MESSAGEWAITING ,(int)&mw))
+                 (ICMessage(MessageSelect::IM::imcMessageWaiting ,(int)&mw))
 					? 0 : ACTS_HIDDEN);
             }
        }
@@ -127,10 +119,6 @@ int ActionProc(sUIActionNotify_base * anBase) {
     case IMIA_MSG_INFO:
        ACTIONONLY(an);
        ICMessage(IMI_CNT_DETAILS,an->act.cnt);
-       break;
-    case IMIA_MSG_HISTORY:
-       ACTIONONLY(an);
-       hist_start(an->act.cnt);
        break;
 	case IMIA_MSG_BYENTER:
 		if (an->code == ACTN_ACTION) {
@@ -257,10 +245,6 @@ int ActionProc(sUIActionNotify_base * anBase) {
          ACTIONONLY(an);
          ICMessage(IMC_PROFILEPASS);
          break;
-    case IMIA_MAIN_HISTORY:
-         ACTIONONLY(an);
-         hist_start();
-         break;
     case IMIA_EVENT_SERVER:
        if (an->code == ACTN_ACTION) {
            if (!hwndMsgEvent) {
@@ -271,43 +255,43 @@ int ActionProc(sUIActionNotify_base * anBase) {
          }
        else if (an->code == ACTN_CREATE) {
                 if (uiPos<0) return 0;
-                  sMESSAGEWAITING mw;
+                  MessageSelect mw;
                   mw.net = 0;
-                  mw.uid = "";
-                  mw.type = MT_SERVEREVENT;
+                  mw.setUid("");
+                  mw.type = Message::typeServerEvent;
                   ActionStatus(an->act ,
-                    (ICMessage(IMC_MESSAGEWAITING ,(int)&mw))
+                    (ICMessage(MessageSelect::IM::imcMessageWaiting ,(int)&mw))
                     ? 0 : ACTS_HIDDEN);
                 }
        break;
 	case IMIA_EVENT_URL: case IMIA_EVENT_EVENT: {
-       cMessage m;
-	   m.type = an->act.id == IMIA_EVENT_URL ? MT_URL : MT_EVENT;
+       Message m;
+       m.setType(an->act.id == IMIA_EVENT_URL ? Message::typeUrl : Message::typeEvent);
        if (an->code == ACTN_ACTION) {
-           sMESSAGESELECT ms(NET_BC , 0 , m.type);
-		   if (ICMessage(IMC_MESSAGEGET , (int)&ms , (int)&m)) {
-			   if (m.type == MT_URL)
-					openURLMessage(&m);
-			   else {
-				   if (m.action.id != IMIA_EVENT_EVENT && Act.exists(m.action)) Act(m.action).call(ACTN_ACTION , (int)&m , 0);
+         MessageSelect ms(Net::broadcast, 0 , m.getType());
+         if (ICMessage(MessageSelect::IM::imcMessageRemove , (int)&ms , (int)&m)) {
+         if (m.getType() == Message::typeUrl)
+          openURLMessage(&m);
+         else {
+				   if (m.getAction().id != IMIA_EVENT_EVENT && Act.exists(m.getAction())) Act(m.getAction()).call(ACTN_ACTION , (int)&m , 0);
 				   else 
-				   ICMessage(IMC_MESSAGEQUEUE , (int)&ms);
+             ICMessage(MessageSelect::IM::imcMessageQueue , (int)&ms);
 			   }
 		   }
          }
        else if (an->code == ACTN_CREATE) {
                 if (uiPos<0) return 0;
-                  sMESSAGESELECT ms(0 , 0 , m.type);
+                MessageSelect ms((Net::tNet)0 , (char*)0 , m.getType());
                   // Musimy pobrac Title!
-                  if (!ICMessage(IMC_MESSAGEGET ,(int)&ms , (int)&m))
+                  if (!ICMessage(MessageSelect::IM::imcMessageGet ,(int)&ms , (int)&m))
                       ActionStatus(an->act , ACTS_HIDDEN);
                   else {
                       CStdString txt = Act(an->act).txt;
                       int pos = txt.find(MSGTITLE_CHAR);
                       if (pos!=txt.npos) txt.erase(pos-1); // Usuwamy dotychczasowy tytu³
-                      CStdString Title = GetExtParam(m.ext , "Title");
+                      CStdString Title = m.getExtParam("Title").a_str();
                       if (!Title.empty()) txt += string(" ") + MSGTITLE_CHAR + string(Title) + MSGTITLE_CHAR;
-					  ActionStatus(an->act , 0 , (char*)txt.c_str() , m.type==MT_EVENT ? m.notify : -1);
+                      ActionStatus(an->act , 0 , (char*)txt.c_str() , m.getType()==Message::typeEvent? m.getNotify() : -1);
                       //ActionStatus(an->act , 0);
                   }
                 }
@@ -316,30 +300,30 @@ int ActionProc(sUIActionNotify_base * anBase) {
 	case IMIA_EVENT_OPENANYMESSAGE: {
 		if (anBase->code != ACTN_ACTION && anBase->code != ACTN_CREATE)
 			return 0;
-		cMessage m;
+		Message m;
 		if (anBase->act.cnt >= 0) {
-			sMESSAGESELECT ms(anBase->act.cnt == 0 ? 0 : GETCNTI(anBase->act.cnt , CNT_NET) 
-				, anBase->act.cnt == 0 ? 0 : GETCNTC(anBase->act.cnt , CNT_UID) 
-				, -1 , MF_MENUBYUI , 0);
-			ICMessage(IMC_MESSAGEGET , (int)&ms , (int)&m);
+      MessageSelect ms((Net::tNet)(anBase->act.cnt == 0 ? 0 : GETCNTI(anBase->act.cnt , CNT_NET)) 
+				, (char*)anBase->act.cnt == 0 ? 0 : GETCNTC(anBase->act.cnt , CNT_UID) 
+        ,Message::typeAll , Message::flagHandledByUI , Message::flagNone);
+      ICMessage(MessageSelect::IM::imcMessageGet , (int)&ms , (int)&m);
 		}
 		if (anBase->code == ACTN_ACTION) {
-			if ((m.action.id != anBase->act.id && m.action.parent != anBase->act.parent) && Act.exists(m.action))
-				Act(m.action).call(ACTN_ACTION , 0 , 0 , anBase->act.cnt);
+			if ((m.getAction().id != anBase->act.id && m.getAction().parent != anBase->act.parent) && Act.exists(m.getAction()))
+				Act(m.getAction()).call(ACTN_ACTION , 0 , 0 , anBase->act.cnt);
  			else {
-				sMESSAGESELECT ms;
-				ms.id = m.id;
-				ICMessage(IMC_MESSAGEQUEUE , (int)&ms);
+				MessageSelect ms;
+				ms.id = m.getId();
+        ICMessage(MessageSelect::IM::imcMessageQueue, (int)&ms);
 			}
         } else if (anBase->code == ACTN_CREATE) {
-			if (!m.id || anBase->act.cnt == -1) {
+			if (!m.getId() || anBase->act.cnt == -1) {
 				ActionStatus(an->act , ACTS_HIDDEN);
 				return 0;
 			}
-            CStdString title = GetExtParam(m.ext , "ActionTitle");
+      CStdString title = m.getExtParam("ActionTitle").a_str();
 			if (title.empty())
 				title = "Otwórz wiadomoœæ";
-			ActionStatus(anBase->act , 0 , (char*)title.c_str() , m.notify);
+			ActionStatus(anBase->act , 0 , (char*)title.c_str() , m.getNotify());
         }
 	break;}
 
@@ -409,32 +393,38 @@ int ActionProc(sUIActionNotify_base * anBase) {
 
     case 1024: case 1026:
        if (an->code == ACTN_ACTION) {
-                       cMessage m;
-                       ZeroMemory(&m , sizeof(m));
-                       m.net = NET_GG;
-                       m.type = MT_MESSAGE;
-                       m.fromUid = (an->act.id == 1024)?"200992":"4730258";
-                       m.toUid = "";
-                       m.body = "Testooooowaaaaa\r\nWiadomoœæ\r\nDo Ciebie";
-                       m.ext = "";
-                       m.flag = MF_HANDLEDBYUI;
-                       ICMessage(IMC_NEWMESSAGE , (int)&m,0);
-                       ICMessage(IMC_MESSAGEQUEUE , (int)&sMESSAGESELECT(m.net , m.fromUid , m.type , 0 , MF_SEND));
+                       Message m;
+                       m.setId(0);
+                       m.setTime(0);
+                       m.setNotify(0);
+                       m.setAction(NOACTION);
+                       m.setNet(Net::gg);
+                       m.setType(Message::typeMessage);
+                       m.setFromUid((an->act.id == 1024)?"200992":"4730258");
+                       m.setToUid("");
+                       m.setBody("Testooooowaaaaa\r\nWiadomoœæ\r\nDo Ciebie");
+                       m.setExt("");
+                       m.setFlags(Message::flagHandledByUI);
+                       ICMessage(Message::IM::imcNewMessage, (int)&m,0);
+                       ICMessage(MessageSelect::IM::imcMessageQueue, (int)&MessageSelect(m.getNet() , m.getFromUid().a_str() , m.getType() , Message::flagNone , Message::flagSend));
        }
        break;
     case 1025:
        if (an->code == ACTN_ACTION) {
-                       cMessage m;
-                       ZeroMemory(&m , sizeof(m));
-                       m.net = 0;
-                       m.type = MT_SERVEREVENT;
-                       m.fromUid = "ee";
-                       m.toUid = "";
-                       m.body = "Wiadomoœæ od serwera";
-                       m.ext = "";
-                       m.flag = MF_HANDLEDBYUI;
-                       ICMessage(IMC_NEWMESSAGE , (int)&m,0);
-                       ICMessage(IMC_MESSAGEQUEUE , (int)&sMESSAGESELECT(m.net , m.fromUid , m.type , 0 , MF_SEND));
+                       Message m;
+                       m.setId(0);
+                       m.setTime(0);
+                       m.setNotify(0);
+                       m.setAction(NOACTION);
+                       m.setNet((Net::tNet)0);
+                       m.setType(Message::typeServerEvent);
+                       m.setFromUid("ee");
+                       m.setToUid("");
+                       m.setBody("Wiadomoœæ od serwera");
+                       m.setExt("");
+                       m.setFlags(Message::flagHandledByUI);
+                       ICMessage(Message::IM::imcNewMessage, (int)&m,0);
+                       ICMessage(MessageSelect::IM::imcMessageQueue, (int)&MessageSelect(m.getNet() , m.getFromUid().a_str() , m.getType() , Message::flagNone , Message::flagSend));
        }
        break;
     case 1027:
@@ -525,27 +515,30 @@ int ActionProc(sUIActionNotify_base * anBase) {
 				return (int)SendMessage((HWND)UIActionHandleDirect(an->act) , WM_GETTEXTLENGTH , 0 , 0);
 			case Konnekt::UI::Notify::getMessage:{
 				Konnekt::UI::Notify::_getMessage * gm = static_cast<Konnekt::UI::Notify::_getMessage *>(anBase);
-				GetWindowText((HWND)UIActionHandleDirect(an->act) , gm->_message->body , gm->_size);
+        char* buff = new char[gm->_size + 1];
+        GetWindowText((HWND)UIActionHandleDirect(an->act) , buff , gm->_size);
+        gm->_message->setBody(buff);
+        delete [] buff;
 				if (!Act(anBase->act).call(UI::Notify::supportsFormatting, 0, 0)) {
-					if (gm->_message->body[0] == '^') {
-						gm->_message->body[0] = ' ';
-						gm->_message->flag |= MF_HTML;
+					if (gm->_message->getBody().a_str()[0] == '^') {
+            gm->_message->setBody(gm->_message->getBody().substr(1));//sprawdzic
+            gm->_message->setOneFlag(Message::flagHTML, true);
 					}
 				}
 				break;}
 			case Konnekt::UI::Notify::insertMsg:{
 				Konnekt::UI::Notify::_insertMsg * gm = static_cast<Konnekt::UI::Notify::_insertMsg *>(anBase);
 				HWND hwnd = (HWND)UIActionHandleDirect(gm->act);
-				CStdString body = gm->_message->body;
+				CStdString body = gm->_message->getBody().a_str();
 				if (Act(anBase->act).call(UI::Notify::supportsFormatting, 0, 0)) {
-					if (gm->_message->flag & MF_HTML) {
+          if (gm->_message->getFlags() & Message::flagHTML) {
 						cRichEditHtml::SetHTML(hwnd, body,  cMsgControlRich::SetStyleCB);
 						ShowCaret(hwnd);
 					} else {
 						SetWindowText(hwnd , body);
 					}
 				} else {
-					if (gm->_message->flag & MF_HTML) {
+          if (gm->_message->getFlags() & Message::flagHTML) {
 						body = "^" + body;
 					}
 					SetWindowText(hwnd , body);

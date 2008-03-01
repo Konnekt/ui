@@ -54,7 +54,7 @@ void cMsgControl::unlock() {
 	Act(act).call(Konnekt::UI::Notify::unlock,0,0,act.cnt);
 }
 //__inline int cMsgControl::parentMessageProc(HWND hwnd , UINT message, WPARAM wParam, LPARAM lParam);
-void cMsgControl::msgInsert(cMessage * m , const char * display , bool scroll) {
+void cMsgControl::msgInsert(Message * m , const char * display , bool scroll) {
 	if (!m) return;
 	Konnekt::UI::Notify::_insertMsg im(m , display , scroll);
 	im.act = act;
@@ -188,7 +188,7 @@ void cMsgControlRich::insertHTML(CStdString body , int defColor) {
 }
 
 
-void cMsgControlRich::msgInsert(cMessage * m , const char * display , bool scroll){
+void cMsgControlRich::msgInsert(Message * m , const char * display , bool scroll){
     CHARFORMAT2 cf;
     PARAFORMAT2 pf;
     RE_PREPARE();
@@ -200,56 +200,56 @@ void cMsgControlRich::msgInsert(cMessage * m , const char * display , bool scrol
     SendMessage(hwnd , EM_SETPARAFORMAT , 0 , (LPARAM)&pf);
 //    RE_ADDLINE("\nCHECK\n");
     string from;
-    int cnt = m->flag & MF_SEND?0 : ICMessage(IMC_CNT_FIND , m->net , (int)m->fromUid);
-	from = GetExtParam(m->ext , MEX_DISPLAY);
+    int cnt = m->getFlags() & Message::flagSend ? 0 : ICMessage(IMC_CNT_FIND , m->getNet() , (int)m->getFromUid().a_str());
+    from = m->getExtParam(Message::extDisplay).a_str();
 	if (from.empty()) {
 		if (display) from=display;
 		else 
 		from = GETCNTC(cnt , CNT_DISPLAY);
 	}
 
-    if (from.empty()) from = (m->flag & MF_SEND)?"JA" : m->fromUid;
-    CStdString body = m->body;
+  if (from.empty()) from = (m->getFlags() & Message::flagSend)?"JA" : m->getFromUid().a_str();
+  CStdString body = m->getBody().a_str();
 
-	if (m->type == MT_FILE) {
-		m->flag |= MF_HTML;
-		body = "Plik:\t\t<b>" + GetExtParam(m->ext , MEX_FILE_PATH) + "</b>";
-		if (m->flag & MF_SEND) 
+	if (m->getType() == Message::typeFile) {
+    m->setOneFlag(Message::flagHTML, true);
+    body = CStdString("Plik:\t\t<b>") + m->getExtParam(Message::extFile_Path).a_str() + "</b>";
+    if (m->getFlags() & Message::flagSend) 
 			body += "<br/><b>Wysy³any</b>";
 		else
 			body += "<br/><b>Odbierany</b>";
-		double size = atof(GetExtParam(m->ext , MEX_FILE_SIZE).c_str());
+    double size = atof(m->getExtParam(Message::extFile_Size).a_str());
 		if (size > 0)
 			body += stringf("<br/>Rozmiar:\t<b>%.2f KB</b>" , size / 1024);
-		double transfered = atof(GetExtParam(m->ext , MEX_FILE_TRANSFERED).c_str());
+    double transfered = atof(m->getExtParam(Message::extFile_Transfered).a_str());
 		if (transfered > 0)
 			body += stringf("<br/>Przes³ano:\t<b>%.2f KB</b>" , transfered / 1024);
-		int time = atoi(GetExtParam(m->ext , MEX_FILE_TRANSFER_TIME).c_str());
+    int time = atoi(m->getExtParam(Message::extFile_Transfer_Time).a_str());
 		if (time)
 			body += stringf("<br/>Czas:\t\t<b>%d</b>m <b>%d</b> s" , time / 60 , time % 60);
 		if (time && size > 0)
 			body += stringf("<br/>Transfer:\t<b>%.2f KB/s</b>" , transfered / 1024 / time);
-		string error = GetExtParam(m->ext , MEX_FILE_ERROR);
+    string error = m->getExtParam(Message::extFile_Error).a_str();
 		if (!error.empty()) 
 			body += "<br/><br/>B³¹d:\t\t<b>" + error + "</b>";
 	}
 
-    if (m->type != MT_QUICKEVENT && (!from.empty() || m->time)) {
+  if (m->getType() != Message::typeQuickEvent && (!from.empty() || m->getTime())) {
         RE_SETEXFONT(CFG_UIF_MSGCNT);
         if (!from.empty()) {RE_BOLD(1);RE_ADD(from+": ");RE_BOLD(0);}
-        cTime64 dtime(m->time);
-        if (m->time/* && m->type==MT_MESSAGE*/) {
+        cTime64 dtime(m->getTime());
+        if (m->getTime()/* && m->type==Message::typeMessage*/) {
 			if (dtime.sec / 86400 != _time64(0) / 86400)
 				RE_ADD(dtime.strftime(" (%a %d-%m'%y %H:%M) ")); 
 			else
 				RE_ADD(dtime.strftime(" (%H:%M) ")); 
 		}
-        CStdString AddInfo = GetExtParam(m->ext , MEX_ADDINFO);
+        CStdString AddInfo = m->getExtParam(Message::extAddInfo).a_str();
         if (!AddInfo.empty()) RE_ADD(" "+AddInfo);
         RE_ADD(" \r\n");
     }
-    if (m->type == MT_QUICKEVENT) {RE_SETEXFONT(m->flag & MF_QE_NORMAL?CFG_UIF_MSG: CFG_UIF_MSGINFO);}
-    else if(m->flag & MF_SEND) {RE_SETEXFONT(CFG_UIF_MSGSEND);}
+    if (m->getType() == Message::typeQuickEvent) {RE_SETEXFONT(m->getFlags() & Message::flag_QE_Normal?CFG_UIF_MSG: CFG_UIF_MSGINFO);}
+    else if(m->getFlags() & Message::flagSend) {RE_SETEXFONT(CFG_UIF_MSGSEND);}
     else {RE_SETEXFONT(CFG_UIF_MSGRCV);}
     pf.dwMask = PFM_STARTINDENT | PFM_OFFSET | PFM_SPACEBEFORE;
     pf.dxStartIndent = 100;
@@ -257,7 +257,7 @@ void cMsgControlRich::msgInsert(cMessage * m , const char * display , bool scrol
     pf.dySpaceBefore = 0;
     SendMessage(hwnd , EM_SETPARAFORMAT , 0 , (LPARAM)&pf);
 	// Dodajemy BODY -------------------------------------------------
-	if (m->flag & MF_HTML) {
+    if (m->getFlags() & Message::flagHTML) {
 		insertHTML(body + "<br>", cf.crTextColor);
 	} else {
 		RE_ADD(body + "\r\n");

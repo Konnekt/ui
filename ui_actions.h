@@ -12,6 +12,8 @@ void HTMLInfoStyleCB(const CStdString & token , const CStdString & styleClass , 
 
 UIEXTERN ToolTipX tooltip;
 
+#include <hash_map>
+
 class cUIAction {
   public:
    int type;   // typ przypisanej kontrolki
@@ -61,7 +63,7 @@ class cUIAction {
    void addParams(const string & add);
 
    cUIAction();
-   virtual ~cUIAction() {};
+   virtual ~cUIAction() {}
 };
 
 class cUIAction_cfg: public cUIAction {
@@ -178,11 +180,12 @@ private:
 };
 
 
-typedef map <int , cUIGroup*>::iterator t_Grp_it;
+typedef stdext::hash_map <int , cUIGroup*>::iterator t_Grp_it;
+typedef stdext::hash_map <int , cUIGroup*>::reverse_iterator t_Grp_rit;
 
 class cUIActions {
   public:
-  map <int , cUIGroup*> Grp;
+  stdext::hash_map <int , cUIGroup*> Grp;
   cUIActMod Mod; // Zmiany wprowadzone przez uzytkownika
   // zwraca wskaznik do grupy
   unsigned int lastIndex;
@@ -349,8 +352,6 @@ private:
 
 UIEXTERN cUIActions Act;
 UIEXTERN cUIIcons Ico;
-
-
 
 //---------------------------------------------
 // F-CJE

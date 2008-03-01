@@ -701,24 +701,24 @@ int CALLBACK IgnoreDialogProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam
 
 void ServerEventDialogNext() {
    if (!hwndMsgEvent) return;
-   sMESSAGEWAITING mw;
+   MessageSelect mw;
    mw.net = -1;
-   mw.uid = 0;
-   mw.type = MT_SERVEREVENT;
-   EnableWindow(GetDlgItem(hwndMsgEvent , IDYES) , ICMessage(IMC_MESSAGEWAITING , (int)&mw , 0)>0);
+   mw.setUid("");
+   mw.type = Message::typeServerEvent;
+   EnableWindow(GetDlgItem(hwndMsgEvent , IDYES) , ICMessage(MessageSelect::IM::imcMessageWaiting , (int)&mw , 0)>0);
 }
 void ServerEventDialogFill() {
    if (!hwndMsgEvent) return;
-   cMessage m;
-   sMESSAGEPOP mp;
+   Message m;
+   MessageSelect mp;
    mp.net = 0;
-   mp.uid = "";
-   mp.type = MT_SERVEREVENT;
-   if (!ICMessage(IMC_MESSAGEGET , (int)&mp , (int)&m)) return;
-   SetDlgItemText(hwndMsgEvent , IDC_MSG , m.body);
-   ICMessage(IMC_MESSAGEREMOVE , (int)&mp);
+   mp.setUid("");
+   mp.type = Message::typeServerEvent;
+   if (!ICMessage(MessageSelect::IM::imcMessageGet , (int)&mp , (int)&m)) return;
+   SetDlgItemText(hwndMsgEvent , IDC_MSG , m.getBody().a_str());
+   ICMessage(MessageSelect::IM::imcMessageRemove, (int)&mp);
    ServerEventDialogNext();
-   ICMessage(IMC_MESSAGEQUEUE , (int)&sMESSAGESELECT(0 , "" , MT_SERVEREVENT , 0 , MF_SEND));
+   ICMessage(MessageSelect::IM::imcMessageQueue, (int)&MessageSelect((Net::tNet)0 , "" , Message::typeServerEvent, Message::flagNone , Message::flagSend));
 }
 
 int CALLBACK ServerEventDialogProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam) {

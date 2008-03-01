@@ -27,7 +27,7 @@
 #include "include\time64.h"
 #include "include\simxml.h"
 #include "include\garbage.h"
-#include "include\dbtable.h"
+//#include "include\dbtable.h"
 #include "include\dtablebin.h"
 #include "include\fontpicker.h"
 #include "include\func.h"
@@ -45,4 +45,4 @@
 #include "konnekt/plug_export.h"
 #include "konnekt/ui.h"
 #include "konnekt/core_assert.h"
-
+#include "konnekt/core_message.h"

@@ -18,8 +18,8 @@
 #include "include\dirdialog.h"
 #include "include\colorpicker.h"
 #include "include\fontpicker.h"
-#include "include\dbtable.h"
-#include "include\dtablebin.h"
+//#include "include\dbtable.h"
+//#include "include\dtablebin.h"
 #include "include\win_registry.h"
 
 #include "ui_main.h"
@@ -167,8 +167,14 @@ class cUIGroup_cfg : public cUIGroup {
 };
 
 cUIGroup::~cUIGroup() {
-  for (t_Act_it Act_it=Act.begin(); Act_it!=Act.end(); Act_it++) {
-    if (!((*Act_it)->type & ACT_ISGROUP)) delete *Act_it;
+  //for (t_Act_it Act_it=Act.begin(); Act_it!=Act.end(); Act_it++) {
+  //  if (!((*Act_it)->type & ACT_ISGROUP)) delete *Act_it;
+  //}
+
+  int c  = Act.size() - 1;
+  while (c > 0) {
+    remove(c);
+    c--;
   }
 }
 
@@ -260,7 +266,7 @@ cUIAction * cUIGroup::cfginsert (int id , int pos , const char * txt, int status
   cUIActions::~cUIActions() {
     for (t_Grp_it Grp_it=Grp.begin(); Grp_it!=Grp.end(); Grp_it++) {
       delete Grp_it->second;
-    }
+   }
   }
 
 cUIAction & cUIActions::operator ()(sUIAction & uia) {
@@ -352,7 +358,8 @@ cUIAction * cUIGroup::insert (sUIActionInfo * ai , tPluginId owner) {
   if (ai->act.id==-1 || ai->act.id == IMIB_CFG) ai->act.id = IMIB_CFG|ai->p1;
   else if (ai->act.id==-2 || ai->act.id == IMIB_CNT) ai->act.id = IMIB_CNT|ai->p1;
 
-  if (!::Act.exists(ai->act.parent) || (ai->act.id && exists(ai->act.id))) return 0;
+  if (!::Act.exists(ai->act.parent) || (ai->act.id && exists(ai->act.id))) 
+    return 0;
 
   cUIAction * v;
   if (ai->status & ACTS_GROUP) {

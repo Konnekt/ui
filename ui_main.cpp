@@ -16,7 +16,6 @@
 #include "ui_actions.h"
 #include "ui_cntlist.h"
 #include "ui_dialogs.h"
-#include "ui_history.h"
 #include "ui_msgcontrol.h"
 #include "ui_ui.h"
 #include "ui_window.h"
@@ -28,6 +27,71 @@
 #define DOCS_STEPBYSTEP "szybka pomoc.html"
 
 // zmienne
+
+#include <konnekt/core_message.h>
+int  IMsgOpen(Message*m);
+class UIMessageHandler : public MessageHandler {
+public:
+  UIMessageHandler(enMessageQueue queue) : MessageHandler(queue) { };
+  bool handlingMessage(enMessageQueue queue, Message* msg) {
+    return MessageHandler::handlingMessage(queue, msg) || msg->getOneFlag(Message::flagHandledByUI);
+  }
+  tMsgResult handleMessage(Message* msg, enMessageQueue queue, enPluginPriority priority) {
+    if (queue & mqReceive) {
+
+      if (msg->getFlags() & Message::flagHandledByUI) {
+        if (!msg->getAction().id && !msg->getAction().id) {
+          msg->setAction(sUIAction( msg->getType() & Message::typeMask_NotOnList ? IMIG_EVENT : IMIG_CNT , IMIA_EVENT_OPENANYMESSAGE ));
+        }
+        if (!msg->getNotify())
+            msg->setNotify( UIIcon(IT_MESSAGE , 0 , Message::typeEvent , 0));
+        }
+        if (!(msg->getFlags() & Message::flagHandledByUI)) return (tMsgResult)0;
+        if (msg->getFlags() & Message::flagSend) return (tMsgResult)0;
+        switch (msg->getType()) {
+          case Message::typeMessage:
+//                   if (m->flag & MF_SEND) {} else
+          {
+            msg->setAction(sUIAction(IMIG_CNT , IMIA_CNT_MSGOPEN));
+            if (!msg->getNotify()) {
+              msg->setNotify(UIIcon(5,0,Message::typeMessage,0));
+            }
+          }
+            return Message::resultOk;
+          case Message::typeServerEvent:
+            msg->setAction(sUIAction(IMIG_EVENT , IMIA_EVENT_SERVER));
+            if (!msg->getNotify()) {
+              msg->setNotify(UIIcon(5,0,Message::typeServerEvent,0));
+            }
+            return Message::resultOk;
+          case Message::typeUrl:
+            msg->setAction (sUIAction(IMIG_EVENT , IMIA_EVENT_URL));
+            if (!msg->getNotify()) msg->setNotify(UIIcon(5,0,Message::typeUrl,0));
+            return Message::resultOk;
+           case Message::typeQuickEvent:
+             ICMessage(IMI_MSG_OPEN , (int)msg);
+             //IMsgOpen( msg);
+             return Message::resultDelete; //quickMessage
+      }
+    } else if (queue == mqOpen) {
+      switch (msg->getType()) {
+        case Message::typeMessage:
+        case Message::typeQuickEvent:
+          //IMsgOpen( msg);
+          return (tMsgResult)ICMessage(IMI_MSG_OPEN , (int)msg);
+        case Message::typeServerEvent:
+          ServerEventDialogNext();
+          return (tMsgResult)0;
+        case Message::typeUrl:
+          return (tMsgResult)0;
+      }
+
+      return (tMsgResult)0;
+    }
+      return (tMsgResult)0;
+  }
+};
+
 
 int trayBitCount = isComctl(6,0)?32:4;
 int trayStatus = IDI_TRAY;
@@ -108,8 +172,8 @@ int WINAPI DllMain(HINSTANCE hinst, unsigned long reason, void* lpReserved)
 		case DLL_THREAD_ATTACH: if (Ctrl) Ctrl->onThreadStart();break;
 		case DLL_THREAD_DETACH: if (Ctrl) Ctrl->onThreadEnd(); TLS.detach(); break;
         case DLL_PROCESS_ATTACH: hDll = hinst;break;
-
     }
+
     return 1;
 }
 //---------------------------------------------------------------------------
@@ -365,7 +429,6 @@ int IPrepare() {
   }
 
 
-  hist_init();
   timerLong = CreateWaitableTimer(0,0,0);
 
   hInst=(HINSTANCE)IMessage(IMC_GETINSTANCE);
@@ -484,6 +547,10 @@ void TestBreakDown() {
 	e[0] = 'o';
 }
 
+int IMsgOpen(Message * m);
+
+iMessageHandler* rhandler;
+iMessageHandler* ohandler;
 int IStart() {            
 //	TestBreakDown();
     registerActionsAfter();
@@ -493,13 +560,21 @@ int IStart() {
   UISet();
   startWindows();
   if (cntTip->docked) cntTip->show(-1);
-
+ // MessageHandler::registerHandler(
 //  GetWindowText(GetWindow(hwndMain,GW_CHILD) , str_buff , MAX_STRBUFF);
+        IMessage(&iMessageHandler::IM(iMessageHandler::IM::imcRegisterMessageHandler,
+        rhandler = new UIMessageHandler(iMessageHandler::mqReceive), priorityCore));
+      IMessage(&iMessageHandler::IM(iMessageHandler::IM::imcRegisterMessageHandler,
+        ohandler = new UIMessageHandler(iMessageHandler::mqOpen), priorityLowest));
   return 1;
 }
 
 int IEnd() {
     // Najpierw trzeba zatrzymaæ wszystko co siê "rusza"
+    IMessage(&iMessageHandler::IM(iMessageHandler::IM::imcUnregisterMessageHandler,
+     rhandler, priorityCore));
+    IMessage(&iMessageHandler::IM(iMessageHandler::IM::imcUnregisterMessageHandler,
+      ohandler, priorityLowest));
 
     if (timerLong) CloseHandle(timerLong);
     timerLong = 0;
@@ -556,9 +631,9 @@ int IEnd() {
 
 
 
-int IMsgOpen(cMessage * m) {
-  int pos = ICMessage(IMC_FINDCONTACT , m->net , (int)m->fromUid);
-  if (pos < 0) return IM_MSG_delete;
+int IMsgOpen(Message * m) {
+  int pos = ICMessage(IMC_FINDCONTACT , m->getNet() , (int)m->getFromUid().a_str());
+  if (pos < 0) return Message::resultDelete;
   if (!Cnt[pos].hwndMsg || !IsWindowVisible(Cnt[pos].hwndMsg))
       if (GETINT(CFG_UIMSGPOPUP))
         {Cnt[pos].MsgWndOpen(0 , true);}
@@ -566,12 +641,12 @@ int IMsgOpen(cMessage * m) {
         return 0;
 
 //  IMLOG("ACTIVE msg %x foc %x frg %x act %x" , Cnt[pos].hwndMsg , GetFocus() , GetForegroundWindow() , GetActiveWindow() , );
-  int ret = IM_MSG_delete;
-  if (GetForegroundWindow()!=Cnt[pos].hwndMsg) {
-    if (GETINT(CFG_UIMSGHOLDNOTIFY) && m->type == MT_MESSAGE) {
-      m->flag |= MF_OPENED;
+  int ret = Message::resultDelete;
+   if (GetForegroundWindow()!=Cnt[pos].hwndMsg) {
+    if (GETINT(CFG_UIMSGHOLDNOTIFY) && m->getType() == Message::typeMessage) {
+      m->setOneFlag(Message::flagOpened, true);
       SetProp(Cnt[pos].hwndMsg , "MsgWaiting" , (void*)1);
-      ret = IM_MSG_update;
+      ret = Message::resultUpdate;
       SendMessage(Cnt[pos].hwndMsg , MYWM_SETICON , IDI_WND_MSG_NEW , 0);
 	  //
     }
@@ -588,15 +663,14 @@ int IMsgOpen(cMessage * m) {
     }
   }
 
-  switch (m->type) {
-    case MT_MESSAGE:
+  switch (m->getType()) {
+    case Message::typeMessage:
       {
         int session = (int)GetProp(Cnt[pos].hwndMsg , "MsgSession");
-        hist_add(m , HISTDIR_MSG , &Cnt[pos] , 0 , session);
         if (!session) SetProp(Cnt[pos].hwndMsg , "MsgSession" , (void*)1);
       }
     /* pass through */  
-    case MT_QUICKEVENT:
+    case Message::typeQuickEvent:
 //      st = (sTime64*)&m->time;
         Cnt[pos]._msgControl->msgInsert(m);
       return ret;
@@ -656,13 +730,13 @@ bool CSetNotify(int pos , int * pNotify=0 , sUIAction * pAction=0 , unsigned int
     sUIAction action = NOACTION;
 	if (!Cnt.exists(pos)) return false; // Cos tu nie gra!!!
     if (notify == NOTIFY_AUTO) {
-        sMESSAGENOTIFY mn;
-        if (Cnt[pos].user) {mn.net = 0; mn.uid = "";}
+        MessageNotify mn;
+        if (Cnt[pos].user) {mn.net = 0; mn.setUid("");}
         else {
             mn.net = GETCNTI(pos , CNT_NET);
-            mn.uid = (char*)GETCNTC(pos , CNT_UID);
+            mn.setUid(GETCNTC(pos , CNT_UID));
         }
-        ICMessage(IMC_MESSAGENOTIFY,(int)&mn);
+        ICMessage(MessageNotify::IM::imcMessageNotify,(int)&mn);
         notify = mn.notify;
         action = mn.action;
         if (msgID) *msgID = mn.id;
@@ -816,7 +890,7 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
     case IM_PLUG_UI_V:       return 0;
     case IM_PLUG_NAME:       return (int)"wXP UI";
     case IM_PLUG_NETNAME:    return (int)"bez sieci";
-    case IM_PLUG_INIT:       Plug_Init(msg->p1,msg->p2);return Init();
+    case IM_PLUG_INIT:       Plug_Init(msg->p1,msg->p2);CtrlEx=(cCtrlEx*)msg->p1;return Init();
     case IM_PLUG_INITEX:     CtrlEx=(cCtrlEx*)msg->p1; return 1;
     case IM_PLUG_DEINIT:     Plug_Deinit(msg->p1,msg->p2);deInit(); return 1;
     case IM_PLUG_CERT:       if (!msg->p1 && !msg->p2) return (int)UI_CERT;
@@ -827,8 +901,6 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
     case IM_PLUG_UPDATE:
         IUpdate(msg->p1);
         return 1;
-
-
     case IM_UI_PREPARE:        return IPrepare();
     case IM_START:           return IStart();
     case IM_END:             return IEnd();
@@ -1038,43 +1110,44 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
          SearchDialogAdd(hwndSearch , (sCNTSEARCH*)msg->p1);
          return 1;
 
-
-    case IM_MSG_RCV:
+/*
+    case Message::IM::imReceiveMessage:
 
               ISRUNNING();      
-              cMessage * m;
-              m = (cMessage*)msg->p1;
-			  if (m->flag & MF_MENUBYUI) {
-				  if (!m->action.id && !m->action.id)
-					  m->action = sUIAction( m->type & MT_MASK_NOTONLIST ? IMIG_EVENT : IMIG_CNT , IMIA_EVENT_OPENANYMESSAGE );
-				  if (!m->notify)
-					  m->notify = UIIcon(IT_MESSAGE , 0 , MT_EVENT , 0);
+              Message * m;
+              m = (Message*)msg->p1;
+              if (m->getFlags() & Message::flagHandledByUI) {
+				  if (!m->getAction().id && !m->getAction().id)
+            m->setAction(sUIAction( m->getType() & Message::typeMask_NotOnList ? IMIG_EVENT : IMIG_CNT , IMIA_EVENT_OPENANYMESSAGE ));
+				  if (!m->getNotify())
+            m->setNotify( UIIcon(IT_MESSAGE , 0 , Message::typeEvent , 0));
 			  }
-              if (!(m->flag & MF_HANDLEDBYUI)) return 0;
-              if (m->flag & MF_SEND) return 0;
-              switch (m->type) {
-                 case MT_MESSAGE:
+        if (!(m->getFlags() & Message::flagHandledByUI)) return 0;
+        if (m->getFlags() & Message::flagSend) return 0;
+              switch (m->getType()) {
+                 case Message::typeMessage:
 //                   if (m->flag & MF_SEND) {} else
                    {
-                     m->action = sUIAction(IMIG_CNT , IMIA_CNT_MSGOPEN);
-                     if (!m->notify)
-                         m->notify = UIIcon(5,0,MT_MESSAGE,0);
+                     m->setAction(sUIAction(IMIG_CNT , IMIA_CNT_MSGOPEN));
+                     if (!m->getNotify())
+                         m->setNotify(UIIcon(5,0,Message::typeMessage,0));
                    }
-                   return IM_MSG_ok;
-                 case MT_SERVEREVENT:
-                   m->action = sUIAction(IMIG_EVENT , IMIA_EVENT_SERVER);
-                   if (!m->notify)
-                       m->notify = UIIcon(5,0,MT_SERVEREVENT,0);
-                   return IM_MSG_ok;
-                 case MT_URL:
-                   m->action = sUIAction(IMIG_EVENT , IMIA_EVENT_URL);
-                   if (!m->notify) m->notify = UIIcon(5,0,MT_URL,0);
-                   return IM_MSG_ok;
-                 case MT_QUICKEVENT:
+                   return Message::resultOk;
+                 case Message::typeServerEvent:
+                   m->setAction(sUIAction(IMIG_EVENT , IMIA_EVENT_SERVER));
+                   if (!m->getNotify())
+                     m->setNotify(UIIcon(5,0,Message::typeServerEvent,0));
+                   return Message::resultOk;
+                 case Message::typeUrl:
+                   m->setAction (sUIAction(IMIG_EVENT , IMIA_EVENT_URL));
+                   if (!m->getNotify()) m->setNotify(UIIcon(5,0,Message::typeUrl,0));
+                   return Message::resultOk;
+                 case Message::typeQuickEvent:
                    ICMessage(IMI_MSG_OPEN , msg->p1);
-                   return IM_MSG_delete; //quickMessage
+                   return Message::resultDelete; //quickMessage
               }
               return 0;
+              */
     case IMI_CONFIG:
          ISRUNNING();
          IMESSAGE_TS();
@@ -1097,6 +1170,9 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
           ISRUNNING();
           IMESSAGE_TS();
           sUIActionInfo * ai = (sUIActionInfo*)msg->p1;
+          if (ai->act.id == 1313020) {
+            OutputDebugStringA("y olsd");
+          }
           if (!Act.exists(ai->act.parent))
             CtrlEx->PlugOut(msg->sender , _sprintf("Grupa %d dla akcji %d nie istnieje!" , ai->act.parent , ai->act.id) , 0);
           if (ai->act.id && Act.exists(ai->act))
@@ -1263,56 +1339,61 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
 	case IMI_ICONGET:
 		ISRUNNING();
 		return (int)Ico.iconGet(msg->p1 , (IML_enum)msg->p2);
-    case IM_MSG_OPEN:
+    /*
+  case Message::IM::imOpenMessage:
          ISRUNNING();
-         m = (cMessage*)msg->p1;
-         switch (m->type) {
-           case MT_MESSAGE:
-           case MT_QUICKEVENT:
+         m = (Message*)msg->p1;
+         switch (m->getType()) {
+           case Message::typeMessage:
+           case Message::typeQuickEvent:
              return ICMessage(IMI_MSG_OPEN , msg->p1);
-           case MT_SERVEREVENT:
+           case Message::typeServerEvent:
              ServerEventDialogNext();
              return 0;
-           case MT_URL:
+           case Message::typeUrl:
              return 0;
            }
 
          return 0;
+         */
     case IMI_MSG_OPEN:
          ISRUNNING();
          IMESSAGE_TS();
-         return IMsgOpen((cMessage*)msg->p1);
+         return IMsgOpen((Message*)msg->p1);
 
     case IMI_MSG_NOTINLIST:
 //         IMLOG("EEEE?");
 		 ISRUNNING();
-		 IMESSAGE_TS();
-         m = (cMessage*)msg->p1;
-		 if (m->type != MT_MESSAGE) return 0;
+     IMESSAGE_TS(); {
+         Message *m = (Message*)msg->p1;
+		 if (m->getType() != Message::typeMessage) return 0;
          if (GETINT(CFG_UIMSGFROMOTHER)
-             || (*GETSTR(CFG_UIMSGFROMOTHERPASS) && !strcmp(GETSTR(CFG_UIMSGFROMOTHERPASS) , m->body))
+             || (*GETSTR(CFG_UIMSGFROMOTHERPASS) && !strcmp(GETSTR(CFG_UIMSGFROMOTHERPASS) , m->getBody().a_str()))
              ) {
-           pos = ICMessage(IMC_CNT_ADD , (int)m->net , (int)m->fromUid);
+           pos = ICMessage(IMC_CNT_ADD , (int)m->getNet() , (int)m->getFromUid().a_str());
            SETCNTI(pos , CNT_STATUS , ST_NOTINLIST , CNTM_FLAG);
            ICMessage(IMC_CNT_CHANGED , pos);
            return GETINT(CFG_UIMSGFROMOTHER)!=0;
          }
-		 if (m->type==MT_MESSAGE && *GETSTR(CFG_UIMSGFROMOTHERREPLY) && !(m->flag & MF_AUTOMATED)) {
+         if (m->getType()==Message::typeMessage && *GETSTR(CFG_UIMSGFROMOTHERREPLY) && !(m->getFlags() & Message::flagAutomated)) {
            // Odsyla wiadomosc
-           cMessage msg;
-           memset(&msg , 0 , sizeof(msg));
-           msg.net=m->net;
-           msg.type=MT_MESSAGE;
-           msg.fromUid="";
-           msg.toUid=m->fromUid;
-           msg.body=(char*)GETSTR(CFG_UIMSGFROMOTHERREPLY);
-           msg.ext="";
-           msg.time = cTime64(true);
-           msg.flag = MF_SEND | MF_AUTOMATED;
-           sMESSAGESELECT ms;
-           ms.id = ICMessage(IMC_NEWMESSAGE , (int)&msg);
-           if (ms.id) ICMessage(IMC_MESSAGEQUEUE , (int)&ms);
-         }
+           Message msg;
+           msg.setId(0);
+           msg.setNet(m->getNet());
+           msg.setType(Message::typeMessage);
+           msg.setFromUid(m->getToUid());
+           msg.setToUid("");
+           msg.setBody(GETSTR(CFG_UIMSGFROMOTHERREPLY));
+           msg.setExt("");
+           msg.setTime(cTime64(true));
+           msg.setFlags(Message::flagSend | Message::flagAutomated);
+           msg.setNotify(0);
+           msg.setAction(NOACTION);
+
+           MessageSelect ms;
+           ms.id = ICMessage(Message::IM::imcNewMessage, (int)&msg);
+           if (ms.id) ICMessage(MessageSelect::IM::imcMessageQueue, (int)&ms);
+         }}
          return 0;
     case IMI_MSG_WINDOWSTATE:
          if (!Cnt.exists(msg->p1)) return 0;
@@ -1321,15 +1402,6 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
          return (GetForegroundWindow()!=Cnt[msg->p1].hwndMsg)?-1:1;
 	case IMI_MSG_EDITCTRL_WNDPROC:
 		return (int) EditMsgControlProc;
-    case IMI_HISTORY_ADD: {
-         if (!msg->p1) return 0;
-         sHISTORYADD * ha=(sHISTORYADD*)msg->p1;
-		 if (ha->m->flag & MF_DONTADDTOHISTORY) return 0;
-         if (!Cnt.exists(ha->cnt)) ha->cnt = 0;
-         hist_add(ha->m , ha->dir , ha->cnt?&Cnt[ha->cnt]:0 , ha->name , ha->session);
-         return 1;}
-
-
     case IM_STATUSCHANGE: {
          ISRUNNING();
          sIMessage_StatusChange sc (msgBase);
@@ -1473,8 +1545,8 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
 		// symulujemy "wyœlij wiadomoœæ"
 		ICMessage(IMI_ACTION_CALL , (int)&sUIActionNotify_2params(sUIAction(IMIG_CNT , IMIA_CNT_MSG , cntID) , ACTN_ACTION , 0 , 0));
 		if (!msg.empty()) {
-			cMessage m;
-			m.body = (char*)msg.c_str();
+			Message m;
+			m.setBody( msg.c_str());
 			Konnekt::UI::Notify::_insertMsg ni(&m , 0 , true);
 			ni.act = sUIAction(IMIG_MSGWND , Konnekt::UI::ACT::msg_ctrlsend , cntID);
 			ICMessage(IMI_ACTION_CALL , (int)&ni);

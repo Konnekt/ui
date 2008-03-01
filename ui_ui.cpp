@@ -36,7 +36,6 @@
 #include "ui_window.h"
 #include "ui_dialogs.h"
 #include "ui_ui.h"
-#include "ui_history.h"
 #include "ui_msgcontrol.h"
 
 #include "ui_act.hpp"
@@ -95,7 +94,7 @@ std::string __stdcall formatCallback(class cPreg & Preg , sFormatCallback * d) {
 			s = (trayAction.id)?Act(trayAction).txt.substr(0 , Act(trayAction).txt.find(MSGTITLE_CHAR)):"";
 		} else if (token == "eventMsg" && trayMsgID) {
 			// Musimy pobrac Title!
-			s=GetExtParam(Ctrl->DTgetStr(DTMSG , trayMsgID , MSG_EXT) , MEX_TITLE);
+      s=GetExtParam(Ctrl->DTgetStr(DTMSG , trayMsgID , Message::colExt) , Message::extTitle);
 		} else
 			matched = false;
 	} else
@@ -130,21 +129,24 @@ CStdString formatTitle(string format , int cntID , formatTitle_enum type) {
 
 // ------------
 
-int openURLMessage(cMessage * m) {
+int openURLMessage(Message * m) {
 
-    CStdString url = m->body;
-    CStdString info = m->body;
-    CStdString Width = GetExtParam(m->ext , "Width");
-    CStdString Height = GetExtParam(m->ext , "Height");
-    if (url.find('\n')!=url.npos) {
-        info = url.substr(0 , url.find_last_of('\n'));
-        url.erase(0 , url.find_last_of('\n')+1);
-    } else {
-        info="";
-    }
+  CStdString url = m->getBody().a_str();
+  CStdString info = m->getBody().a_str();
+
+  CStdString Width = m->getExtParam("Width").a_str();
+  CStdString Height = m->getExtParam("Height").a_str();
+
+  if (url.find('\n')!=url.npos) {
+      info = url.substr(0 , url.find_last_of('\n'));
+      url.erase(0 , url.find_last_of('\n')+1);
+  } else {
+      info="";
+  }
+
     info += "\r\nAdres URL zostanie otwarty.";
     int r = MessageBox((HWND)ICMessage(IMI_GROUP_GETHANDLE , (int)&sUIAction(0 , IMIG_MAINWND))
-        , info , GetExtParam(m->ext , "Title").c_str() , MB_ICONINFORMATION|MB_OKCANCEL);
+        , info , m->getExtParam("Title").a_str() , MB_ICONINFORMATION|MB_OKCANCEL);
     if (r==IDOK) {
         CStdString open = "javascript:window.open(\"" + url + "\",\"\",\"";
         open += "toolbar=0, "
@@ -158,10 +160,12 @@ int openURLMessage(cMessage * m) {
         open += "\");";
         ShellExecute(0 , "open" , url , "" , "" , SW_HIDE);
     }
-    sMESSAGESELECT ms;
-    ms.id = m->id;
-    ICMessage(IMC_MESSAGEREMOVE , (int) &ms);
-    return IM_MSG_ok;
+
+    MessageSelect ms;
+    ms.id = m->getId();
+    ICMessage(MessageSelect::IM::imcMessageRemove, (int) &ms);
+
+    return Message::resultOk;
 }
 
 

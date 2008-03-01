@@ -11,7 +11,6 @@
    Ico.iconRes(IDI_TRAY, "tray");
    Ico[IDI_TRAY].ico_ = LoadIconEx(Ctrl->hDll() , "tray" , 16 , trayBitCount);
    Ico.iconRes(ICON_KONNEKT, "app", 0, IML_16_32);
-   Ico.iconRes(ICON_HISTORY);
    Ico.iconRes(ICON_POINT, "point");
 
    Ico.iconRes(ICON_INFO, "info", 0, IML_16_32);
@@ -71,20 +70,17 @@
    Ico.iconRes(IDI_TIP_REASON);
    Ico.iconRes(IDI_TIP_NAME);
    Ico.iconRes(IDI_TIP_INFO);
-   Ico.iconRes(IDI_HIST_DIR);
-   Ico.iconRes(IDI_HIST_SUB);
-   Ico.iconRes(IDI_HIST_QUERY);
    Ico.iconRes(IDI_NFO_CANCEL, "cancel", 0, IML_16);
    Ico.iconRes(IDI_NFO_REFRESH, "refresh", 0, IML_16);
    Ico.iconRes(IDI_NFO_SAVE, "apply", 0, IML_16);
    Ico.iconRes(UIIcon(2,0,0,0),IDI_NET_NONE);
-   Ico.iconRes(UIIcon(IT_MESSAGE,0,MT_MESSAGE,0),IDI_MT_MESSAGE);
-   Ico.iconRes(UIIcon(IT_MESSAGE,0,MT_FILE,0),IDI_MT_FILE);
-   Ico.iconRes(UIIcon(IT_MESSAGE,0,MT_SERVEREVENT,0),IDI_MT_SERVEREVENT);
-   Ico.iconRes(UIIcon(IT_MESSAGE,0,MT_EVENT,0),IDI_MT_SERVEREVENT);
-   Ico.iconRes(UIIcon(IT_MESSAGE,0,MT_CNTEVENT,0),IDI_MT_SERVEREVENT);
-   Ico.iconRes(UIIcon(IT_MESSAGE,0,MT_MAIL,0),IDI_MT_MAIL);
-   Ico.iconRes(UIIcon(IT_MESSAGE,0,MT_URL,0),IDI_MT_URL);
+   Ico.iconRes(UIIcon(IT_MESSAGE,0,Message::typeMessage,0),IDI_MT_MESSAGE);
+   Ico.iconRes(UIIcon(IT_MESSAGE,0,Message::typeFile,0),IDI_MT_FILE);
+   Ico.iconRes(UIIcon(IT_MESSAGE,0,Message::typeServerEvent,0),IDI_MT_SERVEREVENT);
+   Ico.iconRes(UIIcon(IT_MESSAGE,0,Message::typeEvent,0),IDI_MT_SERVEREVENT);
+   Ico.iconRes(UIIcon(IT_MESSAGE,0,Message::typeCntEvent,0),IDI_MT_SERVEREVENT);
+   Ico.iconRes(UIIcon(IT_MESSAGE,0,Message::typeMail,0),IDI_MT_MAIL);
+   Ico.iconRes(UIIcon(IT_MESSAGE,0,Message::typeUrl,0),IDI_MT_URL);
 
    Ico.iconRes(UIIcon(IT_OVERLAY,0,1,0),IDI_OVR_MAIL,0,IML_ICO);
    Ico.iconRes(UIIcon(IT_OVERLAY,0,2,0),IDI_OVR_SMS,0,IML_ICO);
@@ -114,8 +110,6 @@
    Ico[IDI_WND_SEARCH].ico_ = LoadIconEx(Ctrl->hDll(), "search" , 32);
    Ico[IDI_WND_INFO].ico = LoadIconEx(Ctrl->hDll(), "user",16);
    Ico[IDI_WND_INFO].ico_ = LoadIconEx(Ctrl->hDll(), "user",32);
-   Ico[IDI_WND_HISTORY].ico = LoadIconEx(Ctrl->hDll(), "history" , 16);
-   Ico[IDI_WND_HISTORY].ico_ = LoadIconEx(Ctrl->hDll(), "history" , 32);
    // Inne ikony
    Ico.iconRes(IDI_ENTER);
 //   Ico[IDI_RESET].bmp=LoadImage((HINSTANCE)ID,MAKEINTRESOURCE(2), IMAGE_BITMAP , 0,0,LR_LOADTRANSPARENT|LR_SHARED);
@@ -156,7 +150,6 @@
 	   Act[UI::ACT::msg_ctrlsend_menu].insert(UI::ACT::msg_ctrlsend_menu_hist_clear , -1 , "Wyczyœæ ostatnie wiadomoœci", ACTR_INIT);
 
    }
-
    Act[0].insert(IMIG_CFGWND , -1 , "IMIG_CFGWND" , ACTS_GROUP);
      Act[IMIG_CFGWND].type |= ACT_WNDCFG;
      Act[IMIG_CFGWND].insert(IMIG_CFG , -1 , "Ustawienia" , ACTS_GROUP);
@@ -167,9 +160,6 @@
        Act[IMIG_NFO].type |= ACT_CFGBRANCH;
      Act[IMIG_NFOWND].insert(IMIG_NFO_BAR , -1 , "IMIG_NFO_BAR" , ACTS_GROUP | ACTSBAR_NOALIGN);
        Act[IMIG_NFO_BAR].type |= ACT_MENUBRANCH;
-   Act[0].insert(IMIG_HISTORYWND , -1 , "IMIG_HISTORYWND" , ACTS_GROUP | ACTR_SETCNT);
-     Act[IMIG_HISTORYWND].insert(Konnekt::UI::ACT::msg_ctrlview , -1 , "UI::ACT::msg_ctrlview" , ACTT_HWND);
-
    Act[IMIG_BAR].insert(IMIG_MAINTB , -1 , "" , ACTS_GROUP | /*ACTSTB_DARROWS  |  ACTSTB_LIST | */ ACTSTB_MIXED | ACTSTB_WRAP /*| ACTSBAND_FULL*/);
    Act[IMIG_BAR].insert(IMIG_STATUS , -1 , "" , ACTS_GROUP | ACTSTB_LIST | /*ACTSTB_MIXED |*/ ACTSTB_SHOWTEXT | ACTSTB_WRAP);
    Act[IMIG_BAR].insert(IMIG_SHORTCUTTB , -1 , "" , ACTS_GROUP | ACTS_HIDDEN);
@@ -190,10 +180,10 @@
 //   Act[IMIG_EVENT_PARENT].insert(0 , -1 , "zdarzenia" , ACTS_SEPARATOR );
 
    Act[IMIG_EVENT_PARENT].insert(IMIG_EVENT , -1 , "zdarzenia" , ACTS_GROUP | ACTS_HIDDEN /*| ACTS_WHOLEDROPDOWN*/    , IDI_TB_MAIN);
-   Act[IMIG_EVENT].insert(IMIA_EVENT_SERVER , 0 , "Wiadomoœæ od serwera" , ACTR_INIT | ACTSMENU_BOLD , UIIcon(5,0,MT_SERVEREVENT,0));
-   Act[IMIG_EVENT].insert(IMIA_EVENT_URL , 0 , "URL" , ACTR_INIT | ACTSMENU_BOLD , UIIcon(IT_MESSAGE,0,MT_URL,0));
-   Act[IMIG_EVENT].insert(IMIA_EVENT_EVENT , 0 , "" , ACTR_INIT | ACTSMENU_BOLD , UIIcon(IT_MESSAGE,0,MT_EVENT,0));
-   Act[IMIG_EVENT].insert(IMIA_EVENT_OPENANYMESSAGE , 0 , "" , ACTR_INIT | ACTSMENU_BOLD , UIIcon(IT_MESSAGE,0,MT_EVENT,0));
+   Act[IMIG_EVENT].insert(IMIA_EVENT_SERVER , 0 , "Wiadomoœæ od serwera" , ACTR_INIT | ACTSMENU_BOLD , UIIcon(5,0,Message::typeServerEvent,0));
+   Act[IMIG_EVENT].insert(IMIA_EVENT_URL , 0 , "URL" , ACTR_INIT | ACTSMENU_BOLD , UIIcon(IT_MESSAGE,0,Message::typeUrl,0));
+   Act[IMIG_EVENT].insert(IMIA_EVENT_EVENT , 0 , "" , ACTR_INIT | ACTSMENU_BOLD , UIIcon(IT_MESSAGE,0,Message::typeEvent,0));
+   Act[IMIG_EVENT].insert(IMIA_EVENT_OPENANYMESSAGE , 0 , "" , ACTR_INIT | ACTSMENU_BOLD , UIIcon(IT_MESSAGE,0,Message::typeEvent,0));
 
 //   Act[IMIG_EVENT_PARENT].insert(IMIA_DEBUG , -1 , "Test" , ACTS_SHOWTEXT , 0);
 
@@ -260,7 +250,6 @@
    }
    Act[IMIG_MAIN_CNT].insert(IMIA_MAIN_CNT_IGNORE , -1 , "Lista ignorowanych" , 0 , UIIcon(IT_STATUS , 0 , ST_BLOCKING , 0));
    Act[IMIG_MAIN_CNT].insert(IMIA_MAIN_CNT_GROUPS , -1 , "Grupy kontaktów", 0, ICON_GROUP);
-   Act[IMIG_MAIN_CNT].insert(IMIA_MAIN_HISTORY , -1 , "Historia rozmów" , 0 , ICON_HISTORY);
 
    Act[IMIG_MAIN_OPTIONS].insert(IMIA_MAIN_OPTIONS_CFG , -1 , "Ustawienia" ,ACTSMENU_BOLD, ICON_OPTIONS);
    Act[IMIG_MAIN_OPTIONS].insert(IMIA_MAIN_OPTIONS_PLUG , -1 , "Wtyczki" , 0 , ICON_PLUGIN);
@@ -300,12 +289,11 @@
  
    // CNT
    Act[IMIG_CNT].insert(IMIA_CNT_OPENANYMESSAGE , -1 , "" , ACTR_INIT , 0);
-   Act[IMIG_CNT].insert(IMIA_CNT_MSGOPEN , -1 , "Odbierz wiadomoœæ" , ACTR_INIT | ACTSMENU_BOLD , UIIcon(IT_MESSAGE,0,MT_MESSAGE,0));
-   Act[IMIG_CNT].insert(IMIA_CNT_MSG , -1 , "Wyœlij wiadomoœæ" , ACTR_INIT | ACTSMENU_BOLD , UIIcon(IT_MESSAGE,0,MT_MESSAGE,0));
-   Act[IMIG_CNT].insert(IMIA_CNT_SENDEMAIL , -1 , "Wyœlij Email'a" , ACTR_INIT  , UIIcon(IT_MESSAGE,0,MT_MAIL,0));
+   Act[IMIG_CNT].insert(IMIA_CNT_MSGOPEN , -1 , "Odbierz wiadomoœæ" , ACTR_INIT | ACTSMENU_BOLD , UIIcon(IT_MESSAGE,0,Message::typeMessage,0));
+   Act[IMIG_CNT].insert(IMIA_CNT_MSG , -1 , "Wyœlij wiadomoœæ" , ACTR_INIT | ACTSMENU_BOLD , UIIcon(IT_MESSAGE,0,Message::typeMessage,0));
+   Act[IMIG_CNT].insert(IMIA_CNT_SENDEMAIL , -1 , "Wyœlij Email'a" , ACTR_INIT  , UIIcon(IT_MESSAGE,0,Message::typeMail,0));
    Act[IMIG_CNT].insert(IMIA_CNT_SEP , -1 , "", ACTT_SEP);
    Act[IMIG_CNT].insert(IMIA_CNT_INFO , -1 , "Wiêcej" , ACTR_INIT | ACTSMENU_BOLD , IDI_TB_ADD);
-   Act[IMIG_CNT].insert(IMIA_CNT_HISTORY , -1 , "Historia" , ACTR_INIT , ICON_HISTORY);
    Act[IMIG_CNT].insert(IMIA_CNT_IGNORE , -1 , "Ignoruj" , ACTR_INIT , UIIcon(IT_STATUS , 0 , ST_BLOCKING , 0));
 //   Act[IMIG_CNT].insert(IMIA_CNT_UNIGNORE , -1 , "Przestañ ignorowaæ" , ACTR_INIT);
    Act[IMIG_CNT].insert(IMIA_CNT_ADD , -1 , "Dodaj do listy" , ACTR_INIT);
@@ -314,10 +302,9 @@
    // Wiadomosci
    Act[IMIG_MSGBAR].insert(IMIG_MSGSENDTB , -1 , "Inne" , ACTS_GROUP | ACTS_HIDDEN);
    Act[IMIG_MSGBAR].insert(IMIG_MSGTB , -1 , "" , ACTS_GROUP | ACTSBAND_FULL | ACTSTB_LIST | ACTSTB_MIXED);
-    Act[IMIG_MSGTB].insert(IMIA_MSG_SEND , -1 , "Wyœlij" , 0 , UIIcon(5,0,MT_MESSAGE,0));
+    Act[IMIG_MSGTB].insert(IMIA_MSG_SEND , -1 , "Wyœlij" , 0 , UIIcon(5,0,Message::typeMessage,0));
 	Act[IMIG_MSGTB].insert(IMIA_MSG_BYENTER , -1 , "Enterem" , ACTT_CHECK | ACTR_INIT, IDI_ENTER);
     Act[IMIG_MSGTB].insert(IMIA_MSG_INFO , -1 , "Info" , 0 , UIIcon(2,10,0,0));
-	Act[IMIG_MSGTB].insert(IMIA_MSG_HISTORY , -1 , "Historia" , 0 , ICON_HISTORY);
     Act[IMIG_MSGSENDTB].insert(IMIA_MSG_SENDMAIL , -1 , "Email" , 0 , 0);
 
 
@@ -832,7 +819,7 @@
 			}
 
 
-			Act[IMIG_CFG_UI].insert(IMIG_CFG_UI_MSG , -1 , "Wiadomoœci" , ACTS_GROUP , UIIcon(IT_MESSAGE, 0, MT_MESSAGE, 0));{
+			Act[IMIG_CFG_UI].insert(IMIG_CFG_UI_MSG , -1 , "Wiadomoœci" , ACTS_GROUP , UIIcon(IT_MESSAGE, 0, Message::typeMessage, 0));{
 				Act[IMIG_CFG_UI_MSG].insert(0 , -1 , "Okno rozmowy" , ACTT_GROUP);{
 					if (ShowBits::checkBits(ShowBits::showInfoNormal)) {
 						UIActionAdd(IMIG_CFG_UI_MSG , 0 , ACTT_TIPBUTTON | ACTSC_INLINE , AP_TIP "" AP_TIPIMAGEURL "file://%KonnektData%\\img\\ui_msgwindow.png" AP_ICONSIZE "32"
@@ -885,34 +872,7 @@
 					}Act[IMIG_CFG_UI_MSG].insert(0 , -1 , "" , ACTT_GROUPEND);
 				}
 
-				Act[IMIG_CFG_UI_MSG].insert(IMIG_CFG_UI_MSG_HISTORY, -1 , "Historia" , ACTS_GROUP , ICON_HISTORY);{
-					Act[IMIG_CFG_UI_MSG_HISTORY].insert(0 , -1 , "" , ACTT_GROUP);{
-						if (ShowBits::checkBits(ShowBits::showInfoNormal)) {
-							UIActionAdd(IMIG_CFG_UI_MSG_HISTORY , 0 , ACTT_TIPBUTTON | ACTSC_INLINE , AP_TIP "" AP_TIPIMAGEURL "file://%KonnektData%\\img\\ui_historywindow.png" AP_ICONSIZE "32"
-								, 0, 40, 40);
-							UIActionAdd(IMIG_CFG_UI_MSG_HISTORY , 0 , ACTT_HTMLINFO | ACTSC_FULLWIDTH , 
-								"Wszystkie wiadomoœci które s¹ odbierane b¹dŸ wysy³ane zostaj¹ zapisane w historii. Dziêki temu mo¿na pó¿niej przeczytaæ starsze rozmowy, czy wyszukaæ konkretne informacje w nich zawarte, takie jak np. adresy stron czy emaile."
-								, 0, 350, -4);
-							UIActionAdd(IMIG_CFG_UI_MSG_HISTORY , 0 , ACTT_SEPARATOR);
-						}
-						Act[IMIG_CFG_UI_MSG_HISTORY].insert(0 , -1 , "Zapisuj wiadomoœci w historii" , ACTT_CHECK , CFG_LOGHISTORY);
-						if (ShowBits::checkLevel(ShowBits::levelNormal)) {
-							Act[IMIG_CFG_UI_MSG_HISTORY].insert(0 , -1 , "Podkreœlaj znaleziony tekst" , ACTT_CHECK , CFG_UIHISTORY_MARKFOUND);
-						}
-					}Act[IMIG_CFG_UI_MSG_HISTORY].insert(0 , -1 , "" , ACTT_GROUPEND);
-					if (ShowBits::checkLevel(ShowBits::levelAdvanced)) {
-						Act[IMIG_CFG_UI_MSG_HISTORY].insert(0 , -1 , "Export do XMLa" , ACTT_GROUP);{
-							Act[IMIG_CFG_UI_MSG_HISTORY].insert(0 , -1 , "Nag³ówek wstawiany do XMLa:" , ACTT_COMMENT);
-							Act[IMIG_CFG_UI_MSG_HISTORY].insert(0 , -1 , "" AP_TIP "Mo¿esz u¿ywaæ zmiennych œrodowiskowych jak %HistoryXSL% czy %KonnektPath%" , ACTT_TEXT , CFG_UIHISTORY_XMLHEADER);
-							Act[IMIG_CFG_UI_MSG_HISTORY].insert(0 , -1 , "Plik XSL do formatowania exportu" , ACTT_COMMENT | ACTSC_INLINE);
-							Act[IMIG_CFG_UI_MSG_HISTORY].insert(0 , -1 , "" AP_TIP "Mo¿esz u¿ywaæ zmiennych œrodowiskowych jak %KonnektData% czy %KonnektPath%" , ACTT_EDIT | ACTSC_FULLWIDTH , CFG_UIHISTORY_XMLXSL);
-							Act[IMIG_CFG_UI_MSG_HISTORY].insert(0 , -1 , "Plik XSL do formatowania wydruku" , ACTT_COMMENT | ACTSC_INLINE);
-							Act[IMIG_CFG_UI_MSG_HISTORY].insert(0 , -1 , "" AP_TIP "Mo¿esz u¿ywaæ zmiennych œrodowiskowych jak %KonnektData% czy %KonnektPath%" , ACTT_EDIT | ACTSC_FULLWIDTH , CFG_UIHISTORY_XMLPRINTXSL);
-							Act[IMIG_CFG_UI_MSG_HISTORY].insert(0 , -1 , "Zapisuj pe³ne informacje o wiadomoœciach" , ACTT_CHECK , CFG_UIHISTORY_XMLFULL);
-						}Act[IMIG_CFG_UI_MSG_HISTORY].insert(0 , -1 , "" , ACTT_GROUPEND);
-					}
-				}
-
+		
 				Act[IMIG_CFG_UI_MSG].insert(IMIG_CFG_UI_MSG_NOTINLIST, -1 , "Spoza listy" , ACTS_GROUP | (ShowBits::checkLevel(ShowBits::levelNormal) ? 0 : ACTS_HIDDEN) , ICON_POINT);{
 					Act[IMIG_CFG_UI_MSG_NOTINLIST].insert(0 , -1 , "" , ACTT_GROUP);{
 						if (ShowBits::checkBits(ShowBits::showInfoNormal)) {
@@ -1080,6 +1040,8 @@
 			  oPlugin plugin = Ctrl->getPlugin((tPluginId)i);
               
 			  if (plugin->getType() & IMT_NET) {
+          if (plugin->getNetName().empty()) continue;
+
 				  lista += plugin->getNetName();
 				  lista += CFGICO + string(inttoch(UIIcon(2, plugin->getNet() ,0,0)));
 				  lista += CFGVALUE + string(inttoch(plugin->getNet()));
@@ -1207,9 +1169,6 @@
 			  Act[IMIG_NFO_INFO].insert(IMIB_CNT , -1 , "" , ACTT_TEXT | ACTSC_FULLWIDTH , CNT_INFO);
 		  }Act[IMIG_NFO_INFO].insert(0 , -1 , "" , ACTT_GROUPEND);
 	  }
-
-
-
    // TESTOWE
 /*
    Act[IMIG_BAR].insert(2000 , -1 , "Test BAR" , ACTT_HWND);

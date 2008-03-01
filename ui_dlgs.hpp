@@ -867,13 +867,13 @@ INT_PTR CALLBACK MsgDialogProc(HWND hwndDlg,UINT message,WPARAM wParam,LPARAM lP
                }
                if (GetProp(hwndDlg , "MsgWaiting") || cnt->notify) {
                   // Usuwa powiadomienia ...
-                  sMESSAGEPOP mp;
+                  MessageSelect mp;
                   mp.net = cnt->net;
-                  mp.uid = (char*)GETCNTC(cnt->ID , CNT_UID);
-                  mp.type = MT_MESSAGE;
-                  mp.wflag = MF_OPENED;
-                  mp.woflag = MF_SEND;
-                  ICMessage(IMC_MESSAGEREMOVE , (int)&mp , -1);
+                  mp.setUid(GETCNTC(cnt->ID , CNT_UID));
+                  mp.type = Message::typeMessage;
+                  mp.wflag = Message::flagOpened;
+                  mp.woflag = Message::flagSend;
+                  ICMessage(MessageSelect::IM::imcMessageRemove, (int)&mp , -1);
                   SetProp(hwndDlg , "MsgWaiting" , 0);
                   SendMessage(hwndDlg , MYWM_SETICON , IDI_WND_MSG , 0);
                }

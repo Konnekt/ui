@@ -16,7 +16,7 @@ class cMsgControl {
     void unlock();
 //    __inline int parentMessageProc(HWND hwnd , UINT message, WPARAM wParam, LPARAM lParam);
 
-    void msgInsert(cMessage * m , const char * display=0 , bool scroll=true);
+    void msgInsert(Message * m , const char * display=0 , bool scroll=true);
     void statusInsert(int status , CStdString info);
 };
 
@@ -35,7 +35,7 @@ class cMsgControlRich {
     void unlock();
     int parentMessageProc(HWND hwnd , UINT message, WPARAM wParam, LPARAM lParam);
 
-    void msgInsert(cMessage * m , const char * display=0 , bool scroll=true);
+    void msgInsert(Message * m , const char * display=0 , bool scroll=true);
 	static void SetStyleCB(const CStdString & token , const CStdString & styleClass , cRichEditFormat::cSetStyle & ss);
 
 	void statusInsert(int status , CStdString info);

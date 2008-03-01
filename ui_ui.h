@@ -4,7 +4,7 @@ enum formatTitle_enum {
 
 CStdString getStatusName(int status);
 CStdString formatTitle(string format , int cntID , formatTitle_enum type);
-int openURLMessage(cMessage * m);
+int openURLMessage(Message * m);
 
 class cSplash {
 public:

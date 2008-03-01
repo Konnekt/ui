@@ -14,7 +14,7 @@
 #include <Richedit.h>
 #include "include\func.h"
 #include "include\simxml.h"
-#include "include\dbtable.h"
+//#include "include\dbtable.h"
 #include "include\dtablebin.h"
 #include "include\time64.h"
 
@@ -165,7 +165,7 @@ class cHistDir : public cHist {
   bool canErase() {return false;}
   bool canSave() {return true;}
   bool canSearch() {return !searchDisabled;}
-  virtual void msgInsert(cMessage * m , const char * display , bool scroll); // dodaje wiadomoœæ do okna ...
+  virtual void msgInsert(Message * m , const char * display , bool scroll); // dodaje wiadomoœæ do okna ...
   void select(); // zaznacza element i wywo³uje prepare
   cHistDir * getParent() {return parent;}
 
@@ -236,7 +236,7 @@ class cHistDirSearch : public cHistDir {
   bool canSearch() {return false;}
   bool canErase() {return true;}
   void addFoundItem(cHistItem * item); /* Dodaje do wyników szukania... */
-  void msgInsert(cMessage * m , const char * display , bool scroll);
+  void msgInsert(Message * m , const char * display , bool scroll);
 };
 
 
@@ -326,7 +326,7 @@ hist_s hist;
 
 
 
-int hist_add (cMessage * m , const char * dir , sUICnt * cnt , const char * name = 0 , int session = 0 ) {
+int hist_add (Message * m , const char * dir , sUICnt * cnt , const char * name = 0 , int session = 0 ) {
   if (!cnt && (!dir || !dir[0])) return 0;
   if (!GETINT(CFG_LOGHISTORY)) return 0;
   string path = profileDir + "history\\";
@@ -358,21 +358,21 @@ int hist_add (cMessage * m , const char * dir , sUICnt * cnt , const char * name
   fb.assign(&Msg);
 
   Msg.addrow();
-  Msg.setint(0 , MSG_ID , m->id);
-  Msg.setint(0 , MSG_NET , m->net);
-  Msg.setint(0 , MSG_TYPE , m->type);
-  Msg.setch(0 , MSG_FROMUID , m->fromUid);
-  Msg.setch(0 , MSG_TOUID , m->toUid);
-  Msg.setch(0 , MSG_BODY , m->body);
-  Msg.setch(0 , MSG_EXT  , m->ext);
-  Msg.setint(0 , MSG_FLAG , m->flag);
-  Msg.set64(0 , MSG_TIME , m->time);
+  Msg.setint(0 , Message::colId , m->getId());
+  Msg.setint(0 , Message::colNet, m->getNet());
+  Msg.setint(0 , Message::colType , m->getType());
+  Msg.setch(0 , Message::colFromUid, m->getFromUid().a_str());
+  Msg.setch(0 , Message::colToUid , m->getToUid().a_str());
+  Msg.setch(0 , Message::colBody , m->getBody().a_str());
+  Msg.setch(0 , Message::colExt , m->getExt().a_str());
+  Msg.setint(0 , Message::colFlag , m->getFlags());
+  Msg.set64(0 , Message::colTime , m->getTime());
   Msg.setint(0 , MSGH_SESSION , session);
-  if (!*m->fromUid)
+  if (!m->getFromUid().size())
     Msg.setch(0 , MSGH_DISPLAY , GETCNTC(0,CNT_DISPLAY));
   else
     {
-      int p = ICMessage(IMC_CNT_FIND , m->net , (int)m->fromUid);
+      int p = ICMessage(IMC_CNT_FIND , m->getNet() , (int)m->getFromUid().a_str());
       Msg.setch(0 , MSGH_DISPLAY , (p>0)?GETCNTC(p,CNT_DISPLAY) : "");
     }
   fb.append((path + fn).c_str());
@@ -629,7 +629,7 @@ bool cHistDir::search() {
 	return false;
 }
 
-void cHistDir::msgInsert(cMessage * m , const char * display , bool scroll) {
+void cHistDir::msgInsert(Message * m , const char * display , bool scroll) {
 	hist.msgControl->msgInsert(m , display , scroll);
 }
 
@@ -706,26 +706,26 @@ void cHistDirDTB::open() {
          hi->dir = dir;
          hi->path = path;
          hi->name = name;
-         hi->first_uid = Msg.getint(0,MSG_FLAG)&MF_SEND?Msg.getch(0 , MSG_TOUID):Msg.getch(0 , MSG_FROMUID);
-		 hi->title = GetExtParam(Msg.getch(0 , MSG_EXT) , MEX_TITLE);
+         hi->first_uid = Msg.getint(0,Message::colFlag)&Message::flagSend?Msg.getch(0 , Message::colToUid):Msg.getch(0 , Message::colFromUid);
+         hi->title = GetExtParam(Msg.getch(0 , Message::colExt) , Message::extTitle);
 		 if (hi->title.empty()) {
-			 string body = Msg.getch(0 , MSG_BODY);
-			 if (Msg.getint(0 , MSG_FLAG) & MF_HTML) {
+       string body = Msg.getch(0 , Message::colBody);
+       if (Msg.getint(0 , Message::colFlag) & Message::flagHTML) {
 				 cPreg preg(false);
 				 body = preg.replace("/<.+?>/" , "" , body.c_str());
 				 body = DecodeEntities(body.c_str());
 			 }
 		     hi->title = body.substr(0 , 50);
 		 }
-		 hi->ico = UIIcon(IT_MESSAGE , Msg.getint(0,MSG_NET) , Msg.getint(0,MSG_TYPE) , 0);
-		 if (!Ico.find(hi->ico)) hi->ico = UIIcon(IT_MESSAGE , 0 , Msg.getint(0,MSG_TYPE) , 0);
+     hi->ico = UIIcon(IT_MESSAGE , Msg.getint(0,Message::colNet) , Msg.getint(0,Message::colType) , 0);
+     if (!Ico.find(hi->ico)) hi->ico = UIIcon(IT_MESSAGE , 0 , Msg.getint(0,Message::colType) , 0);
 
          unsigned int i;
          for (i=0; i<hi->title.size(); i++) {
             if ((unsigned char)hi->title[i] < 31) {hi->title.erase(i);break;}
          }
          if (i>=49) hi->title+="...";
-         cTime64 t64(Msg.get64(0 , MSG_TIME));
+         cTime64 t64(Msg.get64(0 , Message::colTime));
          hi->sort = __int64(t64) & 0xFFFFFFFFFFFF;
 
          hi->date = t64;
@@ -774,10 +774,10 @@ bool cHistDirDTB::search() {
 			if (hist.search.opt.threadPrev > 0) // œledzimy poprzedzaj¹ce
 				positions.push_back(Msg.rows[0]->pos);
 			if (hist.search.opt.query.empty() == false)
-				hist.search.preg.setSubject(Msg.getch(0 , MSG_BODY));
+        hist.search.preg.setSubject(Msg.getch(0 , Message::colBody));
 			__time64_t msgTime = 0;
 			if (hist.search.opt.timeFrom || hist.search.opt.timeTo) {
-				msgTime = cTime64(Msg.get64(0 , MSG_TIME));
+        msgTime = cTime64(Msg.get64(0 , Message::colTime));
 			}
 			if ((!hist.search.opt.timeFrom || hist.search.opt.timeFrom <= msgTime)
 				&& (!hist.search.opt.timeTo || hist.search.opt.timeTo >= msgTime)
@@ -787,16 +787,16 @@ bool cHistDirDTB::search() {
 				found = new cHistItemDTB();
 				found->parent = hist.search.foundDir;
 				found->cnt = this->cnt;
-				found->date = Msg.get64(0 , MSG_TIME);
+        found->date = Msg.get64(0 , Message::colTime);
 				found->id  = DT_MASKID(Msg.rows[0]->id);
 				found->dir = this->dir;
 				found->path = this->path;
 				found->name = this->name;
-				found->first_uid = Msg.getint(0,MSG_FLAG)&MF_SEND?Msg.getch(0 , MSG_TOUID):Msg.getch(0 , MSG_FROMUID);
-				found->ico = UIIcon(IT_MESSAGE , Msg.getint(0,MSG_NET) , Msg.getint(0,MSG_TYPE) , 0);
-				if (!Ico.find(found->ico)) found->ico = UIIcon(IT_MESSAGE , 0 , Msg.getint(0,MSG_TYPE) , 0);
+        found->first_uid = Msg.getint(0,Message::colFlag)&Message::flagSend?Msg.getch(0 , Message::colToUid):Msg.getch(0 , Message::colFromUid);
+        found->ico = UIIcon(IT_MESSAGE , Msg.getint(0,Message::colNet) , Msg.getint(0,Message::colType) , 0);
+        if (!Ico.find(found->ico)) found->ico = UIIcon(IT_MESSAGE , 0 , Msg.getint(0,Message::colType) , 0);
 				if (hist.search.opt.query.empty()) {
-					found->title =  CStdString(Msg.getch(0 , MSG_BODY)).substr(0 , 50);
+          found->title =  CStdString(Msg.getch(0 , Message::colBody)).substr(0 , 50);
 				} else {
 					found->title =  hist.search.preg.getSubjectRef().substr(hist.search.preg.getVector(0) , 50);
 				}
@@ -805,7 +805,7 @@ bool cHistDirDTB::search() {
 					if ((unsigned char)found->title[i] < 31) {found->title[i] = ' ';}
 				}
 				if (i>=49) found->title+="...";
-				cTime64 t64(Msg.get64(0 , MSG_TIME));
+        cTime64 t64(Msg.get64(0 , Message::colTime));
 				found->sort = __int64(t64) & 0xFFFFFFFFFFFF;
 				found->date = t64;
 
@@ -872,20 +872,20 @@ void cHistDirQueue::open() {
       hi->subItems = 0;
       hi->dir = dir;
       hi->path = path;
-      char * uid = (*Ctrl->DTgetStr(DTMSG , id , MSG_FROMUID))?Ctrl->DTgetStr(DTMSG , id , MSG_FROMUID):Ctrl->DTgetStr(DTMSG , id , MSG_TOUID);
-      cnt = ICMessage(IMC_CNT_FIND , Ctrl->DTgetInt(DTMSG , id , MSG_NET)
+      char * uid = (*Ctrl->DTgetStr(DTMSG , id , Message::colFromUid))?Ctrl->DTgetStr(DTMSG , id , Message::colFromUid):Ctrl->DTgetStr(DTMSG , id , Message::colToUid);
+      cnt = ICMessage(IMC_CNT_FIND , Ctrl->DTgetInt(DTMSG , id , Message::colNet)
                   , (int)uid);
       hi->name = cnt!=DT_NOROW?GETCNTC(cnt , CNT_DISPLAY):SAFECHAR(uid);
       cnt = Ctrl->DTgetID(DTCNT , cnt);
-      hi->title = string(Ctrl->DTgetStr(DTMSG , id , MSG_BODY)).substr(0 , 50);
-	  hi->ico = UIIcon(IT_LOGO , Ctrl->DTgetInt(DTMSG , id , MSG_NET) , 0, 0);
+      hi->title = string(Ctrl->DTgetStr(DTMSG , id , Message::colBody)).substr(0 , 50);
+      hi->ico = UIIcon(IT_LOGO , Ctrl->DTgetInt(DTMSG , id , Message::colNet) , 0, 0);
       unsigned int j;
       for (j=0; j<hi->title.size(); j++) {
           if ((unsigned char)hi->title[j] < 31) {hi->title.erase(j);}
       }
       if (j>=49) hi->title+="...";
       cTime64 t64;
-      hi->sort = Ctrl->DTgetInt64(DTMSG , id , MSG_TIME);
+      hi->sort = Ctrl->DTgetInt64(DTMSG , id , Message::colTime);
       t64 = (__int64)hi->sort;
       hi->date = t64;
       items.push_back(hi);
@@ -895,13 +895,13 @@ void cHistDirQueue::open() {
 }
 
 int cHistDirQueue::checkMsg(int pos) {
-     int mflg = Ctrl->DTgetInt(DTMSG , pos , MSG_FLAG);
-     int mnet = Ctrl->DTgetInt(DTMSG , pos , MSG_NET);
-     int mtype = Ctrl->DTgetInt(DTMSG , pos , MSG_TYPE);
+  int mflg = Ctrl->DTgetInt(DTMSG , pos , Message::colFlag);
+     int mnet = Ctrl->DTgetInt(DTMSG , pos , Message::colNet);
+     int mtype = Ctrl->DTgetInt(DTMSG , pos , Message::colType);
      if (
-       (!net || (net == Ctrl->DTgetInt(DTMSG , pos , MSG_NET)))
+       (!net || (net == Ctrl->DTgetInt(DTMSG , pos , Message::colNet)))
        &&
-       (!type || (type == Ctrl->DTgetInt(DTMSG , pos , MSG_TYPE)))
+       (!type || (type == Ctrl->DTgetInt(DTMSG , pos , Message::colType)))
        &&
        (!flag || flag==-1 || (mflg & flag))
        &&
@@ -938,9 +938,9 @@ bool cHistDirQueue::search() {
 		int id = Ctrl->DTgetID(DTMSG , i);
 		if (checkMsg(id)) {
 			if (hist.search.opt.query.empty() == false)
-				hist.search.preg.setSubject(Ctrl->DTgetStr(DTMSG , id , MSG_BODY));
-			if ((!hist.search.opt.timeFrom || hist.search.opt.timeFrom <= Ctrl->DTgetInt64(DTMSG , id , MSG_TIME))
-				&& (!hist.search.opt.timeTo || hist.search.opt.timeTo >= Ctrl->DTgetInt64(DTMSG , id , MSG_TIME))
+        hist.search.preg.setSubject(Ctrl->DTgetStr(DTMSG , id , Message::colBody));
+      if ((!hist.search.opt.timeFrom || hist.search.opt.timeFrom <= Ctrl->DTgetInt64(DTMSG , id , Message::colTime))
+        && (!hist.search.opt.timeTo || hist.search.opt.timeTo >= Ctrl->DTgetInt64(DTMSG , id , Message::colTime))
 				&& (hist.search.opt.query.empty() ||  hist.search.preg.match() > 0)
 			) {
 				cHistItemQueue * found = new cHistItemQueue;
@@ -949,23 +949,23 @@ bool cHistDirQueue::search() {
 				found->subItems = 0;
 				found->dir = dir;
 				found->path = path;
-				char * uid = (*Ctrl->DTgetStr(DTMSG , id , MSG_FROMUID))?Ctrl->DTgetStr(DTMSG , id , MSG_FROMUID):Ctrl->DTgetStr(DTMSG , id , MSG_TOUID);
-				cnt = ICMessage(IMC_CNT_FIND , Ctrl->DTgetInt(DTMSG , id , MSG_NET)
+        char * uid = (*Ctrl->DTgetStr(DTMSG , id , Message::colFromUid))?Ctrl->DTgetStr(DTMSG , id , Message::colFromUid):Ctrl->DTgetStr(DTMSG , id , Message::colToUid);
+        cnt = ICMessage(IMC_CNT_FIND , Ctrl->DTgetInt(DTMSG , id , Message::colNet)
 					, (int)uid);
 				found->name = cnt!=DT_NOROW?GETCNTC(cnt , CNT_DISPLAY):SAFECHAR(uid);
 				cnt = Ctrl->DTgetID(DTCNT , cnt);
 				if (hist.search.opt.query.empty()) {
-					found->title = CStdString(Ctrl->DTgetStr(DTMSG , id , MSG_BODY)).substr(0 , 50);
+          found->title = CStdString(Ctrl->DTgetStr(DTMSG , id , Message::colBody)).substr(0 , 50);
 				} else {
 					found->title = hist.search.preg.getSubjectRef().substr(hist.search.preg.getVector(0) , 50);
 				}
-			    found->ico = UIIcon(IT_LOGO , Ctrl->DTgetInt(DTMSG , id , MSG_NET) , 0, 0);
+        found->ico = UIIcon(IT_LOGO , Ctrl->DTgetInt(DTMSG , id , Message::colNet) , 0, 0);
 				unsigned int j;
 				for (j=0; j<found->title.size(); j++) {
 					if ((unsigned char)found->title[j] < 31) {found->title[j] = ' ';}
 				}
 				if (j>=49) found->title+="...";
-				cTime64 t64(Ctrl->DTgetInt64(DTMSG , id , MSG_TIME));
+        cTime64 t64(Ctrl->DTgetInt64(DTMSG , id , Message::colTime));
 				found->sort = __int64(t64) & 0xFFFFFFFFFFFF;
 				found->date = t64;
 				hist.search.foundDir->addFoundItem(found);
@@ -983,22 +983,22 @@ void cHistDirSearch::open() {
 		hist.search.Show();
 }
 
-void cHistDirSearch::msgInsert(cMessage * msg , const char * display , bool scroll){
+void cHistDirSearch::msgInsert(Message * msg , const char * display , bool scroll){
 	if (!GETINT(CFG_UIHISTORY_MARKFOUND) || hist.search.opt.query.empty()) {
 		cHistDir::msgInsert(msg , display , scroll);
 		return;
 	}
-	cMessage m = *msg;
+	Message m = *msg;
 	CStdString body;
-	if (!(m.flag & MF_HTML)) {
-		m.flag |= MF_HTML;
-		body = EncodeEntities(m.body);
+  if (!(m.getFlags() & Message::flagHTML)) {
+    m.setOneFlag(Message::flagHTML, true);
+    body = EncodeEntities(m.getBody().a_str());
 		body.Replace("\n" , "<br/>");
 		this->preg.setSubject(body);
 	} else
-		this->preg.setSubject(m.body);
+    this->preg.setSubject(m.getBody().a_str());
 	body = this->preg.replace("<span class=\"mark\">$&</span>");
-	m.body = (char*) body.c_str();
+	m.setBody(body.c_str());
 	this->preg.setSubject("");
 	cHistDir::msgInsert(&m , display , scroll);
 }
@@ -1134,7 +1134,7 @@ enReturn cHistItemDTB::save(ofstream &file , int type) {
 	
     Msg.addrow(); // Czytanie odbywa sie na jednym wierszu...
 	if (fb.freadrow(0)) return retFalse;
-	cTime64 t64 (Msg.get64(0 , MSG_TIME)); 
+  cTime64 t64 (Msg.get64(0 , Message::colTime)); 
 	if (type == saveTXT) {
 		file << "---------------------------------" << endl;
 		file << t64.strftime("%H:%M %d %m'%y %A") << endl;
@@ -1146,24 +1146,24 @@ enReturn cHistItemDTB::save(ofstream &file , int type) {
 	}
 	int saved = 0;
     do {
-        t64 = Msg.get64(0 , MSG_TIME); 
+      t64 = Msg.get64(0 , Message::colTime); 
 		if (type == saveTXT) {
 			file << Msg.getch(0 , MSGH_DISPLAY) << t64.strftime(" [%H:%M]:") << endl;
-			file << '\t' << Msg.getch(0 , MSG_BODY) << endl << endl;
+      file << '\t' << Msg.getch(0 , Message::colBody) << endl << endl;
 		} else if (type == saveXML) {
 			file << "			<message name=\"" << EncodeEntities(Msg.getch(0 , MSGH_DISPLAY)) << "\" "
 				<< " date=\"" << t64.strftime("%d-%m-%Y") << "\" time=\"" << t64.strftime("%H:%M") << "\" "
 				;
 			if (GETINT(CFG_UIHISTORY_XMLFULL)) {
-				file << " net=\"" << Msg.getint(0 , MSG_NET) << "\" "
-					<< " type=\"" << Msg.getint(0 , MSG_TYPE) << "\" "
-					<< " flag=\"" << Msg.getint(0 , MSG_FLAG) << "\" "
-					<< " fromUid=\"" << EncodeEntities(Msg.getch(0 , MSG_FROMUID)) << "\" "
-					<< " toUid=\"" << EncodeEntities(Msg.getch(0 , MSG_TOUID)) << "\" "
-					<< " ext=\"" << EncodeEntities(Msg.getch(0 , MSG_EXT)) << "\" "
+        file << " net=\"" << Msg.getint(0 , Message::colNet) << "\" "
+          << " type=\"" << Msg.getint(0 , Message::colType) << "\" "
+          << " flag=\"" << Msg.getint(0 , Message::colFlag) << "\" "
+          << " fromUid=\"" << EncodeEntities(Msg.getch(0 , Message::colFromUid)) << "\" "
+          << " toUid=\"" << EncodeEntities(Msg.getch(0 , Message::colToUid)) << "\" "
+          << " ext=\"" << EncodeEntities(Msg.getch(0 , Message::colExt)) << "\" "
 					;
 			}
-			file << ">" << EncodeEntities(Msg.getch(0 , MSG_BODY))
+      file << ">" << EncodeEntities(Msg.getch(0 , Message::colBody))
 				<< "</message>" << endl;
 		}
 		if (++saved >= this->limit) break;
@@ -1198,18 +1198,18 @@ void cHistItemDTB::open() {
   hist.msgControl->lock();
   unsigned int shown = 0;
   do {
-    int type = Msg.getint(0 , MSG_TYPE);
-    if (Msg.getint(0,MSG_FLAG) & MF_SEND) type |= 0x10000;
-    cMessage m;
-    m.id = Msg.getint(0 , MSG_ID);
-    m.net = Msg.getint(0 , MSG_NET);
-    m.fromUid = Msg.getch(0 , MSG_FROMUID);
-    m.toUid = Msg.getch(0 , MSG_TOUID);
-    m.flag = Msg.getint(0 , MSG_FLAG);
-    m.type = Msg.getint(0 , MSG_TYPE);
-    m.body = Msg.getch(0 , MSG_BODY);
-    m.ext = Msg.getch(0 , MSG_EXT);
-    m.time = Msg.get64(0 , MSG_TIME);
+    int type = Msg.getint(0 , Message::colType);
+    if (Msg.getint(0,Message::colFlag) & Message::flagSend) type |= 0x10000;
+    Message m;
+    m.setId(Msg.getint(0 , Message::colId));
+    m.setNet((Net::tNet)Msg.getint(0 , Message::colNet));
+    m.setFromUid(Msg.getch(0 , Message::colFromUid));
+    m.setToUid (Msg.getch(0 , Message::colToUid));
+    m.setFlags((Message::enFlags)Msg.getint(0 , Message::colFlag));
+    m.setType((Message::enType) Msg.getint(0 , Message::colType));
+    m.setBody(Msg.getch(0 , Message::colBody));
+    m.setExt (Msg.getch(0 , Message::colExt));
+    m.setTime(Msg.get64(0 , Message::colTime));
 	(hist.dir_opened?hist.dir_opened:parent)->msgInsert(&m , Msg.getch(0 , MSGH_DISPLAY),false);
     SendMessage(hist.prgrsWnd , PBM_STEPIT , 0 , 0);
 	if (++shown >= this->limit) break; // pokazaliœmy wystarczaj¹co du¿o...
@@ -1223,25 +1223,25 @@ void cHistItemDTB::open() {
 
 void cHistItemQueue::open() {
 	if (Ctrl->DTgetPos(DTMSG,pos)==-1) return;
-    cMessage m;
+    Message m;
     Ctrl->DTlock(DTMSG , pos);
-    m.id = Ctrl->DTgetInt(DTMSG , pos , MSG_ID);
-    m.net = Ctrl->DTgetInt(DTMSG , pos , MSG_NET);
-    m.fromUid = Ctrl->DTgetStr(DTMSG , pos , MSG_FROMUID);
-    m.toUid = Ctrl->DTgetStr(DTMSG , pos , MSG_TOUID);
-    m.flag = Ctrl->DTgetInt(DTMSG , pos , MSG_FLAG);
-    m.type = Ctrl->DTgetInt(DTMSG , pos , MSG_TYPE);
-    m.body = Ctrl->DTgetStr(DTMSG , pos , MSG_BODY);
-    m.ext = Ctrl->DTgetStr(DTMSG , pos , MSG_EXT);
-    m.time = Ctrl->DTgetInt64(DTMSG , pos , MSG_TIME);
+    m.setId(Ctrl->DTgetInt(DTMSG , pos , Message::colId));
+    m.setNet((Net::tNet)Ctrl->DTgetInt(DTMSG , pos , Message::colNet));
+    m.setFromUid(Ctrl->DTgetStr(DTMSG , pos , Message::colFromUid));
+    m.setToUid(Ctrl->DTgetStr(DTMSG , pos , Message::colToUid));
+    m.setFlags ((Message::enFlags)Ctrl->DTgetInt(DTMSG , pos , Message::colFlag));
+    m.setType ((Message::enType)Ctrl->DTgetInt(DTMSG , pos , Message::colType));
+    m.setBody (Ctrl->DTgetStr(DTMSG , pos , Message::colBody));
+    m.setExt (Ctrl->DTgetStr(DTMSG , pos , Message::colExt));
+    m.setTime (Ctrl->DTgetInt64(DTMSG , pos , Message::colTime));
 	(hist.dir_opened?hist.dir_opened:parent)->msgInsert(&m , 0 , false);
     Ctrl->DTunlock(DTMSG , pos);
   }
 
 enReturn cHistItemQueue::erase() {
-    sMESSAGESELECT ms;
+    MessageSelect ms;
     ms.id = pos;
-	ICMessage(IMC_MESSAGEREMOVE , (int)&ms);
+    ICMessage(MessageSelect::IM::imcMessageRemove , (int)&ms);
     return retTrue;
 }
 
@@ -1684,15 +1684,15 @@ void hist_s::SetStatus(const char * status) {
 void hist_s::init() {
 //  h_desc = *(CdtColDesc*)ICMessage(IMC_GETMSGCOLDESC);
   h_desc.setcolcount(11,0);
-  h_desc.setcol(MSG_ID , DT_CT_INT , 0);
-  h_desc.setcol(MSG_NET , DT_CT_INT , 0);
-  h_desc.setcol(MSG_TYPE , DT_CT_INT , 0);
-  h_desc.setcol(MSG_FROMUID , DT_CT_PCHAR  | DT_CT_CXOR , 0);
-  h_desc.setcol(MSG_TOUID , DT_CT_PCHAR | DT_CT_CXOR , 0);
-  h_desc.setcol(MSG_BODY , DT_CT_PCHAR | DT_CT_CXOR , 0);
-  h_desc.setcol(MSG_EXT , DT_CT_PCHAR | DT_CT_CXOR , 0);
-  h_desc.setcol(MSG_FLAG , DT_CT_INT , 0);
-  h_desc.setcol(MSG_TIME , DT_CT_64 , 0);
+  h_desc.setcol(Message::colId , DT_CT_INT , 0);
+  h_desc.setcol(Message::colNet , DT_CT_INT , 0);
+  h_desc.setcol(Message::colType , DT_CT_INT , 0);
+  h_desc.setcol(Message::colFromUid , DT_CT_PCHAR  | DT_CT_CXOR , 0);
+  h_desc.setcol(Message::colToUid , DT_CT_PCHAR | DT_CT_CXOR , 0);
+  h_desc.setcol(Message::colBody, DT_CT_PCHAR | DT_CT_CXOR , 0);
+  h_desc.setcol(Message::colExt , DT_CT_PCHAR | DT_CT_CXOR , 0);
+  h_desc.setcol(Message::colFlag , DT_CT_INT , 0);
+  h_desc.setcol(Message::colTime , DT_CT_64 , 0);
   h_desc.setcol(MSGH_SESSION , DT_CT_INT , 0);
   h_desc.setcol(MSGH_DISPLAY , DT_CT_PCHAR | DT_CT_CXOR , 0);
 
@@ -2492,7 +2492,7 @@ int CALLBACK HistoryDialogProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM lPara
                       DestroyWindow(hwnd);
                       break;
                     case IDI_HISTB_RESEND:
-                        ICMessage(IMC_MESSAGEQUEUE , (int)&sMESSAGESELECT(NET_BC , 0 , -1 , MF_SEND));
+                      ICMessage(MessageSelect::IM::imcMessageQueue , (int)&MessageSelect(Net::broadcast,(char*) 0 ,Message::typeAll, Message::flagSend));
                         break;
                     case IDI_HISTB_COMPACT:
                         hist.compact();

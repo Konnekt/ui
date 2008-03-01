@@ -14,7 +14,7 @@
 #include "include\win_listview.h"
 
 #include "include\preg.h"
-#include "include\dbtable.h"
+//#include "include\dbtable.h"
 #include "include\dtablebin.h"
 #include "include\fontpicker.h"
 

@@ -1,5 +1,5 @@
 int CALLBACK HistoryDialogProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam);
-int hist_add (cMessage * m , const char * dir , sUICnt * cnt , const char * name , int session);
+int hist_add (Message * m , const char * dir , sUICnt * cnt , const char * name , int session);
 void hist_start(int cnt=0);
 void hist_init();
 #define MSGH_SESSION 100

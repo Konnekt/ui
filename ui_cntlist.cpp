@@ -22,7 +22,6 @@
 #include "ui_cntlistfilter.h"
 #include "ui_window.h"
 #include "ui_dialogs.h"
-#include "ui_history.h"
 #include "ui_ui.h"
 
 #define CLINFO_MARGIN 4
@@ -84,19 +83,22 @@ void sUICnt::cfgSet() {
 void sUICnt::MsgSend() {
 	// Szykujemy obiekt wiadomoœci...
 
-	CStdString buff;
-    cMessage m;
-    m.id=0;
-    m.net=GETCNTI(this->ID , CNT_NET);
-    m.type=MT_MESSAGE;
-    m.fromUid="";
-	char UIDbuff [500];
-	m.toUid=(char *)GETCNTC(this->ID , CNT_UID , UIDbuff , 500);
-    m.ext="";
-    m.flag = MF_SEND;
-    m.notify = 0;
-    m.action = NOACTION;
-    m.time = cTime64(true);
+  CStdString buff;
+
+  char UIDbuff[500];
+  Message m;
+
+  m.setId(0);
+  m.setNet((Net::tNet)GETCNTI(this->ID , CNT_NET));
+  m.setType(Message::typeMessage);
+  m.setFromUid("");
+  m.setToUid(GETCNTC(this->ID , CNT_UID , UIDbuff , 500));
+  m.setExt("");
+  m.setFlags(Message::flagSend);
+  m.setNotify(0);
+  m.setAction(NOACTION);
+  m.setTime(cTime64(true));
+
 	// Wczytujemy treœæ	
 	sUIAction sendAct = sUIAction(IMIG_MSGWND , Konnekt::UI::ACT::msg_ctrlsend , this->ID);
 	Konnekt::UI::Notify::_getMessage gm (0,0);
@@ -105,29 +107,27 @@ void sUICnt::MsgSend() {
 	if (!gm._size) gm._size = 65000;
 	gm._size ++;
 	gm._message = &m;
-	m.body = buff.GetBuffer(gm._size);
 	Act(sendAct).call(&gm);
-    buff.ReleaseBuffer();
 	// Czyscimy
     cPreg Preg;
-    buff = Preg.replace("/(^[\\r\\n ]+)/g" , "" , buff);
+    buff = Preg.replace("/(^[\\r\\n ]+)/g" , "" , m.getBody().a_str());
     buff = Preg.replace("/([\\r\\n ]+)$/g" , "" , buff);
-    if (buff.empty()) {
-        cMessage m;
-        m.net = this->net;
-        m.type = MT_QUICKEVENT;
-        m.fromUid = (char*)GETCNTC(this->ID , CNT_UID);
-        m.toUid = "";
-        m.body = "Wpisz wiadomoœæ!";
-        m.ext = "";
-        m.flag = MF_HANDLEDBYUI;
-        m.action = NOACTION;
-        m.notify = 0;
-        ICMessage(IMC_NEWMESSAGE , (int)&m,0);
+    if (!m.getBody().size()) {
+        Message m;
+        m.setNet((Net::tNet)this->net);
+        m.setType(Message::typeQuickEvent);
+        m.setFromUid(GETCNTC(this->ID , CNT_UID));
+        m.setToUid("");
+        m.setBody("Wpisz wiadomoœæ!");
+        m.setExt("");
+        m.setFlags(Message::flagHandledByUI);
+        m.setAction(NOACTION);
+        m.setNotify(0);
+        ICMessage(Message::IM::imcNewMessage, (int)&m,0);
         return;
 	}
-	if (msgHistory.size()<2 || msgHistory[1].body!=buff || msgHistory[1].flag!=m.flag || msgHistory[1].type!=m.type) {
-		this->msgHistory.insert(msgHistory.begin()+1 , cMsgHistoryEntry(buff , m.ext , m.type , m.flag)); // wrzucamy nowy "wpis"
+	if (msgHistory.size()<2 || msgHistory[1].body!=buff || msgHistory[1].flag!=m.getFlags() || msgHistory[1].type!=m.getType()) {
+    this->msgHistory.insert(msgHistory.begin()+1 , cMsgHistoryEntry(buff , m.getExt().a_str() , m.getType() , m.getFlags())); // wrzucamy nowy "wpis"
         // czyscimy jak jest ich za duzo...
         if (msgHistory.size()>MSGSENDHISTORY_LIMIT)
             msgHistory.erase(msgHistory.begin()+MSGSENDHISTORY_LIMIT , msgHistory.end());
@@ -135,19 +135,18 @@ void sUICnt::MsgSend() {
     msgHistoryPos = 0;
     ActionStatus(sUIAction(IMIG_MSGTB , IMIA_MSG_SEND , this->ID) , ACTS_DISABLED);
     SetProp(hwndMsg , "SENDING" , (void*)1);
-	m.body = (char*)buff.c_str(); //wrzucamy najaktualniejsza wersje
-	ICMessage(IMC_NEWMESSAGE , (int)&m);
+    m.setBody(buff.c_str()); //wrzucamy najaktualniejsza wersje
+    ICMessage(Message::IM::imcNewMessage, (int)&m,0);
     int session = (int)GetProp(hwndMsg , "MsgSession");
-    hist_add(&m , HISTDIR_MSG , this , 0 , session);
     if (!session) SetProp(hwndMsg , "MsgSession" , (void*)1);
     //  sTime64 * st = (sTime64*)(&m.time);
-	if (!(m.flag & MF_HIDE)) {
+	if (!(m.getFlags() & Message::flagHide)) {
 		this->_msgControl->msgInsert(&m);
 	}
 	SetDlgItemText(hwndMsg , Act(sendAct).index , "");
-    sMESSAGESELECT mSel;
-    mSel.id  = m.id;
-    if (mSel.id) ICMessage(IMC_MESSAGEQUEUE , (int)&mSel);
+    MessageSelect mSel;
+    mSel.id  = m.getId();
+    if (mSel.id) ICMessage(MessageSelect::IM::imcMessageQueue, (int)&mSel);
     SetProp(hwndMsg , "SENDING" , 0);
     ActionStatus(sUIAction(IMIG_MSGTB , IMIA_MSG_SEND , this->ID) , 0);
 }
@@ -171,7 +170,7 @@ void sUICnt::MsgWndOpen(bool queue , bool autoPopup) {
 		ShowWindow(hwndMsg, popup == CFG::mpBackground ? SW_SHOWNOACTIVATE : popup == CFG::mpMinimized ? SW_SHOWMINNOACTIVE : SW_SHOW);
 	}
 	if (queue) {
-		ICMessage(IMC_MESSAGEQUEUE , (int)&sMESSAGESELECT(net , GETCNTC(this->ID,CNT_UID) , -1 , 0 , MF_SEND));
+    ICMessage(MessageSelect::IM::imcMessageQueue, (int)&MessageSelect((Net::tNet)net , GETCNTC(this->ID,CNT_UID) , Message::typeAll ,Message::flagNone , Message::flagSend));
 	}
 }
 void sUICnt::MsgWndClose(){
@@ -217,27 +216,26 @@ void sUICnt::useMsgHistory(bool next) {
     if (!next) { // Poprzedni
 		// Trzeba zapamiêtaæ aktualnego...
         if (this->msgHistoryPos==0) {
-			cMessage m;
+			Message m;
 			UI::Notify::_getMessage gm (&m,0);
-            gm._size = length + 1;
+      gm._size = length + 1;
 			cMsgHistoryEntry & mhe = this->msgHistory[0];
-			m.body = mhe.body.GetBuffer(gm._size);
+			m.setBody(mhe.body);
 			sendAct.call(&gm);
-			mhe.body.ReleaseBuffer();
-			mhe.ext = m.ext;
-			mhe.flag = m.flag;
-			mhe.type = m.type;
+      mhe.ext = m.getExt().a_str();
+			mhe.flag = m.getFlags();
+			mhe.type = m.getType();
 		}
 		++this->msgHistoryPos;
 	} else { // Nastêpny
 		--this->msgHistoryPos;
 	}
-	cMessage m;
+	Message m;
 	cMsgHistoryEntry & mhe = this->msgHistory[this->msgHistoryPos];
-	m.body = (char*) mhe.body.c_str();
-	m.ext = (char*) mhe.ext.c_str();
-	m.type = mhe.type;
-	m.flag = mhe.flag;
+	m.setBody(mhe.body.c_str());
+	m.setExt(mhe.ext.c_str());
+	m.setType((Message::enType)mhe.type);
+	m.setFlags((Message::enFlags)mhe.flag);
 	UI::Notify::_insertMsg im(&m , 0 , false);
 	sendAct.call(&im);
 }
@@ -246,7 +244,7 @@ void sUICnt::useMsgHistory(bool next) {
 void sUICnt::clearMsgHistory() {
 	this->msgHistory.clear();
 	this->msgHistoryPos=0;
-	this->msgHistory.push_front(cMsgHistoryEntry("" , "" , MT_MESSAGE , MF_SEND));
+  this->msgHistory.push_front(cMsgHistoryEntry("" , "" , Message::typeMessage , Message::flagSend));
 }
 
 void cUICnts::closeAll() {

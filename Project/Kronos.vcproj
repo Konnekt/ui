@@ -293,7 +293,31 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
+				RelativePath="..\Res\compact.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Res\delete.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Res\dir.ico"
+				>
+			</File>
+			<File
 				RelativePath="..\Res\main.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Res\print.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Res\refresh.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Res\resend.ico"
 				>
 			</File>
 			<File
@@ -301,7 +325,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Res\send.ico"
+				RelativePath="..\Res\save.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Res\search.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Res\shred.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Res\sub.ico"
 				>
 			</File>
 		</Filter>

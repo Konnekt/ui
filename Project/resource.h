@@ -21,6 +21,25 @@
 #define IDI_HISTB_SAVE          616
 #define IDI_HISTB_COMPACT       617
 
+#define IDC_TREE                101
+#define IDC_LIST                1000
+#define IDC_FINDALL             1013
+#define IDC_REGEXP              1014
+#define IDC_WORDS               1015
+#define IDC_CASE                1016
+#define IDC_RADIO1              1017
+#define IDC_RADIO2              1018
+#define IDC_RADIO3              1019
+#define IDC_RADIO4              1020
+#define IDC_SEARCH              1021
+#define IDC_ONLYCURRENT         1023
+#define IDC_NEXT                1025
+#define IDC_PREV                1026
+#define IDC_PROGRESS1           1027
+#define IDC_DATE_FROM           1028
+#define IDC_DATE_TO             1029
+#define IDC_DATETIMEPICKER2     1029
+
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED

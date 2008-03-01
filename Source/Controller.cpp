@@ -17,12 +17,13 @@
 #include "stdafx.h"
 #include "Controller.h"
 
-namespace KImage {
+namespace Kronos {
   Controller::Controller() {
     IMessageDispatcher& d = getIMessageDispatcher();
     ActionDispatcher& a = getActionDispatcher();
     Config& c = getConfig();
 
+    // IMT_ALL & ~(IMT_MSGUI | IMT_NETSEARCH | IMT_NETUID);
     d.setStaticValue(IM_PLUG_TYPE, imtUI | imtConfig | imtAllMessages);
     d.setStaticValue(IM_PLUG_PRIORITY, priorityHigh);
     d.setStaticValue(IM_PLUG_NAME, (int) "Kronos");
@@ -31,12 +32,13 @@ namespace KImage {
 
     d.connect(IM_UI_PREPARE, bind(&Controller::_initialize, this, _1));
     d.connect(IM_UI_PREPARE, bind(&Controller::_prepareUI, this, _1));
-    // d.connect(IM_ALLPLUGINSINITIALIZED, bind(&Controller::_validate, this, _1));
+    d.connect(IMI_HISTORY_ADD, bind(&Controller::_addMessage, this, _1));
 
-    a.connect(UI::ACT::msg_ctrlsend, bind(&Controller::_msgCtrlSend, this, _1));
-    a.subclass(UI::ACT::msg_ctrlsend);
-
-    c.setColumn(tableConfig, cfg::dragndrop, ctypeInt, 1, "KImage/dragndrop");
+    c.setColumn(tableConfig, CFG_UIHISTORY_XMLHEADER, ctypeString, "<?xml-stylesheet type=\"text/xsl\" href=\"%HistoryXSL%\"?>", "history/XMLHeader");
+    c.setColumn(tableConfig, CFG_UIHISTORY_XMLXSL, ctypeString, "%KonnektData%\\history\\exported renderer.xsl", "history/XMLHeader/XSLPath");
+    c.setColumn(tableConfig, CFG_UIHISTORY_XMLPRINTXSL, ctypeString, "%KonnektData%\\history\\print.xsl", "history/XMLHeader/XSLPrintPath");
+    c.setColumn(tableConfig, CFG_UIHISTORY_XMLFULL, ctypeInt, 1, "history/XMLFullExport");
+    c.setColumn(tableConfig, CFG_UIHISTORY_MARKFOUND, ctypeInt, 1, "history/markFound");
   }
 
   void Controller::_initialize(IMEvent& ev) {
@@ -44,15 +46,12 @@ namespace KImage {
   }
 
   void Controller::_prepareUI(IMEvent& ev) {
-    Ctrl->ICMessage(IMI_ICONRES, ico::logo, IDI_LOGO);
+    Ctrl->ICMessage(IMI_ICONRES, ico::main, IDI_MAIN);
 
     ev.setSuccess();
   }
 
-  void Controller::_msgCtrlSend(ActionEvent& ev) {
-    if (!Config::get(cfg::dragndrop).to_i()) {
-      return ev.forward();
-    }
-    ev.forward();
+  void Controller::_addMessage(IMEvent& ev) {
+    ev.setSuccess();
   }
 }

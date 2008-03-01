@@ -7,7 +7,11 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#include "afxres.h"
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+#include "commctrl.h"
+#include "richedit.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -43,8 +47,9 @@ BEGIN
     BEGIN
         BLOCK "041504b0"
         BEGIN
+            VALUE "Comments", "Historia wiadomoúci"
             VALUE "CompanyName", "Stamina"
-            VALUE "FileDescription", "Historia wiadomo≈õci"
+            VALUE "FileDescription", "Historia wiadomoúci"
             VALUE "FileVersion", "0.1.23.54"
             VALUE "InternalName", "Kronos"
             VALUE "LegalCopyright", "Copyright ©2002-2008 Stamina"
@@ -56,7 +61,7 @@ BEGIN
     END
     BLOCK "VarFileInfo"
     BEGIN
-        VALUE "Translation", 0x415, 1250
+        VALUE "Translation", 0x415, 1200
     END
 END
 
@@ -68,7 +73,7 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-HISTORY                 ICON                    "..\\Res\\main.ico"
+IDI_MAIN                ICON                    "..\\Res\\main.ico"
 IDI_HIST_DIR            ICON                    "..\\Res\\dir.ico"
 IDI_HIST_SUB            ICON                    "..\\Res\\sub.ico"
 IDI_HIST_QUERY          ICON                    "..\\Res\\search.ico"
@@ -174,7 +179,6 @@ BEGIN
     END
 END
 #endif    // APSTUDIO_INVOKED
-
 
 #endif    // Polish resources
 /////////////////////////////////////////////////////////////////////////////

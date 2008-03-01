@@ -41,7 +41,7 @@ namespace Kronos {
   namespace ico {
     const unsigned int ico = net * 1000 + 100;
 
-    const unsigned int logo = ico + 1;
+    const unsigned int main = ico + 1;
  
   }
 

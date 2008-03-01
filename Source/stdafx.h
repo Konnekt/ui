@@ -34,28 +34,15 @@
 // exclude rarely-used stuff from Windows headers
 #define WIN32_LEAN_AND_MEAN
 
-// wciągamy biblioteke libgadu
-#pragma comment (lib, "../Depends/LibGadu/libgadu.lib")
-// wciągamy devil-a
-#pragma comment (lib, "../Depends/LibDevil/DevIL_DLL.lib")
-#pragma comment (lib, "../Depends/LibDevil/DevILU_DLL.lib")
-#pragma comment (lib, "../Depends/LibDevil/DevILUT_DLL.lib")
-// i reszte
-#pragma comment (lib, "shlwapi.lib")
-#pragma comment (lib, "ws2_32.lib")
-
 // Windows Header Files:
 #include <windows.h>
-#include <windowsx.h>
 #include <process.h>
 #include <commctrl.h>
-#include <io.h>
 #include <hash_map>
 #include <list>
 #include <deque>
 #include <stdstring.h>
 #include <string>
-#include <sstream>
 
 #pragma comment(lib, "comctl32.lib")
 
@@ -65,14 +52,6 @@
 #else
   #pragma comment(lib, "stamina.lib")
 #endif
-
-// LibGadu
-#include "../Depends/LibGadu/libgadu.h"
-
-// devil
-#include "../Depends/LibDevil/il.h"
-#include "../Depends/LibDevil/ilu.h"
-#include "../Depends/LibDevil/ilut.h"
 
 // nagłówki boosta
 #include <boost/signal.hpp>

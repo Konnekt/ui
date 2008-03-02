@@ -990,7 +990,8 @@ String getActionValue(cUIAction & act , bool convert) {
        cUIAction_cfg * actc = (cUIAction_cfg *)&act;
 	   String value;
 	   if (act.handle) {
-		   char* buff = value.useBuffer<char>(BIG_STRING);
+		  char* buff = value.useBuffer<char>(BIG_STRING);
+      //char buff[1000];
 		   int size = BIG_STRING;
          switch (act.status & ACTM_TYPE) {
            case ACTT_COMBO:
@@ -1013,7 +1014,8 @@ String getActionValue(cUIAction & act , bool convert) {
              SendMessage((HWND)act.handle , WM_GETTEXT , size,(LPARAM)buff);
              break;
          }
-		 value.releaseBuffer<char>();
+
+         value.releaseBuffer<char>();
 	   } else { /* skoro nie zosta³a stworzona kontrolka, spróbujemy odczytaæ wartoœæ z tablicy... */
 		   value = getCfgValue(act);
 	   }

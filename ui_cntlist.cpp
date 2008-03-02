@@ -112,7 +112,7 @@ void sUICnt::MsgSend() {
     cPreg Preg;
     buff = Preg.replace("/(^[\\r\\n ]+)/g" , "" , m.getBody().a_str());
     buff = Preg.replace("/([\\r\\n ]+)$/g" , "" , buff);
-    if (!m.getBody().size()) {
+    if (!buff.size()) {
         Message m;
         m.setNet((Net::tNet)this->net);
         m.setType(Message::typeQuickEvent);
@@ -220,7 +220,6 @@ void sUICnt::useMsgHistory(bool next) {
 			UI::Notify::_getMessage gm (&m,0);
       gm._size = length + 1;
 			cMsgHistoryEntry & mhe = this->msgHistory[0];
-			m.setBody(mhe.body);
 			sendAct.call(&gm);
       mhe.ext = m.getExt().a_str();
 			mhe.flag = m.getFlags();

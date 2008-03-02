@@ -269,7 +269,7 @@ int ActionProc(sUIActionNotify_base * anBase) {
        m.setType(an->act.id == IMIA_EVENT_URL ? Message::typeUrl : Message::typeEvent);
        if (an->code == ACTN_ACTION) {
          MessageSelect ms(Net::broadcast, 0 , m.getType());
-         if (ICMessage(MessageSelect::IM::imcMessageRemove , (int)&ms , (int)&m)) {
+         if (ICMessage(MessageSelect::IM::imcMessageGet , (int)&ms , (int)&m)) {
          if (m.getType() == Message::typeUrl)
           openURLMessage(&m);
          else {
@@ -304,7 +304,7 @@ int ActionProc(sUIActionNotify_base * anBase) {
 		if (anBase->act.cnt >= 0) {
       MessageSelect ms((Net::tNet)(anBase->act.cnt == 0 ? 0 : GETCNTI(anBase->act.cnt , CNT_NET)) 
 				, (char*)anBase->act.cnt == 0 ? 0 : GETCNTC(anBase->act.cnt , CNT_UID) 
-        ,Message::typeAll , Message::flagHandledByUI , Message::flagNone);
+        ,Message::typeAll , Message::flagMenuByUI , Message::flagNone);
       ICMessage(MessageSelect::IM::imcMessageGet , (int)&ms , (int)&m);
 		}
 		if (anBase->code == ACTN_ACTION) {
@@ -515,13 +515,16 @@ int ActionProc(sUIActionNotify_base * anBase) {
 				return (int)SendMessage((HWND)UIActionHandleDirect(an->act) , WM_GETTEXTLENGTH , 0 , 0);
 			case Konnekt::UI::Notify::getMessage:{
 				Konnekt::UI::Notify::_getMessage * gm = static_cast<Konnekt::UI::Notify::_getMessage *>(anBase);
-        char* buff = new char[gm->_size + 1];
+
+        String buffer;
+        char* buff = buffer.useBuffer<char>(gm->_size);
         GetWindowText((HWND)UIActionHandleDirect(an->act) , buff , gm->_size);
-        gm->_message->setBody(buff);
-        delete [] buff;
+        buffer.releaseBuffer<char>(gm->_size);
+        gm->_message->setBody(Stamina::PassStringRef(buffer));
+
 				if (!Act(anBase->act).call(UI::Notify::supportsFormatting, 0, 0)) {
 					if (gm->_message->getBody().a_str()[0] == '^') {
-            gm->_message->setBody(gm->_message->getBody().substr(1));//sprawdzic
+            gm->_message->setBody(Stamina::PassStringRef(gm->_message->getBody().substr(1)));//sprawdzic
             gm->_message->setOneFlag(Message::flagHTML, true);
 					}
 				}

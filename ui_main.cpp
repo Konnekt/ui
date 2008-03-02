@@ -33,64 +33,80 @@ int  IMsgOpen(Message*m);
 class UIMessageHandler : public MessageHandler {
 public:
   UIMessageHandler(enMessageQueue queue) : MessageHandler(queue) { };
-  bool handlingMessage(enMessageQueue queue, Message* msg) {
-    return MessageHandler::handlingMessage(queue, msg) || msg->getOneFlag(Message::flagHandledByUI);
-  }
-  tMsgResult handleMessage(Message* msg, enMessageQueue queue, enPluginPriority priority) {
-    if (queue & mqReceive) {
 
-      if (msg->getFlags() & Message::flagHandledByUI) {
-        if (!msg->getAction().id && !msg->getAction().id) {
-          msg->setAction(sUIAction( msg->getType() & Message::typeMask_NotOnList ? IMIG_EVENT : IMIG_CNT , IMIA_EVENT_OPENANYMESSAGE ));
+public:
+  bool handlingMessage(enMessageQueue queue, Message* msg);
+  tMsgResult handleMessage(Message* msg, enMessageQueue queue, enPluginPriority priority);
+};
+
+bool UIMessageHandler::handlingMessage(enMessageQueue queue, Message* msg) {
+  return queue & _queue;
+}
+
+tMsgResult UIMessageHandler::handleMessage(Message* msg, enMessageQueue queue, 
+  enPluginPriority priority) {
+
+    if (queue & mqReceive) {
+      if (msg->getOneFlag(Message::flagMenuByUI)) {
+        if (!msg->getAction().id) {
+          msg->setAction(sUIAction(msg->getType() & Message::typeMask_NotOnList ? IMIG_EVENT : IMIG_CNT, IMIA_EVENT_OPENANYMESSAGE));
         }
-        if (!msg->getNotify())
-            msg->setNotify( UIIcon(IT_MESSAGE , 0 , Message::typeEvent , 0));
+        if (!msg->getNotify()) {
+          msg->setNotify(UIIcon(IT_MESSAGE, 0, Message::flagMenuByUI, 0));
         }
-        if (!(msg->getFlags() & Message::flagHandledByUI)) return (tMsgResult)0;
-        if (msg->getFlags() & Message::flagSend) return (tMsgResult)0;
-        switch (msg->getType()) {
-          case Message::typeMessage:
-//                   if (m->flag & MF_SEND) {} else
-          {
-            msg->setAction(sUIAction(IMIG_CNT , IMIA_CNT_MSGOPEN));
-            if (!msg->getNotify()) {
-              msg->setNotify(UIIcon(5,0,Message::typeMessage,0));
-            }
-          }
-            return Message::resultOk;
-          case Message::typeServerEvent:
-            msg->setAction(sUIAction(IMIG_EVENT , IMIA_EVENT_SERVER));
-            if (!msg->getNotify()) {
-              msg->setNotify(UIIcon(5,0,Message::typeServerEvent,0));
-            }
-            return Message::resultOk;
-          case Message::typeUrl:
-            msg->setAction (sUIAction(IMIG_EVENT , IMIA_EVENT_URL));
-            if (!msg->getNotify()) msg->setNotify(UIIcon(5,0,Message::typeUrl,0));
-            return Message::resultOk;
-           case Message::typeQuickEvent:
-             ICMessage(IMI_MSG_OPEN , (int)msg);
-             //IMsgOpen( msg);
-             return Message::resultDelete; //quickMessage
       }
+
+      if (!msg->getOneFlag(Message::flagHandledByUI) || 
+        msg->getOneFlag(Message::flagSend)) {
+        return (tMsgResult) 0;
+      }
+
+      sUIAction act;
+
+      if (msg->getType() == Message::typeMessage) {
+        act = sUIAction(IMIG_CNT, IMIA_CNT_MSGOPEN);
+
+      } else if (msg->getType() == Message::typeServerEvent) {
+        act = sUIAction(IMIG_EVENT, IMIA_EVENT_SERVER);
+
+      } else if (msg->getType() == Message::typeUrl) {
+        act = sUIAction(IMIG_EVENT, IMIA_EVENT_URL);
+
+      } else if (msg->getType() == Message::typeQuickEvent) {
+        ICMessage(IMI_MSG_OPEN, (int) msg);
+        return Message::resultDelete;
+
+      } else {
+        return (tMsgResult) 0;
+      }
+
+      msg->setAction(act);
+
+      if (!msg->getNotify()) {
+        msg->setNotify(UIIcon(IT_MESSAGE, 0, msg->getType(), 0));
+      }
+
+      return Message::resultOk;
+
     } else if (queue == mqOpen) {
       switch (msg->getType()) {
         case Message::typeMessage:
         case Message::typeQuickEvent:
-          //IMsgOpen( msg);
-          return (tMsgResult)ICMessage(IMI_MSG_OPEN , (int)msg);
+          return (tMsgResult)ICMessage(IMI_MSG_OPEN, (int) msg);
+
         case Message::typeServerEvent:
           ServerEventDialogNext();
-          return (tMsgResult)0;
         case Message::typeUrl:
-          return (tMsgResult)0;
+          return (tMsgResult) 0;
       }
+      return (tMsgResult) 0;
 
-      return (tMsgResult)0;
     }
-      return (tMsgResult)0;
-  }
-};
+    return (tMsgResult)0;
+}
+
+
+
 
 
 int trayBitCount = isComctl(6,0)?32:4;
@@ -1170,9 +1186,6 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
           ISRUNNING();
           IMESSAGE_TS();
           sUIActionInfo * ai = (sUIActionInfo*)msg->p1;
-          if (ai->act.id == 1313020) {
-            OutputDebugStringA("y olsd");
-          }
           if (!Act.exists(ai->act.parent))
             CtrlEx->PlugOut(msg->sender , _sprintf("Grupa %d dla akcji %d nie istnieje!" , ai->act.parent , ai->act.id) , 0);
           if (ai->act.id && Act.exists(ai->act))
@@ -1381,8 +1394,8 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
            msg.setId(0);
            msg.setNet(m->getNet());
            msg.setType(Message::typeMessage);
-           msg.setFromUid(m->getToUid());
-           msg.setToUid("");
+           msg.setToUid(m->getFromUid());
+           msg.setFromUid("");
            msg.setBody(GETSTR(CFG_UIMSGFROMOTHERREPLY));
            msg.setExt("");
            msg.setTime(cTime64(true));

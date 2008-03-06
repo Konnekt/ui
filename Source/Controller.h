@@ -34,6 +34,7 @@ namespace Kronos {
 
   protected:
     void _initialize(IMEvent& ev);
+    void _prepare(IMEvent& ev);
     void _prepareUI(IMEvent& ev);
     void _addMessage(IMEvent& ev);
 

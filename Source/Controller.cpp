@@ -16,6 +16,7 @@
 
 #include "stdafx.h"
 #include "Controller.h"
+#include "HistoryTable.h"
 
 namespace Kronos {
   Controller::Controller() {
@@ -32,21 +33,87 @@ namespace Kronos {
 
     d.connect(IM_UI_PREPARE, bind(&Controller::_initialize, this, _1));
     d.connect(IM_UI_PREPARE, bind(&Controller::_prepareUI, this, _1));
+
     d.connect(IMI_HISTORY_ADD, bind(&Controller::_addMessage, this, _1));
 
-    c.setColumn(tableConfig, CFG_UIHISTORY_XMLHEADER, ctypeString, "<?xml-stylesheet type=\"text/xsl\" href=\"%HistoryXSL%\"?>", "history/XMLHeader");
-    c.setColumn(tableConfig, CFG_UIHISTORY_XMLXSL, ctypeString, "%KonnektData%\\history\\exported renderer.xsl", "history/XMLHeader/XSLPath");
-    c.setColumn(tableConfig, CFG_UIHISTORY_XMLPRINTXSL, ctypeString, "%KonnektData%\\history\\print.xsl", "history/XMLHeader/XSLPrintPath");
-    c.setColumn(tableConfig, CFG_UIHISTORY_XMLFULL, ctypeInt, 1, "history/XMLFullExport");
-    c.setColumn(tableConfig, CFG_UIHISTORY_MARKFOUND, ctypeInt, 1, "history/markFound");
+    c.setColumn(tableConfig, cfg::xmlHeader, ctypeString, "<?xml-stylesheet type=\"text/xsl\" href=\"%HistoryXSL%\"?>", "history/XMLHeader");
+    c.setColumn(tableConfig, cfg::xmlXSL, ctypeString, "%KonnektData%\\history\\exported renderer.xsl", "history/XMLHeader/XSLPath");
+    c.setColumn(tableConfig, cfg::xmlPrintXSL, ctypeString, "%KonnektData%\\history\\print.xsl", "history/XMLHeader/XSLPrintPath");
+    c.setColumn(tableConfig, cfg::xmlFull, ctypeInt, 1, "history/XMLFullExport");
+    c.setColumn(tableConfig, cfg::markFound, ctypeInt, 1, "history/markFound");
   }
 
   void Controller::_initialize(IMEvent& ev) {
+    HistoryTable* h = HistoryTable::getInstance();
+    h->init();
+
     ev.setSuccess();
   }
 
   void Controller::_prepareUI(IMEvent& ev) {
+    /* Registering icons */
     Ctrl->ICMessage(IMI_ICONRES, ico::main, IDI_MAIN);
+    Ctrl->ICMessage(IMI_ICONRES, ico::dir, IDI_HIST_DIR);
+    Ctrl->ICMessage(IMI_ICONRES, ico::sub, IDI_HIST_SUB);
+    Ctrl->ICMessage(IMI_ICONRES, ico::search, IDI_HIST_QUERY);
+    Ctrl->ICMessage(IMI_ICONRES, ico::refresh, IDI_HISTB_REFRESH);
+    Ctrl->ICMessage(IMI_ICONRES, ico::shred, IDI_HISTB_SHRED);
+    Ctrl->ICMessage(IMI_ICONRES, ico::delete_, IDI_HISTB_DEL);
+    Ctrl->ICMessage(IMI_ICONRES, ico::print, IDI_HISTB_PRINT);
+    Ctrl->ICMessage(IMI_ICONRES, ico::search, IDI_HISTB_SEARCH);
+    Ctrl->ICMessage(IMI_ICONRES, ico::resend, IDI_HISTB_RESEND);
+    Ctrl->ICMessage(IMI_ICONRES, ico::save, IDI_HISTB_SAVE);
+    Ctrl->ICMessage(IMI_ICONRES, ico::compact, IDI_HISTB_COMPACT);
+
+    /* Cfg */
+    Ctrl->UIGroupAdd(IMIG_CFG_UI_MSG, cfg::cfg, ACTS_GROUP, "Historia", ico::main);
+
+    /* Plugin info box */
+    char header[400];
+    sprintf_s<400>(header, "<span class='note'>Powered by: <b>%s</b></span><br/>"
+      "<span class='note'>Skompilowano: <b>%s</b> [<b>%s</b>]</span><br/>"
+      "Informacje o wtyczce na forum Konnekta "
+      "(http://konnekt.info/forum/)<br/><br/>"
+      "Copyright © 2002-2008 <b>Stamina</b><br/>"
+      "Copyright © 2008 <b>KPlugins Team</b>",
+      "X", __DATE__, __TIME__);
+
+    char desc[] = "Wszystkie wiadomoœci które s¹ odbierane b¹dŸ wysy³ane zostaj¹ zapisane w historii. Dziêki temu mo¿na pó¿niej przeczytaæ starsze rozmowy, czy wyszukaæ konkretne informacje w nich zawarte, takie jak np. adresy stron czy emaile.";
+
+    UIActionCfgAddPluginInfoBox2(cfg::cfg, desc, header, "res://dll/107.ico", -4);
+    UIActionAdd(cfg::cfg, 0, ACTT_GROUP, "");
+
+    if (ShowBits::checkBits(ShowBits::showInfoNormal)) {
+      UIActionCfgAdd(cfg::cfg, 0, ACTT_TIPBUTTON | ACTSC_INLINE, AP_TIP "" AP_TIPIMAGEURL "file://%KonnektData%\\img\\ui_historywindow.png" AP_ICONSIZE "16");
+      UIActionCfgAdd(cfg::cfg, 0, ACTT_COMMENT, "Jak korzystaæ z historii");
+      UIActionCfgAdd(cfg::cfg, 0, ACTT_SEPARATOR);
+    }
+
+    UIActionCfgAdd(cfg::cfg, 0, ACTT_CHECK, "Zapisuj wiadomoœci w historii", CFG_LOGHISTORY);
+    if (ShowBits::checkLevel(ShowBits::levelNormal)) {
+      UIActionCfgAdd(cfg::cfg, 0, ACTT_CHECK, "Podkreœlaj znaleziony tekst", CFG_UIHISTORY_MARKFOUND);
+    }
+    UIActionCfgAdd(cfg::cfg, 0, ACTT_GROUPEND);
+
+    if (ShowBits::checkLevel(ShowBits::levelAdvanced)) {
+      UIActionCfgAdd(cfg::cfg, 0, ACTT_GROUP, "Export do XMLa");
+      UIActionCfgAdd(cfg::cfg, 0, ACTT_COMMENT, "Nag³ówek wstawiany do XMLa:");
+      UIActionCfgAdd(cfg::cfg, 0, ACTT_TEXT, "" AP_TIP "Mo¿esz u¿ywaæ zmiennych œrodowiskowych jak %HistoryXSL% czy %KonnektPath%", cfg::xmlHeader);
+      UIActionCfgAdd(cfg::cfg, 0, ACTT_COMMENT | ACTSC_INLINE, "Plik XSL do formatowania exportu");
+      UIActionCfgAdd(cfg::cfg, 0, ACTT_EDIT | ACTSC_FULLWIDTH, "" AP_TIP "Mo¿esz u¿ywaæ zmiennych œrodowiskowych jak %KonnektData% czy %KonnektPath%", cfg::xmlXSL);
+      UIActionCfgAdd(cfg::cfg, 0, ACTT_COMMENT | ACTSC_INLINE, "Plik XSL do formatowania wydruku");
+      UIActionCfgAdd(cfg::cfg, 0, ACTT_EDIT | ACTSC_FULLWIDTH, "" AP_TIP "Mo¿esz u¿ywaæ zmiennych œrodowiskowych jak %KonnektData% czy %KonnektPath%", cfg::xmlPrintXSL);
+      UIActionCfgAdd(cfg::cfg, 0, ACTT_CHECK, "Zapisuj pe³ne informacje o wiadomoœciach", cfg::xmlFull);
+      UIActionAdd(cfg::cfg, 0, ACTT_GROUPEND);
+    }
+
+    UIActionAdd(IMIG_MSGTB, act::historyCnt, 0, "Historia", ico::main);
+    UIActionInsert(IMIG_CNT, act::historyCnt, UIActionGetPos(IMIG_CNT, IMIA_CNT_INFO) + 1, 0 ,"Historia", ico::main);
+    UIActionAdd(IMIG_MAIN_CNT, act::historyMain, 0 ,"Historia rozmów", ico::main);
+
+    /* History window */
+    UIGroupAdd(0, ui::historyWindow, ACTS_GROUP | ACTR_SETCNT , "IMIG_HISTORYWND");
+    UIActionAdd(ui::historyWindow, UI::ACT::msg_ctrlview, ACTT_HWND | ACTR_SETCNT, "UI::ACT::msg_view");
 
     ev.setSuccess();
   }

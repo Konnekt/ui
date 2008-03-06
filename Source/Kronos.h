@@ -31,10 +31,14 @@ namespace Kronos {
   namespace im {
     const unsigned int im = net * 1000 + IM_USER + 100;
 
+    const unsigned int historyAdd = im + 10;
+
   }
 
   namespace ui {
     const unsigned int ui = net * 1000;
+
+    const unsigned int historyWindow = ui + 1;
 
   }
 
@@ -42,13 +46,23 @@ namespace Kronos {
     const unsigned int ico = net * 1000 + 100;
 
     const unsigned int main = ico + 1;
- 
+    const unsigned int compact = ico + 2;
+    const unsigned int delete_ = ico + 3;
+    const unsigned int dir = ico + 4;
+    const unsigned int print = ico + 5;
+    const unsigned int refresh = ico + 6;
+    const unsigned int resend = ico + 7;
+    const unsigned int save = ico + 8;
+    const unsigned int search = ico + 9;
+    const unsigned int shred = ico + 10;
+    const unsigned int sub = ico + 11;
   }
 
   namespace act {
     const unsigned int act = net * 1000 + 200;
 
-    const unsigned int recv_notify = act + 1;
+    const unsigned int historyCnt = act + 1;
+    const unsigned int historyMain = act + 2;
   }
 
   // dynamiczne akcje
@@ -60,7 +74,13 @@ namespace Kronos {
   namespace cfg {
     const unsigned int cfg = net * 1000 + 500;
 
-    const unsigned int dragndrop = cfg + 1;
+    const unsigned int logHistory = cfg + 1;
+    const unsigned int markFound = cfg + 2;
+
+    const unsigned int xmlHeader = cfg + 10;
+    const unsigned int xmlXSL = cfg + 11;
+    const unsigned int xmlPrintXSL = cfg + 12;
+    const unsigned int xmlFull = cfg + 13;
   }
 }
 

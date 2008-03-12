@@ -32,7 +32,7 @@ void HistoryTable::init() {
 void HistoryTable::deinit() {
   _historyTable.reset();
   _initialized = false;
-}l
+}
 
 void HistoryTable::load(const StringRef& dir, const StringRef& name) {
   this->lock(lockDefault);

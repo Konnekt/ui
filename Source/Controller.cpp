@@ -17,6 +17,7 @@
 #include "stdafx.h"
 #include "Controller.h"
 #include "HistoryTable.h"
+// #include "HistoryWnd.h"
 
 namespace Kronos {
   Controller::Controller() {
@@ -52,21 +53,21 @@ namespace Kronos {
 
   void Controller::_prepareUI(IMEvent& ev) {
     /* Registering icons */
-    Ctrl->ICMessage(IMI_ICONRES, ico::main, IDI_MAIN);
-    Ctrl->ICMessage(IMI_ICONRES, ico::dir, IDI_HIST_DIR);
-    Ctrl->ICMessage(IMI_ICONRES, ico::sub, IDI_HIST_SUB);
-    Ctrl->ICMessage(IMI_ICONRES, ico::search, IDI_HIST_QUERY);
-    Ctrl->ICMessage(IMI_ICONRES, ico::refresh, IDI_HISTB_REFRESH);
-    Ctrl->ICMessage(IMI_ICONRES, ico::shred, IDI_HISTB_SHRED);
-    Ctrl->ICMessage(IMI_ICONRES, ico::delete_, IDI_HISTB_DEL);
-    Ctrl->ICMessage(IMI_ICONRES, ico::print, IDI_HISTB_PRINT);
-    Ctrl->ICMessage(IMI_ICONRES, ico::search, IDI_HISTB_SEARCH);
-    Ctrl->ICMessage(IMI_ICONRES, ico::resend, IDI_HISTB_RESEND);
-    Ctrl->ICMessage(IMI_ICONRES, ico::save, IDI_HISTB_SAVE);
-    Ctrl->ICMessage(IMI_ICONRES, ico::compact, IDI_HISTB_COMPACT);
+    IconRegister((IML_enum) IML_16_32, ico::main, (HINSTANCE) 0, IDI_MAIN);
+    IconRegister((IML_enum) IML_16_32, ico::dir, (HINSTANCE) 0, IDI_HIST_DIR);
+    IconRegister((IML_enum) IML_16_32, ico::sub, (HINSTANCE) 0, IDI_HIST_SUB);
+    IconRegister((IML_enum) IML_16_32, ico::search,(HINSTANCE)  0, IDI_HIST_QUERY);
+    IconRegister((IML_enum) IML_16_32, ico::refresh,(HINSTANCE)  0, IDI_HISTB_REFRESH);
+    IconRegister((IML_enum) IML_16_32, ico::shred,(HINSTANCE)  0, IDI_HISTB_SHRED);
+    IconRegister((IML_enum) IML_16_32, ico::delete_, (HINSTANCE) 0, IDI_HISTB_DEL);
+    IconRegister((IML_enum) IML_16_32, ico::print,(HINSTANCE)  0, IDI_HISTB_PRINT);
+    IconRegister((IML_enum) IML_16_32, ico::search,(HINSTANCE)  0, IDI_HISTB_SEARCH);
+    IconRegister((IML_enum) IML_16_32, ico::resend,(HINSTANCE)  0, IDI_HISTB_RESEND);
+    IconRegister((IML_enum) IML_16_32, ico::save, (HINSTANCE) 0, IDI_HISTB_SAVE);
+    IconRegister((IML_enum) IML_16_32, ico::compact, (HINSTANCE) 0, IDI_HISTB_COMPACT);
 
     /* Cfg */
-    Ctrl->UIGroupAdd(IMIG_CFG_UI_MSG, cfg::cfg, ACTS_GROUP, "Historia", ico::main);
+    UIGroupAdd(IMIG_CFG_UI_MSG, cfg::cfg, ACTS_GROUP, "Historia", ico::main);
 
     /* Plugin info box */
     char header[400];
@@ -114,6 +115,7 @@ namespace Kronos {
     /* History window */
     UIGroupAdd(0, ui::historyWindow, ACTS_GROUP | ACTR_SETCNT , "IMIG_HISTORYWND");
     UIActionAdd(ui::historyWindow, UI::ACT::msg_ctrlview, ACTT_HWND | ACTR_SETCNT, "UI::ACT::msg_view");
+    // oWindow w = HistoryWindow::create("Historia", WS_VISIBLE | WS_OVERLAPPEDWINDOW, 100, 100, 500, 200, (HWND)0);
 
     ev.setSuccess();
   }

@@ -738,6 +738,7 @@ HWND makeCfgProp(cUIGroup & g ) {
 				| (curType!=lastType?WS_TABSTOP:0)
 				, 0, 0, w, h, hWnd,(HMENU)g[i].index,hInst,0); 
 				;
+        	SendMessage(spinner, UDM_SETRANGE32, (WPARAM)0, (LPARAM)100);
           wndCreate=false;
 		  SetProp((HWND)g[i].handle, "connectedWnd", (HANDLE)spinner);
           ((cUIAction_cfg*)&g[i])->setSpinner("");

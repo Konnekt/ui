@@ -384,7 +384,7 @@ int ActionProc(sUIActionNotify_base * anBase) {
 			strcpy(anb->buff, (GETCNTI(an->act.cnt,CNT_STATUS)&ST_NOTINLIST)?"1":"0");
 		} else if (an->code == ACTN_SET) {
 			sUIActionNotify_buff * anb = (sUIActionNotify_buff *)anBase;
-			if (((GETCNTI(anb->act.cnt,CNT_STATUS)&ST_NOTINLIST) != 0) != (*anb->buff == '1') ) {
+			if (anb->buff && ((GETCNTI(anb->act.cnt,CNT_STATUS)&ST_NOTINLIST) != 0) != (*anb->buff == '1') ) {
 				SETCNTI(anb->act.cnt , CNT_STATUS , *anb->buff == '1' ? ST_NOTINLIST : 0 , ST_NOTINLIST);
 			    ICMessage(IMC_CNT_CHANGED , anb->act.cnt);
 			}

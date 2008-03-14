@@ -56,8 +56,7 @@ tMsgResult UIMessageHandler::handleMessage(Message* msg, enMessageQueue queue,
         }
       }
 
-      if (!msg->getOneFlag(Message::flagHandledByUI) || 
-        msg->getOneFlag(Message::flagSend)) {
+      if (!msg->getOneFlag(Message::flagHandledByUI) || msg->getOneFlag(Message::flagSend)) {
         return (tMsgResult) 0;
       }
 
@@ -330,13 +329,6 @@ int ISetCols() {
 	SetColumn(DTCFG , CFG_UIALLGROUPSDESC , DT_CT_PCHAR | DT_CF_CXOR , "*" , "UI/groups/allDescription");
 	SetColumn(DTCFG , CFG_UIALLGROUPS_NOGROUP , DT_CT_INT , 0 , "UI/groups/allNoGroup");
 
-    SetColumn(DTCFG , CFG_UIHISTORY_XMLHEADER , DT_CT_PCHAR , "<?xml-stylesheet type=\"text/xsl\" href=\"%HistoryXSL%\"?>" , "UI/history/XMLHeader");
-	SetColumn(DTCFG , CFG_UIHISTORY_XMLXSL , DT_CT_PCHAR , "%KonnektData%\\history\\exported renderer.xsl" , "UI/history/XMLHeader/Xsl");
-	SetColumn(DTCFG , CFG_UIHISTORY_XMLPRINTXSL , DT_CT_PCHAR , "%KonnektData%\\history\\print.xsl" , "UI/history/XMLHeader/XslPrint");
-	SetColumn(DTCFG , CFG_UIHISTORY_XMLFULL , DT_CT_INT , 1 , "UI/history/xmlFullExport");
-	SetColumn(DTCFG , CFG_UIHISTORY_MARKFOUND , DT_CT_INT , 1 , "UI/history/markFound");
-
-
 	SetColumn(DTCFG , CFG_DESCR_AWAY , DT_CT_PCHAR | DT_CF_CXOR , "" , "UI/descr/away");
   	SetColumn(DTCFG , CFG_DESCR_AAWAY , DT_CT_PCHAR | DT_CF_CXOR , "" , "UI/descr/autoAway");
   	SetColumn(DTCFG , CFG_DESCR_DND , DT_CT_PCHAR | DT_CF_CXOR , "" , "UI/descr/DND");
@@ -578,10 +570,11 @@ int IStart() {
   if (cntTip->docked) cntTip->show(-1);
  // MessageHandler::registerHandler(
 //  GetWindowText(GetWindow(hwndMain,GW_CHILD) , str_buff , MAX_STRBUFF);
-        IMessage(&iMessageHandler::IM(iMessageHandler::IM::imcRegisterMessageHandler,
-        rhandler = new UIMessageHandler(iMessageHandler::mqReceive), priorityCore));
-      IMessage(&iMessageHandler::IM(iMessageHandler::IM::imcRegisterMessageHandler,
-        ohandler = new UIMessageHandler(iMessageHandler::mqOpen), priorityLowest));
+  IMessage(&iMessageHandler::IM(iMessageHandler::IM::imcRegisterMessageHandler,
+    rhandler = new UIMessageHandler(iMessageHandler::mqReceive), priorityCore));
+  IMessage(&iMessageHandler::IM(iMessageHandler::IM::imcRegisterMessageHandler,
+    ohandler = new UIMessageHandler(iMessageHandler::mqOpen), priorityLowest));
+
   return 1;
 }
 
@@ -901,230 +894,337 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
     case IM_PLUG_TYPE:       return IMT_ALL & ~(IMT_MSGUI | IMT_NETSEARCH | IMT_NETUID);
     case IM_PLUG_VERSION:    return (int)"";
     case IM_PLUG_SDKVERSION: return KONNEKT_SDK_V;
-    case IM_PLUG_SIG:        return (int)"UIW98";
+    case IM_PLUG_SIG:        return (int)"UI";
     case IM_PLUG_CORE_V:     return (int)"W98";
     case IM_PLUG_UI_V:       return 0;
-    case IM_PLUG_NAME:       return (int)"wXP UI";
+    case IM_PLUG_NAME:       return (int)"Konnekt User Interface";
     case IM_PLUG_NETNAME:    return (int)"bez sieci";
-    case IM_PLUG_INIT:       Plug_Init(msg->p1,msg->p2);CtrlEx=(cCtrlEx*)msg->p1;return Init();
+    case IM_PLUG_INIT:       Plug_Init(msg->p1,msg->p2); CtrlEx = (cCtrlEx*) msg->p1; return Init();
     case IM_PLUG_INITEX:     CtrlEx=(cCtrlEx*)msg->p1; return 1;
-    case IM_PLUG_DEINIT:     Plug_Deinit(msg->p1,msg->p2);deInit(); return 1;
+    case IM_PLUG_DEINIT:
+      Plug_Deinit(msg->p1,msg->p2);
+      deInit();
+      return 1;
+
     case IM_PLUG_CERT:       if (!msg->p1 && !msg->p2) return (int)UI_CERT;
 
-
-    case IM_SETCOLS:     return ISetCols();
+    case IM_SETCOLS:         return ISetCols();
 
     case IM_PLUG_UPDATE:
-        IUpdate(msg->p1);
-        return 1;
-    case IM_UI_PREPARE:        return IPrepare();
+      IUpdate(msg->p1);
+      return 1;
+
+    case IM_UI_PREPARE:      return IPrepare();
     case IM_START:           return IStart();
     case IM_END:             return IEnd();
 
-	case IMI_SET_SHOWBITS:   ShowBits::openDialog(); return 0;
+    case IMI_SET_SHOWBITS:
+      ShowBits::openDialog();
+      return 0;
 
-    case IM_CNT_ADD:         Cnt.imAdd(msg->p1);Cnt[msg->p1].hidden=false; cntList.refresh(true); return 1;
+    case IM_CNT_ADD:
+      Cnt.imAdd(msg->p1);Cnt[msg->p1].hidden = false;
+      cntList.refresh(true);
+
+      return 1;
+
     case IM_CNT_REMOVE:      /*if (msg->p2)*/ 
                                //else ListView_SetSelectionMark(hwndList , LB_ERR);
 
-                             Cnt.imRemove(msg->p1 , !msg->p2); return 1;
-    case IM_CNT_REMOVED:     if (msg->p2) cntList.refresh(true);
-                             return 1;
+      Cnt.imRemove(msg->p1 , !msg->p2);
+      return 1;
+
+    case IM_CNT_REMOVED:
+      if (msg->p2) cntList.refresh(true);
+      return 1;
+
 //    case IM_CNT_CHANGED:   msg->p2=0;
-	case IM_CNT_COMPOSING:
-		if (msg->sender != Ctrl->ID())
-			Konnekt::UI::Cnt::checkComposing.composing(msg->p1);
-		return 0;
-	case IM_CNT_COMPOSING_STOP:
-		if (msg->sender != Ctrl->ID())
-			Konnekt::UI::Cnt::checkComposing.stopComposing(msg->p1);
-		return 0;
-	case IMI_CNT_ISCOMPOSING:
-		return Konnekt::UI::Cnt::checkComposing.isComposing(msg->p1);
-    case IMI_REFRESH_CNT:    
-		ISRUNNING();
-		IMESSAGE_TS();
-        if (!cntList.running()) return 0; if (!Cnt.exists(msg->p1)) return 0; Cnt[msg->p1].imRefresh();
-        if (msg->p2 && Cnt[msg->p1].hwndInfo) InfoDialogLoad(Cnt[msg->p1].hwndInfo , msg->p1);
-        cntList.refresh(true); 
-		return 1;
-    case IMI_REFRESH_LST:    
-		ISRUNNING();
-		IMESSAGE_TS();
-        if (!cntList.running()) return 0; 
-		Cnt.imPrepare();
-		if (msg->p1) 
-			cntList.refill(); 
-		else 
-			cntList.refresh(true); 
-		return 1;
 
-    case IMI_CONFIRM: 
+    case IM_CNT_COMPOSING:
+      if (msg->sender != Ctrl->ID()) {
+        Konnekt::UI::Cnt::checkComposing.composing(msg->p1);
+      }
+      return 0;
+
+    case IM_CNT_COMPOSING_STOP:
+      if (msg->sender != Ctrl->ID()) {
+        Konnekt::UI::Cnt::checkComposing.stopComposing(msg->p1);
+      }
+      return 0;
+
+    case IMI_CNT_ISCOMPOSING:
+      return Konnekt::UI::Cnt::checkComposing.isComposing(msg->p1);
+
+    case IMI_REFRESH_CNT:
+      ISRUNNING();
+      IMESSAGE_TS();
+
+      if (!cntList.running()) return 0;
+      if (!Cnt.exists(msg->p1)) return 0;
+
+      Cnt[msg->p1].imRefresh();
+
+      if (msg->p2 && Cnt[msg->p1].hwndInfo) InfoDialogLoad(Cnt[msg->p1].hwndInfo , msg->p1);
+
+      cntList.refresh(true);
+
+      return 1;
+
+    case IMI_REFRESH_LST:
+      ISRUNNING();
+      IMESSAGE_TS();
+
+      if (!cntList.running()) return 0;
+
+      Cnt.imPrepare();
+
+      if (msg->p1) {
+        cntList.refill(); 
+      } else {
+        cntList.refresh(true);
+      }
+
+      return 1;
+
+    case IMI_CONFIRM:
+    case IMI_ERROR:
+    case IMI_WARNING:
+    case IMI_INFORM: {
+
+      if (msg->id == IMI_CONFIRM) {
         r = MB_YESNO | MB_ICONQUESTION;
-    case IMI_ERROR: 
-        if (msg->id == IMI_ERROR) r = MB_OK | MB_ICONHAND;
-    case IMI_WARNING: 
-        if (msg->id == IMI_WARNING) r = MB_OK | MB_ICONEXCLAMATION;
-    case IMI_INFORM:
-        if (msg->id == IMI_INFORM) r = MB_OK | MB_ICONASTERISK;
-        {
-        //IMESSAGE_TS();
-		canQuit = false; 
-        sIMessage_msgBox msgBox (msg->id);
-        bool disable = false;
-        if (msgBase->s_size == sizeof(sIMessage_msgBox)) {
-            msgBox = *(static_cast<sIMessage_msgBox*>(msgBase));
-            if (!msgBox.title) msgBox.title = "Konnekt";
-            GetWindowText((HWND)msgBox.parent , TLS().buff, 2000);
-            const char * sums = TLS().buff;
-//            if (msgBox.parent && !IsWindowEnabled((HWND)msgBox.parent)) {disable=true;EnableWindow((HWND)msgBox.parent , true);}
-        } else {
-            msgBox.msg = (const char *)msg->p1;
-            msgBox.flags = msg->p2;
-            msgBox.title = "Konnekt";
-			msgBox.parent = hwndTop;
-        }
-		MSGBOXPARAMS mbp;
-		memset(&mbp , 0 , sizeof(mbp));
-		mbp.cbSize = sizeof (mbp);
-        if (msgBox.flags) {
-			mbp.dwStyle = msgBox.flags |(r & 0xF0);} 
-		else 
-			mbp.dwStyle = r;
-		mbp.hwndOwner = msgBox.flags&MB_TASKMODAL?0:(HWND)msgBox.parent;
-		mbp.lpszCaption = msgBox.title;
-		mbp.lpszText = msgBox.msg;
-		if (!(msgBox.flags & (MB_TASKMODAL | MB_APPLMODAL | MB_SYSTEMMODAL)) && !Ctrl->Is_TUS(0)) {
-			IMLOG("- MessageBox own thread");
-			r = Ctrl->BeginThreadAndWait("MessageBox", 0 , 0 , (cCtrl::fBeginThread)MessageBoxThreadProc , &mbp);
-		} else {
-			r = MessageBoxThreadProc(&mbp);
-		}
-		if (msg->id == IMI_CONFIRM && !msgBox.flags) r = (r==IDYES);
-        if (disable) EnableWindow((HWND)msgBox.parent , false);
-        canQuit = true;
-        return r;
-        }
-    case IMI_DEBUG:
-         #ifdef __DEBUG
-         if (!hwndDbgAct) {
-              hwndDbgAct=CreateDialogParam(Ctrl->hDll() , MAKEINTRESOURCE(IDD_DBGACTIONS)
-                                    , hwndTop , (DLGPROC)DbgActionsProc , 0);
-              IMLOG("IMI_DEBUG %x" , hwndDbgAct);
-              ShowWindow(hwndDbgAct, SW_SHOW);
-              }
-         else SetForegroundWindow(hwndDbgAct);
-         #endif
-         break;
+      } else if (msg->id == IMI_ERROR) {
+        r = MB_OK | MB_ICONHAND;
+      } else if (msg->id == IMI_WARNING) {
+        r = MB_OK | MB_ICONEXCLAMATION;
+      } else if (msg->id == IMI_INFORM) {
+        r = MB_OK | MB_ICONASTERISK;
+      }
 
-    case IM_UIACTION:  return ActionProc((sUIActionNotify_base*)msg->p1);
+      //IMESSAGE_TS();
+      canQuit = false; 
+      sIMessage_msgBox msgBox(msg->id);
+
+      bool disable = false;
+      if (msgBase->s_size == sizeof(sIMessage_msgBox)) {
+        msgBox = *(static_cast<sIMessage_msgBox*>(msgBase));
+
+        if (!msgBox.title) msgBox.title = "Konnekt";
+
+        GetWindowText((HWND)msgBox.parent , TLS().buff, 2000);
+        const char * sums = TLS().buff;
+
+//            if (msgBox.parent && !IsWindowEnabled((HWND)msgBox.parent)) {disable=true;EnableWindow((HWND)msgBox.parent , true);}
+      } else {
+        msgBox.msg = (const char *)msg->p1;
+        msgBox.flags = msg->p2;
+        msgBox.title = "Konnekt";
+        msgBox.parent = hwndTop;
+      }
+
+      MSGBOXPARAMS mbp;
+      memset(&mbp , 0 , sizeof(mbp));
+
+      mbp.cbSize = sizeof(mbp);
+      mbp.dwStyle = msgBox.flags ? msgBox.flags |(r & 0xF0) : r;
+      mbp.hwndOwner = msgBox.flags & MB_TASKMODAL ? 0 :(HWND)msgBox.parent;
+      mbp.lpszCaption = msgBox.title;
+      mbp.lpszText = msgBox.msg;
+
+      if (!(msgBox.flags & (MB_TASKMODAL | MB_APPLMODAL | MB_SYSTEMMODAL)) && !Ctrl->Is_TUS(0)) {
+        IMLOG("- MessageBox own thread");
+        r = Ctrl->BeginThreadAndWait("MessageBox", 0 , 0 , (cCtrl::fBeginThread)MessageBoxThreadProc , &mbp);
+      } else {
+        r = MessageBoxThreadProc(&mbp);
+      }
+
+      if (msg->id == IMI_CONFIRM && !msgBox.flags) r = (r == IDYES);
+
+      if (disable) EnableWindow((HWND)msgBox.parent , false);
+
+      canQuit = true;
+      return r;
+    }
+
+    case IMI_DEBUG:
+     #ifdef __DEBUG
+
+     if (!hwndDbgAct) {
+       hwndDbgAct = CreateDialogParam(Ctrl->hDll() , MAKEINTRESOURCE(IDD_DBGACTIONS), 
+         hwndTop , (DLGPROC)DbgActionsProc , 0);
+
+       IMLOG("IMI_DEBUG %x" , hwndDbgAct);
+       ShowWindow(hwndDbgAct, SW_SHOW);
+     } else {
+       SetForegroundWindow(hwndDbgAct);
+     }
+
+     #endif // __DEBUG
+     break;
+
+    case IM_UIACTION:  return ActionProc((sUIActionNotify_base*) msg->p1);
 
     case IMI_DLGSETPASS:
-		 ISRUNNING();
-		 IMESSAGE_TS();
-         sd = (sDIALOG*)msg->p1;
-         ((sDIALOG_access*)msg->p1)->flag |= DFLAG_PASS2 | (msg->p2?DFLAG_SAVE:0);
-         if (DialogBoxParam(Ctrl->hDll() , MAKEINTRESOURCE(IDD_SETPASS) , sd->handle?(HWND)sd->handle:hwndTop , (DLGPROC)PassDialogProc , msg->p1)
-              != IDOK) return 0;
-         return (int)1;
+      ISRUNNING();
+      IMESSAGE_TS();
+
+      sd = (sDIALOG*) msg->p1;
+
+      ((sDIALOG_access*) msg->p1)->flag |= DFLAG_PASS2 | (msg->p2 ? DFLAG_SAVE : 0);
+
+      if (DialogBoxParam(Ctrl->hDll(), MAKEINTRESOURCE(IDD_SETPASS), 
+        sd->handle ? (HWND)sd->handle : hwndTop, (DLGPROC)PassDialogProc, msg->p1) != IDOK) 
+         return 0;
+
+      return (int) 1;
 
     case IMI_DLGPASS:
-		 ISRUNNING();
-         IMESSAGE_TS();
-         sd = (sDIALOG*)msg->p1;
-         ((sDIALOG_access*)msg->p1)->flag |= (msg->p2?DFLAG_SAVE:0);
-         if (DialogBoxParam(Ctrl->hDll() , MAKEINTRESOURCE(IDD_PASS) , sd->handle?(HWND)sd->handle:hwndTop , (DLGPROC)PassDialogProc , msg->p1)
-              != IDOK) return 0;
-         return 1;
+      ISRUNNING();
+      IMESSAGE_TS();
+
+      sd = (sDIALOG*) msg->p1;
+
+      ((sDIALOG_access*) msg->p1)->flag |= (msg->p2 ? DFLAG_SAVE : 0);
+
+      if (DialogBoxParam(Ctrl->hDll(), MAKEINTRESOURCE(IDD_PASS), sd->handle ? (HWND)sd->handle : hwndTop, 
+        (DLGPROC)PassDialogProc, msg->p1) != IDOK) 
+         return 0;
+
+      return 1;
 
     case IMI_DLGLOGIN:
-		 ISRUNNING();
-         IMESSAGE_TS();
-         sd = (sDIALOG*)msg->p1;
-         ((sDIALOG_access*)msg->p1)->flag |= (msg->p2?DFLAG_SAVE:0);
-		 if (DialogBoxParam(Ctrl->hDll() , MAKEINTRESOURCE((sd->flag & DFLAG_PASS2) ? IDD_LOGIN : IDD_LOGINPASS2) , sd->handle?(HWND)sd->handle:hwndTop , (DLGPROC)PassDialogProc , msg->p1)
-             != IDOK) {return 0;}
-         return 1;
+      ISRUNNING();
+      IMESSAGE_TS();
+
+      sd = (sDIALOG*) msg->p1;
+
+      ((sDIALOG_access*) msg->p1)->flag |= (msg->p2 ? DFLAG_SAVE : 0);
+
+      if (DialogBoxParam(Ctrl->hDll(), MAKEINTRESOURCE((sd->flag & DFLAG_PASS2) ? IDD_LOGIN : IDD_LOGINPASS2), 
+        sd->handle ? (HWND)sd->handle : hwndTop, (DLGPROC)PassDialogProc , msg->p1) != IDOK)
+         return 0;
+
+      return 1;
 
     case IMI_DLGENTER:
-		 ISRUNNING();
-         IMESSAGE_TS();
-         sd = (sDIALOG*)msg->p1;
-         if (DialogBoxParam(Ctrl->hDll() , MAKEINTRESOURCE(IDD_ENTER) , sd->handle?(HWND)sd->handle:hwndTop , (DLGPROC)EnterDialogProc , msg->p1)
-              != IDOK) return 0;
-         return 1;
-    case IMI_DLGBUTTONS:
-		 ISRUNNING();
-         IMESSAGE_TS();
-         sd = (sDIALOG*)msg->p1;
-         return DialogBoxParam(Ctrl->hDll() , MAKEINTRESOURCE(IDD_BUTTONS) , sd->handle?(HWND)sd->handle:hwndTop , (DLGPROC)ButtonsDialogProc , msg->p1);
-    case IMI_DLGTOKEN:
-		 ISRUNNING();
-         IMESSAGE_TS();
-         sd = (sDIALOG_token*)msg->p1;
-         return DialogBoxParam(Ctrl->hDll() , MAKEINTRESOURCE(IDD_GETTOKEN) , sd->handle?(HWND)sd->handle:hwndTop , (DLGPROC)TokenDialogProc , (LPARAM)msg);
+      ISRUNNING();
+      IMESSAGE_TS();
 
-	case IMI_LONGSTART:
-         {
-			// ISRUNNING();
-           IMESSAGE_TS();
-           sd = (sDIALOG*)msg->p1;
-		   a = 1;
-           if (sd) {
-             sd->handle=0;
-             if (longOnly) sd->flag |= DLONG_NODLG;
-             if (!(sd->flag & DLONG_NODLG)) {
-               sd->handle = CreateDialogParam(Ctrl->hDll() , MAKEINTRESOURCE(IDD_LONGPROC) , sd->handle?(HWND)sd->handle:hwndTop , (DLGPROC)LongDialogProc , msg->p1);
-               ShowWindow((HWND) sd->handle , SW_SHOW);
-             }
-             StartLong((sDIALOG_long*)sd);
-             if (sd->flag & DLONG_MODAL) {
-               if (hwndConfig) EnableWindow(hwndConfig , false);
-               EnableWindow(hwndMain , false);
-             }
-             if (sd->flag & DLONG_SINGLE) longOnly = true;
-           } else {/*StartLong(0); a = 0;*/}
-           return a;
-         }
+      sd = (sDIALOG*)msg->p1;
+
+      if (DialogBoxParam(Ctrl->hDll(), MAKEINTRESOURCE(IDD_ENTER), 
+        sd->handle ? (HWND)sd->handle : hwndTop, (DLGPROC) EnterDialogProc, msg->p1) != IDOK) 
+         return 0;
+
+      return 1;
+
+    case IMI_DLGBUTTONS:
+      ISRUNNING();
+      IMESSAGE_TS();
+
+      sd = (sDIALOG*) msg->p1;
+
+      return DialogBoxParam(Ctrl->hDll(), 
+        MAKEINTRESOURCE(IDD_BUTTONS), sd->handle ? (HWND)sd->handle : hwndTop,
+        (DLGPROC) ButtonsDialogProc, msg->p1);
+
+    case IMI_DLGTOKEN:
+      ISRUNNING();
+      IMESSAGE_TS();
+
+      sd = (sDIALOG_token*) msg->p1;
+
+      return DialogBoxParam(Ctrl->hDll(), MAKEINTRESOURCE(IDD_GETTOKEN), 
+        sd->handle ? (HWND) sd->handle : hwndTop, (DLGPROC)TokenDialogProc, (LPARAM)msg);
+
+    case IMI_LONGSTART: {
+      // ISRUNNING();
+      IMESSAGE_TS();
+
+      sd = (sDIALOG*) msg->p1;
+      a = 1;
+
+      if (sd) {
+        sd->handle = 0;
+        if (longOnly) sd->flag |= DLONG_NODLG;
+
+        if (!(sd->flag & DLONG_NODLG)) {
+          sd->handle = CreateDialogParam(Ctrl->hDll(), MAKEINTRESOURCE(IDD_LONGPROC),
+            sd->handle ? (HWND) sd->handle : hwndTop , (DLGPROC)LongDialogProc , msg->p1);
+
+          ShowWindow((HWND) sd->handle , SW_SHOW);
+        }
+
+        StartLong((sDIALOG_long*) sd);
+
+        if (sd->flag & DLONG_MODAL) {
+          if (hwndConfig) EnableWindow(hwndConfig , false);
+          EnableWindow(hwndMain , false);
+        }
+        if (sd->flag & DLONG_SINGLE) longOnly = true;
+
+      } else {
+        /*StartLong(0); a = 0;*/
+      }
+
+      return a;
+    }
+
     case IMI_LONGEND:
-		 //ISRUNNING();
-         IMESSAGE_TS();
-         sd = (sDIALOG*)msg->p1;
-         if (sd) {
-           if (sd->flag & DLONG_SINGLE) longOnly = false;
-           if (sd->handle) DestroyWindow((HWND)sd->handle);
-           if (sd->flag & DLONG_MODAL) {
-             if (hwndConfig) EnableWindow(hwndConfig , true);
-             EnableWindow(hwndMain , true);
-           }
-//           if (!longOnly && (sd->flag & DLONG_BLOCKING))
-           StopLong((sDIALOG_long*)sd);
-         }// else if (!longOnly) StopLong();
-         return 1;
+      //ISRUNNING();
+      IMESSAGE_TS();
+
+      sd = (sDIALOG*) msg->p1;
+
+      if (sd) {
+        if (sd->flag & DLONG_SINGLE) longOnly = false;
+        if (sd->handle) DestroyWindow((HWND) sd->handle);
+        if (sd->flag & DLONG_MODAL) {
+          if (hwndConfig) EnableWindow(hwndConfig , true);
+          EnableWindow(hwndMain , true);
+        }
+//      if (!longOnly && (sd->flag & DLONG_BLOCKING))
+        StopLong((sDIALOG_long*)sd);
+      }// else if (!longOnly) StopLong();
+
+      return 1;
 
     case IMI_LONGSET:
-         sd = (sDIALOG*)msg->p1;
-         if (sd && IsWindow((HWND) sd->handle))
-           SendMessage((HWND) sd->handle , MYWM_DLGLONGSET , msg->p2 , msg->p1);
-         return 1;
+      sd = (sDIALOG*) msg->p1;
+
+      if (sd && IsWindow((HWND) sd->handle)) {
+        SendMessage((HWND) sd->handle , MYWM_DLGLONGSET , msg->p2 , msg->p1);
+      }
+
+      return 1;
 
     case IMI_CNT_DETAILS:
-		 ISRUNNING();
-         IMESSAGE_TS();
-         a=msg->p1;
-         if (a<0) return 0;
-//         IMLOG("hwnd %x" , Cnt[a].hwndInfo);
-         Cnt[a].InfoWndOpen();
-         return 1;
-	case IMI_CNT_DETAILS_SUMMARIZE:
-		if (!Cnt.exists(msg->p1)) 
-			return 0;
-		InfoDialogSummary(msg->p1 , true);
-		return 0;
+      ISRUNNING();
+      IMESSAGE_TS();
+
+      a = msg->p1;
+      if (a<0) return 0;
+
+//    IMLOG("hwnd %x" , Cnt[a].hwndInfo);
+
+      Cnt[a].InfoWndOpen();
+
+      return 1;
+
+    case IMI_CNT_DETAILS_SUMMARIZE:
+      if (!Cnt.exists(msg->p1)) 
+        return 0;
+
+      InfoDialogSummary(msg->p1 , true);
+
+      return 0;
+
     case IMI_CNT_SEARCH_FOUND:
-         if (!hwndSearch) return 0;
-         SearchDialogAdd(hwndSearch , (sCNTSEARCH*)msg->p1);
-         return 1;
+      if (!hwndSearch) return 0;
+
+      SearchDialogAdd(hwndSearch , (sCNTSEARCH*) msg->p1);
+
+      return 1;
 
 /*
     case Message::IM::imReceiveMessage:
@@ -1164,225 +1264,331 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
               }
               return 0;
               */
+
     case IMI_CONFIG:
-         ISRUNNING();
-         IMESSAGE_TS();
-         if (!hwndMain) return 0;
-         if (!hwndConfig) {
-              hwndConfig=CreateDialog(Ctrl->hDll() , MAKEINTRESOURCE(IDD_CONFIG)
-                                    , hwndTop , (DLGPROC)ConfigDialogProc);
-              ShowWindow(hwndConfig, SW_SHOW);
-              }
-         else SetForegroundWindow(hwndConfig);
-         ConfigDialogOpen(msg->p1);
-         return 1;
+      ISRUNNING();
+      IMESSAGE_TS();
+
+      if (!hwndMain) return 0;
+
+      if (!hwndConfig) {
+        hwndConfig = CreateDialog(Ctrl->hDll(), MAKEINTRESOURCE(IDD_CONFIG), hwndTop,
+          (DLGPROC)ConfigDialogProc);
+
+        ShowWindow(hwndConfig, SW_SHOW);
+      } else {
+        SetForegroundWindow(hwndConfig);
+      }
+
+      ConfigDialogOpen(msg->p1);
+
+      return 1;
+
     case IMI_CONFIGOPENED:
-         ISRUNNING();
-         if (!msg->p1) return (int)hwndConfig;
-         return (int)GetProp(hwndConfig , "configProp")==msg->p1;
+      ISRUNNING();
 
-    case IMI_ACTION: case IMI_GROUP:
-         {
-          ISRUNNING();
-          IMESSAGE_TS();
-          sUIActionInfo * ai = (sUIActionInfo*)msg->p1;
-          if (!Act.exists(ai->act.parent))
-            CtrlEx->PlugOut(msg->sender , _sprintf("Grupa %d dla akcji %d nie istnieje!" , ai->act.parent , ai->act.id) , 0);
-          if (ai->act.id && Act.exists(ai->act))
-            CtrlEx->PlugOut(msg->sender , _sprintf("Akcja %d , %d ju¿ istnieje!" , ai->act.parent , ai->act.id) , 0);
+      if (!msg->p1) return (int) hwndConfig;
 
-          if (msg->id == IMI_GROUP)
-            ai->status |= ACTS_GROUP;
-          if (ai->status & ACTS_GROUP) {
-            if (Act.exists(ai->act.id))
-              CtrlEx->PlugOut(msg->sender , _sprintf("Grupa %d ju¿ istnieje!" , ai->act.id) , 0);
-          }
-          Act.insert(ai , msg->sender);
+      return (int)GetProp(hwndConfig , "configProp")==msg->p1;
+
+    case IMI_ACTION: case IMI_GROUP: {
+      ISRUNNING();
+      IMESSAGE_TS();
+
+      sUIActionInfo * ai = (sUIActionInfo*) msg->p1;
+
+      if (!Act.exists(ai->act.parent)) {
+        CtrlEx->PlugOut(msg->sender , _sprintf("Grupa %d dla akcji %d nie istnieje!" , ai->act.parent , ai->act.id) , 1);
+      }
+      if (ai->act.id && Act.exists(ai->act)) {
+        CtrlEx->PlugOut(msg->sender , _sprintf("Akcja %d , %d ju¿ istnieje!" , ai->act.parent , ai->act.id) , 1);
+      }
+
+      if (msg->id == IMI_GROUP)
+        ai->status |= ACTS_GROUP;
+      if (ai->status & ACTS_GROUP) {
+        if (Act.exists(ai->act.id)) {
+          CtrlEx->PlugOut(msg->sender , _sprintf("Grupa %d ju¿ istnieje!" , ai->act.id) , 1);
+        }
+      }
+      Act.insert(ai , msg->sender);
+
 //          if (ai->status & ACTS_GROUP)
 //            Act[ai->act.id];
-          return 1;
-         }
+
+      return 1;
+    }
+
     case IMI_ACTION_CALL:
-         ISRUNNING();
-         if (!Act.exists(((sUIActionNotify_base*)msg->p1)->act)) return 0;
-         return IMessageDirect(IM_UIACTION , Act(((sUIActionNotify_base*)msg->p1)->act).owner , msg->p1);
-	case IMI_ACTION_SETCNT:
-         ISRUNNING();
-         IMESSAGE_TS();
-         if (!Act.exists(((sUIActionNotify_base*)msg->p1)->act)) return 0;
-		 return Act(((sUIActionNotify_base*)msg->p1)->act).setCnt(((sUIActionNotify_base*)msg->p1)->act.cnt , msg->p2!=0);
-	case IMI_ACTION_GET:
-         {
-         ISRUNNING();
-           IMESSAGE_TS();
-           sUIActionInfo * ai = (sUIActionInfo *)msg->p1;
-           if (!Act.exists(ai->act)) return 0;
-           Act(ai->act).setCnt(ai->act.cnt);
-           Act(ai->act).getInfo(ai);
-           return 1;
-         }
-    case IMI_ACTION_SET:
-         {
-           ISRUNNING();
-           IMESSAGE_TS();
-         sUIActionInfo * ai = (sUIActionInfo *)msg->p1;
-           if (!Act.exists(ai->act)) return 0;
-           return ActionSet(*ai);
-         }
-    case IMI_ACTION_GETVALUE:
-         {
-         ISRUNNING();
-           IMESSAGE_TS();
-           sUIActionInfo * ai = (sUIActionInfo*) msg->p1;
-           if (!Act.exists(ai->act.parent, ai->act.id)) return 0;
-           Act(ai->act).setCnt(ai->act.cnt);
-		   String value = getActionValue(Act(ai->act) , ai->mask & UIAIM_VALUE_CONVERT);
-		   if (ai->txt) {
-			   strncpy(ai->txt, value.a_str(), ai->txtSize);
-			   return (int)ai->txt;
-		   } else {
-			   strncpy(TLS().buff, value.a_str(), MAX_STRING);
-			   return (int)TLS().buff;
-		   }
-         }
-    case IMI_ACTION_SETVALUE:
-         {
-         ISRUNNING();
-           IMESSAGE_TS();
-           sUIActionInfo * ai = (sUIActionInfo*) msg->p1;
-           if (!Act.exists(ai->act.parent, ai->act.id)) return 0;
-           Act(ai->act).setCnt(ai->act.cnt);
-           String value = setActionValue(Act(ai->act), ai->txt, ai->mask & UIAIM_VALUE_CONVERT);
-		   strncpy(TLS().buff, value.a_str(), MAX_STRING);
-		   return (int)TLS().buff;
-         }
+      ISRUNNING();
+
+      if (!Act.exists(((sUIActionNotify_base*)msg->p1)->act)) return 0;
+
+      return IMessageDirect(IM_UIACTION , Act(((sUIActionNotify_base*)msg->p1)->act).owner , msg->p1);
+
+    case IMI_ACTION_SETCNT:
+      ISRUNNING();
+      IMESSAGE_TS();
+
+      if (!Act.exists(((sUIActionNotify_base*) msg->p1)->act)) return 0;
+
+      return Act(((sUIActionNotify_base* )msg->p1)->act).setCnt(((sUIActionNotify_base*) msg->p1)->act.cnt , msg->p2!=0);
+
+    case IMI_ACTION_GET: {
+      ISRUNNING();
+      IMESSAGE_TS();
+
+      sUIActionInfo * ai = (sUIActionInfo *)msg->p1;
+      if (!Act.exists(ai->act)) return 0;
+
+      Act(ai->act).setCnt(ai->act.cnt);
+      Act(ai->act).getInfo(ai);
+
+      return 1;
+    }
+
+    case IMI_ACTION_SET: {
+      ISRUNNING();
+      IMESSAGE_TS();
+
+      sUIActionInfo * ai = (sUIActionInfo *)msg->p1;
+
+      if (!Act.exists(ai->act)) return 0;
+
+      return ActionSet(*ai);
+    }
+
+    case IMI_ACTION_GETVALUE: {
+      ISRUNNING();
+      IMESSAGE_TS();
+
+      sUIActionInfo * ai = (sUIActionInfo*) msg->p1;
+      if (!Act.exists(ai->act.parent, ai->act.id)) return 0;
+
+      Act(ai->act).setCnt(ai->act.cnt);
+      String value = getActionValue(Act(ai->act) , ai->mask & UIAIM_VALUE_CONVERT);
+
+      if (ai->txt) {
+        strncpy(ai->txt, value.a_str(), ai->txtSize);
+        return (int)ai->txt;
+
+      } else {
+        strncpy(TLS().buff, value.a_str(), MAX_STRING);
+        return (int)TLS().buff;
+      }
+    }
+
+    case IMI_ACTION_SETVALUE: {
+      ISRUNNING();
+      IMESSAGE_TS();
+
+      sUIActionInfo * ai = (sUIActionInfo*) msg->p1;
+      if (!Act.exists(ai->act.parent, ai->act.id)) return 0;
+
+      Act(ai->act).setCnt(ai->act.cnt);
+      String value = setActionValue(Act(ai->act), ai->txt, ai->mask & UIAIM_VALUE_CONVERT);
+
+      strncpy(TLS().buff, value.a_str(), MAX_STRING);
+
+      return (int)TLS().buff;
+    }
+
     case IMI_GROUP_ACTIONSCOUNT:
-         ISRUNNING();
-         if (!Act.exists(((sUIAction*)msg->p1)->id)) return 0;
-         return Act[((sUIAction*)msg->p1)->id].size(); 
+      ISRUNNING();
+
+      if (!Act.exists(((sUIAction*) msg->p1)->id)) return 0;
+
+      return Act[((sUIAction*) msg->p1)->id].size(); 
+
     case IMI_ACTION_EXISTS:
-         ISRUNNING();
-         return Act.exists(*(sUIAction*)msg->p1);
+      ISRUNNING();
+
+      return Act.exists(*(sUIAction*) msg->p1);
+
     case IMI_ACTION_ISGROUP:
-         ISRUNNING();
-         return Act.exists(msg->p1);
+      ISRUNNING();
+
+      return Act.exists(msg->p1);
+
     case IMI_ACTION_GETID:
-         ISRUNNING();
-         if (!Act.exists(msg->p1) || msg->p2<0 || msg->p2>=Act[msg->p1].size()) return -1;
-         return Act[msg->p1][msg->p2].id;
+      ISRUNNING();
+
+      if (!Act.exists(msg->p1) || msg->p2<0 || msg->p2>=Act[msg->p1].size()) return -1;
+
+      return Act[msg->p1][msg->p2].id;
+
     case IMI_ACTION_GETINDEX:
-         ISRUNNING();
-         if (!msg->p1 || !Act.exists(*(sUIAction*)msg->p1)) return 0;
-         return Act(*(sUIAction*)msg->p1).index;
+      ISRUNNING();
+
+      if (!msg->p1 || !Act.exists(*(sUIAction*) msg->p1)) return 0;
+
+      return Act(*(sUIAction*)msg->p1).index;
+
     case IMI_ACTION_REMOVE: {
-         ISRUNNING();
-         IMESSAGE_TS();
-         sUIAction * uia = (sUIAction*)msg->p1;
-         if (!Act.exists(*uia)) return 0;
-         return Act[uia->parent].remove(Act[uia->parent].find(uia->id));
-         }
+      ISRUNNING();
+      IMESSAGE_TS();
+
+      sUIAction * uia = (sUIAction*) msg->p1;
+
+      if (!Act.exists(*uia)) return 0;
+
+      return Act[uia->parent].remove(Act[uia->parent].find(uia->id));
+    }
+
     case IMI_ACTION_GETTYPE:
-         ISRUNNING();
-         if (!Act.exists(*(sUIAction*)msg->p1)) return 0;
-         return Act(*((sUIAction*)msg->p1)).type;
+      ISRUNNING();
+
+      if (!Act.exists(*(sUIAction*) msg->p1)) return 0;
+
+      return Act(*((sUIAction*)msg->p1)).type;
+
     case IMI_GROUP_GETHANDLE:
-         ISRUNNING();
-         IMESSAGE_TS();
-         if (!Act.exists(((sUIAction*)msg->p1)->id)) break;
-         Act[((sUIAction*)msg->p1)->id].setCnt(((sUIAction*)msg->p1)->cnt);
-         return (int)Act[((sUIAction*)msg->p1)->id].ghandle;
+      ISRUNNING();
+      IMESSAGE_TS();
+
+      if (!Act.exists(((sUIAction*) msg->p1)->id)) break;
+
+      Act[((sUIAction*) msg->p1)->id].setCnt(((sUIAction*) msg->p1)->cnt);
+
+      return (int)Act[((sUIAction*) msg->p1)->id].ghandle;
+
     case IMI_ACTION_FINDPARENT: {
-         ISRUNNING();
-        if (!Act.exists(((sUIAction*)msg->p1)->parent)) break;
-        sUIAction * act = (sUIAction*)msg->p1;
-        cUIAction * found = Act[act->parent].findAction(act->id);
-        if (msg->p2) act->parent = found?found->parent:0;
-        return found?found->parent:0;}
-	case IMI_ACTION_GETOWNER:
-		ISRUNNING();
-		if (!Act.exists(*((sUIAction*)msg->p1))) {
-			break; // b³¹d
-		}
-        return (int)Act(*(sUIAction*)msg->p1).owner;
-	case IMI_ACTION_MAKEPOPUPMENU: {
-		sIMessage_UIMakePopup * mp = static_cast<sIMessage_UIMakePopup *>(msgBase);
-		if (!Act.exists(mp->_action.id))
-			break; // b³¹d
-		Act[mp->_action.id].setCnt(mp->_action.cnt , true);
-		mp->_uFlags |= TPM_RETURNCMD;
-		if (!mp->_hWnd) mp->_hWnd = hwndMain;
-		UIPopupMenu(Act[mp->_action.id] , mp->_uFlags , mp->_x , mp->_y , mp->_nReserved , (HWND)mp->_hWnd , (CONST RECT*)mp->_prcRect , mp->_startFrom);
-		return 1;}
-	case IMI_GETPLUGINSGROUP: {
-		return GETINT(CFG_UIPLUGINSGROUP)&0xFFFF;
-		}
-	case IMI_GROUP_MAKECFG: {
-         ISRUNNING();
-        IMESSAGE_TS();
-        if (!Act.exists(((sUIAction*)msg->p1)->id)) return 0;
-		cUIGroup & g = Act[((sUIAction*)msg->p1)->id];
-		if (!getCfgHandle(g)) return 0;
- 	    if (!g.ghandle) makeCfgProp(g);
-		return (int)g.ghandle;
-		}
+      ISRUNNING();
+
+      if (!Act.exists(((sUIAction*) msg->p1)->parent)) break;
+
+      sUIAction * act = (sUIAction*) msg->p1;
+      cUIAction * found = Act[act->parent].findAction(act->id);
+
+      if (msg->p2) act->parent = found ? found->parent : 0;
+
+      return found ? found->parent : 0;
+    }
+
+    case IMI_ACTION_GETOWNER:
+      ISRUNNING();
+
+      if (!Act.exists(*((sUIAction*) msg->p1))) {
+        break; // b³¹d
+      }
+
+      return (int)Act(*(sUIAction*) msg->p1).owner;
+
+    case IMI_ACTION_MAKEPOPUPMENU: {
+      sIMessage_UIMakePopup * mp = static_cast<sIMessage_UIMakePopup *>(msgBase);
+
+      if (!Act.exists(mp->_action.id))  break; // b³¹d
+
+      Act[mp->_action.id].setCnt(mp->_action.cnt , true);
+      mp->_uFlags |= TPM_RETURNCMD;
+
+      if (!mp->_hWnd) mp->_hWnd = hwndMain;
+
+      UIPopupMenu(Act[mp->_action.id] , mp->_uFlags , mp->_x , mp->_y , mp->_nReserved, 
+        (HWND) mp->_hWnd, (CONST RECT*) mp->_prcRect , mp->_startFrom);
+
+      return 1;
+    }
+
+    case IMI_GETPLUGINSGROUP: {
+      return GETINT(CFG_UIPLUGINSGROUP) & 0xFFFF;
+    }
+
+    case IMI_GROUP_MAKECFG: {
+      ISRUNNING();
+      IMESSAGE_TS();
+
+      if (!Act.exists(((sUIAction*) msg->p1)->id)) return 0;
+
+      cUIGroup & g = Act[((sUIAction*)msg->p1)->id];
+
+      if (!getCfgHandle(g)) return 0;
+      if (!g.ghandle) makeCfgProp(g);
+
+      return (int)g.ghandle;
+    }
+
     case IMI_ICONRES:
-         ISRUNNING();
-        return Ico.iconRes(msg->p1,msg->p2 , (HINSTANCE)ICMessage(IMC_PLUGID_HANDLE , msg->sender));
+      ISRUNNING();
+
+      return Ico.iconRes(msg->p1,msg->p2 , (HINSTANCE)ICMessage(IMC_PLUGID_HANDLE , msg->sender));
+
     case IMI_ICONREGISTER:
-         ISRUNNING();
-         if (Ico.iconRegister((sUIIconRegister*)msg->p1 , (HINSTANCE)ICMessage(IMC_PLUGID_HANDLE , msg->sender)))
-            return ((sUIIconRegister*)msg->p1)->ID;
-         else
-            return 0;
+      ISRUNNING();
+
+      if (Ico.iconRegister((sUIIconRegister*)msg->p1 , (HINSTANCE)ICMessage(IMC_PLUGID_HANDLE , msg->sender))) {
+        return ((sUIIconRegister*)msg->p1)->ID;
+      }
+
+      return 0;
+
     case IMI_ICONREGISTERLIST:
-         ISRUNNING();
-         return Ico.iconRegisterList((sUIIconRegisterList*)msg->p1);
+      ISRUNNING();
+
+      return Ico.iconRegisterList((sUIIconRegisterList*)msg->p1);
+
     case IMI_ICONEXISTS:
-         ISRUNNING();
-         return Ico.iconExists(msg->p1 , (IML_enum)msg->p2);
+      ISRUNNING();
+
+      return Ico.iconExists(msg->p1 , (IML_enum)msg->p2);
+
     case IMI_GETICONINDEX:
-         ISRUNNING();
-         return Ico.getIconIndex(msg->p1 , (IML_enum)msg->p2);
+      ISRUNNING();
+
+      return Ico.getIconIndex(msg->p1 , (IML_enum)msg->p2);
+
     case IMI_GETICONLIST:
-         ISRUNNING();
-         return (int)Ico.getImageList((IML_enum)msg->p1);
-	case IMI_ICONUNREGISTER:
-         ISRUNNING();
-		return Ico.iconUnregister(msg->p1 , (IML_enum)msg->p2);
-	case IMI_ICONGET:
-		ISRUNNING();
-		return (int)Ico.iconGet(msg->p1 , (IML_enum)msg->p2);
+      ISRUNNING();
+
+      return (int)Ico.getImageList((IML_enum)msg->p1);
+
+    case IMI_ICONUNREGISTER:
+      ISRUNNING();
+
+      return Ico.iconUnregister(msg->p1 , (IML_enum)msg->p2);
+
+    case IMI_ICONGET:
+      ISRUNNING();
+
+      return (int)Ico.iconGet(msg->p1 , (IML_enum)msg->p2);
+
     /*
-  case Message::IM::imOpenMessage:
-         ISRUNNING();
-         m = (Message*)msg->p1;
-         switch (m->getType()) {
-           case Message::typeMessage:
-           case Message::typeQuickEvent:
-             return ICMessage(IMI_MSG_OPEN , msg->p1);
-           case Message::typeServerEvent:
-             ServerEventDialogNext();
-             return 0;
-           case Message::typeUrl:
-             return 0;
-           }
+    case Message::IM::imOpenMessage:
+      ISRUNNING();
 
+      m = (Message*)msg->p1;
+
+     switch (m->getType()) {
+       case Message::typeMessage:
+       case Message::typeQuickEvent:
+         return ICMessage(IMI_MSG_OPEN , msg->p1);
+       case Message::typeServerEvent:
+         ServerEventDialogNext();
          return 0;
-         */
-    case IMI_MSG_OPEN:
-         ISRUNNING();
-         IMESSAGE_TS();
-         return IMsgOpen((Message*)msg->p1);
+       case Message::typeUrl:
+         return 0;
+     }
 
-    case IMI_MSG_NOTINLIST:
-//         IMLOG("EEEE?");
-		 ISRUNNING();
-     IMESSAGE_TS(); {
-         Message *m = (Message*)msg->p1;
-		 if (m->getType() != Message::typeMessage) return 0;
-         if (GETINT(CFG_UIMSGFROMOTHER)
-             || (*GETSTR(CFG_UIMSGFROMOTHERPASS) && !strcmp(GETSTR(CFG_UIMSGFROMOTHERPASS) , m->getBody().a_str()))
-             ) {
+     return 0;
+    */
+
+    case IMI_MSG_OPEN:
+      ISRUNNING();
+      IMESSAGE_TS();
+
+      return IMsgOpen((Message*)msg->p1);
+
+    case IMI_MSG_NOTINLIST: {
+      ISRUNNING();
+      IMESSAGE_TS();
+
+      Message *m = (Message*)msg->p1;
+
+      if (m->getType() != Message::typeMessage) return 0;
+
+      if (GETINT(CFG_UIMSGFROMOTHER) 
+        || (*GETSTR(CFG_UIMSGFROMOTHERPASS) && !strcmp(GETSTR(CFG_UIMSGFROMOTHERPASS) , m->getBody().a_str()))
+         ) {
            pos = ICMessage(IMC_CNT_ADD , (int)m->getNet() , (int)m->getFromUid().a_str());
            SETCNTI(pos , CNT_STATUS , ST_NOTINLIST , CNTM_FLAG);
            ICMessage(IMC_CNT_CHANGED , pos);
@@ -1391,89 +1597,115 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
          if (m->getType()==Message::typeMessage && *GETSTR(CFG_UIMSGFROMOTHERREPLY) && !(m->getFlags() & Message::flagAutomated)) {
            // Odsyla wiadomosc
            Message msg;
-           msg.setId(0);
            msg.setNet(m->getNet());
            msg.setType(Message::typeMessage);
            msg.setToUid(m->getFromUid());
-           msg.setFromUid("");
            msg.setBody(GETSTR(CFG_UIMSGFROMOTHERREPLY));
-           msg.setExt("");
            msg.setTime(cTime64(true));
            msg.setFlags(Message::flagSend | Message::flagAutomated);
-           msg.setNotify(0);
-           msg.setAction(NOACTION);
 
            MessageSelect ms;
            ms.id = ICMessage(Message::IM::imcNewMessage, (int)&msg);
            if (ms.id) ICMessage(MessageSelect::IM::imcMessageQueue, (int)&ms);
-         }}
-         return 0;
+         }
+       }
+       return 0;
+
     case IMI_MSG_WINDOWSTATE:
-         if (!Cnt.exists(msg->p1)) return 0;
-         if (!Cnt[msg->p1].hwndMsg || !IsWindowVisible(Cnt[msg->p1].hwndMsg)) return 0;
-		 if (IsIconic(Cnt[msg->p1].hwndMsg)) return -2;
-         return (GetForegroundWindow()!=Cnt[msg->p1].hwndMsg)?-1:1;
-	case IMI_MSG_EDITCTRL_WNDPROC:
-		return (int) EditMsgControlProc;
+      if (!Cnt.exists(msg->p1)) return 0;
+      if (!Cnt[msg->p1].hwndMsg || !IsWindowVisible(Cnt[msg->p1].hwndMsg)) return 0;
+      if (IsIconic(Cnt[msg->p1].hwndMsg)) return -2;
+
+      return (GetForegroundWindow() != Cnt[msg->p1].hwndMsg) ? -1 : 1;
+
+    case IMI_MSG_EDITCTRL_WNDPROC:
+      return (int) EditMsgControlProc;
+
     case IM_STATUSCHANGE: {
-         ISRUNNING();
-         sIMessage_StatusChange sc (msgBase);
-         return CStatus(sc.plugID , sc.status!=-1?sc.status:IMessageDirect(IM_GET_STATUS , sc.plugID) 
-             , sc.info?sc.info:(const char *)IMessageDirect(IM_GET_STATUSINFO , sc.plugID));}
+      ISRUNNING();
+
+      sIMessage_StatusChange sc (msgBase);
+
+      return CStatus(sc.plugID , sc.status!=-1?sc.status:IMessageDirect(IM_GET_STATUS , sc.plugID), 
+        sc.info?sc.info:(const char *)IMessageDirect(IM_GET_STATUSINFO , sc.plugID));
+    }
 
     case IMI_NOTIFY:
-         ISRUNNING();
-         return CNotify(msg->p1);
+      ISRUNNING();
+
+      return CNotify(msg->p1);
+
     case IMI_NEWNOTIFY:
-         ISRUNNING();
-         return CNewNotify((sNOTIFY*)msg->p1);
+      ISRUNNING();
+
+      return CNewNotify((sNOTIFY*)msg->p1);
 
     case IM_CFG_CHANGED:
-         ISRUNNING();
-         ICfgChanged();
-         return 1;
+      ISRUNNING();
+
+      ICfgChanged();
+
+      return 1;
+
     case IM_GRP_CHANGED:
-         ISRUNNING();
-         fillGroups();
+      ISRUNNING();
+
+      fillGroups();
+
 /*         ch = (char *) GETSTR(CFG_CURGROUP);
          if (*ch && !ICMessage(IMC_GRP_FIND , (int)ch)) {
             SETSTR(CFG_CURGROUP , "");
             cntList.refill();
          }*/
-         onSizeMain(0,0);
-		 selectGroups();
-         Cnt.imPrepare();
-         return 1;
+
+      onSizeMain(0,0);
+      selectGroups();
+      Cnt.imPrepare();
+
+      return 1;
+
     case IM_IGN_CHANGED:
-         ICMessage(IMI_REFRESH_LST);
-         return 1;
+      ICMessage(IMI_REFRESH_LST);
+
+      return 1;
 
     case IMI_LST_SELCOUNT:
-         ISRUNNING();       
-         return SendMessage(hwndList , LVM_GETSELECTEDCOUNT , 0 , 0);
+      ISRUNNING();
+
+      return SendMessage(hwndList , LVM_GETSELECTEDCOUNT , 0 , 0);
 
     case IMI_LST_GETSELPOS:
-         ISRUNNING();
-         return ILstGetSelPos(msg->p1);
+      ISRUNNING();
+
+      return ILstGetSelPos(msg->p1);
+
     case IMI_CNT_ACTIVITY:
-         ISRUNNING();       
-         if (!Cnt.exists(msg->p1)) return 0;
-		 Ctrl->DTsetInt64(DTCNT , msg->p1 , CNT_LASTACTIVITY , _time64(0));
-//         Cnt[msg->p1].activity=time(0);
-		 Cnt[msg->p1].active=true;
-		 Cnt[msg->p1].ApplyFilters();
-         return 1;
+      ISRUNNING();
+
+      if (!Cnt.exists(msg->p1)) return 0;
+
+      Ctrl->DTsetInt64(DTCNT , msg->p1 , CNT_LASTACTIVITY , _time64(0));
+//    Cnt[msg->p1].activity=time(0);
+      Cnt[msg->p1].active = true;
+      Cnt[msg->p1].ApplyFilters();
+
+      return 1;
+
     case IMI_CNT_DEACTIVATE:
-         ISRUNNING();
-         if (!Cnt.exists(msg->p1)) return 0;
-         Cnt[msg->p1].active=false;
-//         Cnt[msg->p1].activity=0;
-		 Cnt[msg->p1].ApplyFilters();
-         return 1;
+      ISRUNNING();
+
+      if (!Cnt.exists(msg->p1)) return 0;
+
+      Cnt[msg->p1].active = false;
+//    Cnt[msg->p1].activity=0;
+      Cnt[msg->p1].ApplyFilters();
+
+      return 1;
+
     case IM_CNT_STATUSCHANGE:
          {
            ISRUNNING();
-           if (msgBase->s_size < sizeof(sIMessage_StatusChange)) throw cKException_Msg(0 , msgBase);
+           if (msgBase->s_size < sizeof(sIMessage_StatusChange)) throw  KException_IM("", msgBase);
            sIMessage_StatusChange * sc = static_cast<sIMessage_StatusChange*>(msgBase);
 		   if (!Cnt.exists(msg->p1)) return 0;
            if (sc->status != -1) {
@@ -1511,7 +1743,7 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
 
         }
     case IM_CANTQUIT:
-        return !canQuit;
+      return !canQuit;
 
 
 	case IM_PLUG_ARGS: {

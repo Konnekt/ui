@@ -308,8 +308,8 @@ int ActionCntProc(sUIActionNotify_base * anBase) {
                     break;}
                 case ACTN_CONVERT_FROM: {
 					sUIActionNotify_buff * ab = static_cast<sUIActionNotify_buff *>(anBase);
-                    cDate64 time = _atoi64((char*)an->notify1);
-					itoa((BYTE)time.day | (BYTE)time.month << 8 | (WORD)time.year << 16 , ab->buff , 10);
+          cDate64 time = an->notify1 ? _atoi64((char*)an->notify1) : 0;
+					if (ab->buff) itoa((BYTE)time.day | (BYTE)time.month << 8 | (WORD)time.year << 16 , ab->buff , 10);
                     break;}
                 break;
 			break;

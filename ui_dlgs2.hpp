@@ -51,13 +51,23 @@ int CALLBACK AboutDialogProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam)
                 int i , c;
                 c = ICMessage(IMC_PLUG_COUNT);
                 for (i = 0 ; i < c ; i++) {
-                  FileVersionInfo((char*)ICMessage(IMC_PLUG_FILE , i) , 0 , &vi);
-                  RE_BOLD(1);
-                  CStdString fileName = (char*)ICMessage(IMC_PLUG_FILE , i);
+                  oPlugin plugin = Ctrl->getPlugin((tPluginId) i);
 
-                  RE_ADD(fileName.substr(fileName.find('\\')+1));
-                  RE_ADD("   ");
-                  RE_ADDLINE(vi.FileDescription);
+                  CStdString fileName = plugin->getDllFile().c_str();
+                  FileVersionInfo((char*) fileName.c_str(), 0 , &vi);
+
+                  RE_BOLD(1);
+
+                  if (plugin->isVirtual()) {
+                    RE_ADDLINE(stringf("[virtual] %s (%s)", plugin->getName().c_str(),
+                      fileName.substr(fileName.find('\\')+1).c_str()));
+
+                  } else {
+                    RE_ADD(fileName.substr(fileName.find('\\')+1));
+                    RE_ADD("   ");
+                    RE_ADDLINE(vi.FileDescription);
+                  }
+
                   RE_BOLD(0);
                   RE_ADDLINE(vi.FileVersion);
                   if (vi.CompanyName!="") RE_ADDLINE(vi.CompanyName);

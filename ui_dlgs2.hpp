@@ -229,7 +229,7 @@ void SearchDialogSearch(HWND hwnd) {
   EnableWindow(GetDlgItem(hwnd , IDOK) , 0);
   src.net = cbi.lParam;
   src.handle = hwnd;
-  IMessage(IM_CNT_SEARCH , (Net::tNet)cbi.lParam , IMT_PROTOCOL , (int)&src);
+  IMessage(IM_CNT_SEARCH , (Net::tNet)cbi.lParam , imtProtocol , (int)&src);
   EnableWindow(hwnd , true);
   SetForegroundWindow(hwnd);
   SetActiveWindow(hwnd);
@@ -345,7 +345,7 @@ int CALLBACK SearchDialogProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam
                 himl = ListView_SetImageList(GetDlgItem(hwnd , IDC_LIST) , Ico.iml[0] , LVSIL_SMALL);
                 // Sieci
                 item=GetDlgItem(hwnd , IDE_NET);
-                NetFillIn(item , IMT_NETSEARCH);
+                NetFillIn(item , imtNetSearch);
                 // Plec
                 item=GetDlgItem(hwnd , IDE_GENDER);
                 SendMessage(item , CB_ADDSTRING , 0 , (LPARAM)"p³eæ [wybierz]");
@@ -477,7 +477,7 @@ void GroupsDialogFill(HWND hwnd) {
    while ((grps = strchr(grps , '\n'))!=0) {
       *grps = 0;
       grps++;
-      if (*grp) ListView_AddString(item , grp , Ico[UIIcon(IT_LOGO , NET_NONE , 0 , 0)].index[0]);
+      if (*grp) ListView_AddString(item , grp , Ico[UIIcon(IT_LOGO , Net::none , 0 , 0)].index[0]);
       grp = grps;
    }
    free(grps2);
@@ -638,7 +638,7 @@ int CALLBACK IgnoreDialogProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam
                 SendDlgItemMessage(hwnd , IDC_LIST , LVM_SETEXTENDEDLISTVIEWSTYLE , 0 ,
                       LVS_EX_FULLROWSELECT);
                 ListView_SetImageList(GetDlgItem(hwnd , IDC_LIST) , Ico.iml[0] , LVSIL_SMALL);
-                NetFillIn(GetDlgItem(hwnd , IDE_NET) , IMT_NETUID);
+                NetFillIn(GetDlgItem(hwnd , IDE_NET) , imtNetUID);
                 IgnoreDialogFill(hwnd);
                 IgnoreDialogCheck(hwnd);
                 break;

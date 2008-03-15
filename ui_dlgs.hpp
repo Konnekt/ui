@@ -82,7 +82,7 @@ void InfoDialogSave(int cntID , bool upload) {
 	if (changedGroup) fill = true;
 	if (upload) {
 		EnableWindow(Cnt[cntID].hwndInfo , false);
-		IMessage(IM_CNT_UPLOAD,NET_BC,IMT_CONTACT,cntID,0);
+		IMessage(IM_CNT_UPLOAD,Net::broadcast,imtContact,cntID,0);
 		EnableWindow(Cnt[cntID].hwndInfo , true);
 	}
     ICMessage(IMI_REFRESH_CNT ,cntID);
@@ -116,7 +116,7 @@ void InfoDialogRefresh(int cntID) {
     string tUID = GETCNTC(cntID , CNT_UID);
     EnableWindow(hwnd , false);
 //    SetWindow
-    IMessage(IM_CNT_DOWNLOAD,NET_FIRST,IMT_CONTACT,cntID,1);
+    IMessage(IM_CNT_DOWNLOAD,Net::first,imtContact,cntID,1);
 	IMLOG("Refreshed");
     EnableWindow(hwnd , true);
     SetForegroundWindow(hwnd);
@@ -267,7 +267,7 @@ void InfoDialogSummary(int cnt , bool local) {
     }
     sum+="</p><br/>"; // center
     if (d_net) {
-		char * net_name = (char*)IMessage(IM_PLUG_NETNAME , (Net::tNet) d_net  , IMT_NET);
+		char * net_name = (char*)IMessage(IM_PLUG_NETNAME , (Net::tNet) d_net  , imtNet);
         if (net_name)
             sum+="<div class='var'>Sieæ:\t<span class='value'>" + string(net_name)
                 + "  #" + string(d_uid) + "</span></div>";

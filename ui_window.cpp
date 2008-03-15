@@ -443,7 +443,7 @@ VOID CALLBACK timerAwayProc(HWND hwnd,UINT uMsg,UINT_PTR idEvent,DWORD dwTime) {
    if (ownSession && memcmp(lastUIdata , UIdata , sizeof(lastUIdata))) {
      time = 0;
      if (away) {
-       IMessage(IM_BACK , NET_BC , IMT_ALL);
+       IMessage(IM_BACK , Net::broadcast , imtAll);
        SETINT(CFG_ISAUTOAWAY , 0);
        away = false;
        IMLOG("AUTO-BACK");
@@ -452,7 +452,7 @@ VOID CALLBACK timerAwayProc(HWND hwnd,UINT uMsg,UINT_PTR idEvent,DWORD dwTime) {
      if (!away) time += AWAY_INTERVAL;
      if (!away && (!ownSession || (time >= GETINT(CFG_AUTOAWAY)*1000)))
         {
-          IMessage(IM_AWAY , NET_BC , IMT_ALL);
+          IMessage(IM_AWAY , Net::broadcast , imtAll);
           SETINT(CFG_ISAUTOAWAY , 1);
           away = true;
           IMLOG("AUTO-AWAY ownSession=%d" , ownSession);

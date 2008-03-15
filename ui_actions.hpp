@@ -229,10 +229,11 @@ String getCfgValue(cUIAction & a) {
 		an.act = a.act();
 		type = !(a.status & ACTSC_INT);
 
-		String buff = value;
+		String buff;
 
-		an.buff = buff.useBuffer<char>(MAX_STRING);
-		an.buffSize = buff.getBufferSize<char>();
+		an.buff = buff.useBuffer<char>(max(MAX_STRING, value.size()) + 1);
+		an.buffSize = buff.getBufferSize<char>() - 1;
+		strncpy(an.buff, value.a_str(), an.buffSize);
 
 		an.code = ACTN_GET;
 		a.call(&an);
@@ -249,16 +250,19 @@ void setCfgValue(cUIAction & a , StringRef v) {
     if ((a.type & ACT_FORCNT && a.cnt == AC_NONE)) return;
 	sUIActionNotify_buff an;
 	an.act = a.act();
-    if (a.id && (!a.p1 || a.status & ACTR_CONVERT)) {
-		char* tempBuff = v.useBuffer<char>();
-		an.buff = tempBuff;
-		an.buffSize = v.getBufferSize<char>();
+		if (a.id && (!a.p1 || a.status & ACTR_CONVERT)) {
+		StringRef buff;
+
+		an.buff = buff.useBuffer<char>(max(MAX_STRING, v.size()) + 1);
+		an.buffSize = buff.getBufferSize<char>() - 1;
+		strncpy(an.buff, v.a_str(), an.buffSize);
+
 		an.code = ACTN_CONVERT_FROM;
 		a.call(&an);
 		an.code = ACTN_SET;
 		a.call(&an);
 		if (an.buff) {
-			v.releaseBuffer<char>();
+			buff.releaseBuffer<char>();
 			v = an.buff;
 		} else {
 			return;
@@ -1079,7 +1083,7 @@ void saveCfg(cUIAction * a) {
 //     IMessageDirect(IM_UIACTION , g.owner , (int)g.fill() , ACTF_DESTROY);
      if (!(g.pparent->type & ACT_CFGBRANCH)) { // Pierwszy w confige'u
          if (g.type & ACT_WNDCFG) {
-              IMessage(IM_CFG_CHANGED,NET_BC , IMT_CONFIG);
+              IMessage(IM_CFG_CHANGED,Net::broadcast , imtConfig);
 			  IMessageDirect(IM_CFG_CHANGED, pluginUI);
               ICMessage(IMC_SAVE_CFG);
               ICMessage(IMC_SAVE_CNT);

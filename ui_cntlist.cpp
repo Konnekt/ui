@@ -54,7 +54,7 @@ int  sUICnt::GetStatusIcon(bool sameStatus) {
 	if (this->status & ST_COMPOSING)
 		icon = UIIcon(IT_STATUS , 0 , ST_COMPOSING , 0);
 	if (!icon) {
-		if (this->net == NET_NONE)
+    if (this->net == Net::none)
 			icon = IDI_NET_NONE;
 		else
 			icon = sameStatus
@@ -293,8 +293,8 @@ void cUICnts::closeAll() {
     COMPARE(a->status & ST_IGNORED , b->status & ST_IGNORED);
 
     if (a->net != b->net)
-      if (a->net == NET_NONE) return 1;
-      else if (b->net == NET_NONE) return -1;
+      if (a->net == Net::none) return 1;
+      else if (b->net == Net::none) return -1;
 
 
 //    COMPARE(status & CNTM_STATUS == ST_OFFLINE);
@@ -744,7 +744,7 @@ void fillGroups() {
 
    if (i) {
         tci.pszText = (char*)GETSTR(CFG_UIALLGROUPSDESC);
-        tci.iImage = Ico[UIIcon(IT_STATUS , NET_NONE , 0 , 0)].index[0];
+        tci.iImage = Ico[UIIcon(IT_STATUS , Net::none , 0 , 0)].index[0];
         TabCtrl_InsertItem(hwndGroups , 0 , &tci);
         if (!*GETSTR(CFG_CURGROUP))
           TabCtrl_SetCurSel(hwndGroups , 0);
@@ -1147,7 +1147,7 @@ void cCntListWindow::drawListItem(DRAWITEMSTRUCT * dis) {
    if (notify)
        Ico[icon].draw(dis->hDC , dis->rcItem.left+icoXOffset , dis->rcItem.top+icoYOffset , 0, 0 , 0 , 0 , 0x0);
    // Nakladka zalezna od sieci...
-   if (pCnt->net != NET_NONE && parent->_samestatus) {
+   if (pCnt->net != Net::none && parent->_samestatus) {
       Ico[UIIcon(IT_OVERLAY,pCnt->net,0,0)].draw(dis->hDC , dis->rcItem.left+icoXOffset , dis->rcItem.top+icoYOffset);
    }
 

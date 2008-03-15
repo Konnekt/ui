@@ -514,7 +514,7 @@ int UISet() {
 	  } else {
 		  if (inTray > 0) {
 			  // sprawdzamy czy sieæ istnieje...
-			  if (!IMessage(IM_PLUG_NETNAME, inTray, IMT_NETUID, 0, 0)) {
+			  if (!IMessage(IM_PLUG_NETNAME, inTray, imtNetUID, 0, 0)) {
 				  inTray = -1;
 			  } else {
 
@@ -694,7 +694,7 @@ int CStatus (tPluginId sender , int status , const char * descr){
     if (!descr) descr=""; 
 
     int inTray = GETINT(CFG_UISTATUSINTRAY);
-	if (inTray > 1 && !IMessage(IM_PLUG_NETNAME, (Net::tNet)inTray, IMT_PROTOCOL, 0, 0)) {
+	if (inTray > 1 && !IMessage(IM_PLUG_NETNAME, (Net::tNet)inTray, imtProtocol, 0, 0)) {
 		// sprawdzamy czy sieæ istnieje...
 		inTray = -1;
 	}
@@ -890,8 +890,8 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
  char * ch;
  switch (msg->id) {
     // INITIALIZATION
-    case IM_PLUG_NET:        return NET_NONE;
-    case IM_PLUG_TYPE:       return IMT_ALL & ~(IMT_MSGUI | IMT_NETSEARCH | IMT_NETUID);
+    case IM_PLUG_NET:        return Net::none;
+    case IM_PLUG_TYPE:       return imtAll & ~(imtMsgUI | imtNetSearch | imtNetUID);
     case IM_PLUG_VERSION:    return (int)"";
     case IM_PLUG_SDKVERSION: return KONNEKT_SDK_V;
     case IM_PLUG_SIG:        return (int)"UI";
@@ -1762,7 +1762,7 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
 		Net::tNet netID;
 		if (net.empty() || atoi(net)>0) {
 			netID = (Net::tNet) atoi(net);
-			if (!*safeChar(IMessage(IM_PLUG_NETNAME , netID , IMT_NETUID)))
+			if (!*safeChar(IMessage(IM_PLUG_NETNAME , netID , imtNetUID)))
 				netID = Net::broadcast;
 		} else { // szukamy sieci
 			int c = ICMessage(IMC_PLUG_COUNT);
@@ -1770,7 +1770,7 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
 			for (int i=1; i < c; i++) {
 //				int plugID = ICMessage(IMC_PLUGID_POS , i);
 				oPlugin plugin = Ctrl->getPlugin((tPluginId)i);
-				if (plugin->getType() & IMT_NETUID
+				if (plugin->getType() & imtNetUID
 					&& (plugin->getNetName() == net) || plugin->getNetShortName() == net ||  plugin->getUIDName() == net ) {
 						netID = plugin->getNet();
 					}
@@ -1779,7 +1779,7 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
 		if (netID == Net::broadcast) return 0;
 		// szukamy identyfikatora sieci...
 		int cntID = ICMessage(IMC_CNT_FIND , netID , (int)uid.c_str());
-		if (cntID == -1 && ICMessage(IMI_CONFIRM , (int)("Czy na pewno chcesz dodaæ kontakt sieci " + string(safeChar(IMessage(IM_PLUG_NETNAME , netID , IMT_NETUID))) + " " + string(safeChar(IMessage(IM_PLUG_UIDNAME , netID , IMT_NETUID))) + ":"  + string(uid) + "?").c_str())) {
+		if (cntID == -1 && ICMessage(IMI_CONFIRM , (int)("Czy na pewno chcesz dodaæ kontakt sieci " + string(safeChar(IMessage(IM_PLUG_NETNAME , netID , imtNetUID))) + " " + string(safeChar(IMessage(IM_PLUG_UIDNAME , netID , imtNetUID))) + ":"  + string(uid) + "?").c_str())) {
 			cntID = ICMessage(IMC_CNT_ADD , netID , (int)uid.c_str());
 			SETCNTI(cntID , CNT_STATUS , ST_NOTINLIST , ST_NOTINLIST);
 			ICMessage(IMC_CNT_CHANGED , cntID);
@@ -1799,7 +1799,7 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
 		return 0;
 		}
  }
- if (Ctrl) Ctrl->setError(IMERROR_NORESULT);
+ if (Ctrl) Ctrl->setError(errorNoResult);
  return 0;
 }
 

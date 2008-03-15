@@ -245,7 +245,7 @@
 
    Act[IMIG_MAIN_CNT].insert(IMIA_MAIN_CNT_ADD , -1 , "Dodaj kontakt" , 0 , IDI_TB_ADD);
 
-   if (IMessage(IM_PLUG_TYPE, NET_FIRST, IMT_NETSEARCH)) {
+   if (IMessage(IM_PLUG_TYPE, Net::first, imtNetSearch)) {
 		Act[IMIG_MAIN_CNT].insert(IMIA_MAIN_CNT_SEARCH , -1 , "Szukaj znajomego" , ACTSMENU_BOLD , ICON_SEARCH);
    }
    Act[IMIG_MAIN_CNT].insert(IMIA_MAIN_CNT_IGNORE , -1 , "Lista ignorowanych" , 0 , UIIcon(IT_STATUS , 0 , ST_BLOCKING , 0));
@@ -769,7 +769,7 @@
 						Act[IMIG_CFG_UI_NOTIFY].insert(0 , -1 , "Otwieraj powiadomienia po jednym klikniêciu" AP_TIP "W przeciwnym wypadku, pojedyncze klikniêcie otwiera okno g³ówne, a \"dwuklik\" - powiadomienie." , ACTT_CHECK , CFG_UIONECLICKTRAY);
 						Act[IMIG_CFG_UI_NOTIFY].insert(0 , -1 , "Wyœwietlaj informacjê o statusie wszystkich sieci" , ACTT_CHECK , CFG_UITRAYTOOLTIPSHOWSTATUS);
 					}
-					if (ShowBits::checkLevel(ShowBits::levelIntermediate) && IMessage(IM_PLUG_NETNAME, NET_FIRST, IMT_NETUID | IMT_PROTOCOL)) {
+          if (ShowBits::checkLevel(ShowBits::levelIntermediate) && IMessage(IM_PLUG_NETNAME,Net::first, imtNetUID | imtProtocol)) {
 						//Act[IMIG_CFG_UI_NOTIFY].insert(0 , -1 , "Status po³¹czenia" , ACTT_GROUP);{
 						Act[IMIG_CFG_UI_NOTIFY].insert(0 , -1 , "Status po³¹czenia" , ACTT_SEPARATOR);
 						//Act[IMIG_CFG_UI_NOTIFY].insert(0 , -1 , "Pokazuj status po³¹czenia w Tray'u" CFGTIP "Wybrana zostanie pierwsza wtyczka obs³uguj¹ca po³¹czenia." , ACTT_CHECK , CFG_UISTATUSINTRAY);
@@ -788,7 +788,7 @@
 						for (int i=1; i<c; i++) {
 							oPlugin plugin = Ctrl->getPlugin((tPluginId)i);
 							plugin->IMessageDirect(IM_GET_STATUS);
-							if (Ctrl->getError() == IMERROR_NORESULT)
+							if (Ctrl->getError() == errorNoResult)
 								continue;
 							if (lastNet) lastNet->status |= ACTSC_INLINE;
 							Act[IMIG_CFG_UI_NOTIFY].insert(0 , -1 , ("reg://IML16/" + inttostr(UIIcon(IT_LOGO, plugin->getNet(), 0, 0)) + ".ico").c_str() , ACTT_IMAGE | ACTSC_INLINE , 0, 16, 16);
@@ -1039,7 +1039,7 @@
           for (int i=0;i<c;i++) {
 			  oPlugin plugin = Ctrl->getPlugin((tPluginId)i);
               
-			  if (plugin->getType() & IMT_NET) {
+			  if (plugin->getType() & imtNet) {
           if (plugin->getNetName().empty()) continue;
 
 				  lista += plugin->getNetName();

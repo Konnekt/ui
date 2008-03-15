@@ -18,7 +18,7 @@ void cCheckComposing::composing(int cntID) {
 	cCheckComposing::const_iterator find = this->find(cntID);
 	if (find == this->end()) {
 		IMDEBUG(DBG_MISC , "- composing cnt=%d" , cntID);
-		IMessage(IM_CNT_COMPOSING , NET_BC , IMT_CONTACT , cntID);
+    IMessage(IM_CNT_COMPOSING , Net::broadcast , imtContact, cntID);
 	}
 	(*this) [cntID] = time(0);
 	checkTimer();
@@ -30,7 +30,7 @@ void cCheckComposing::stopComposing(int cntID) {
 	}
 }
 void cCheckComposing::stopComposing(iterator cnt) {
-	IMessage(IM_CNT_COMPOSING_STOP , NET_BC , IMT_CONTACT , cnt->first);
+	IMessage(IM_CNT_COMPOSING_STOP , Net::broadcast , imtContact , cnt->first);
 	IMDEBUG(DBG_MISC , "- stopComposing cnt=%d" , cnt->first);
 	this->erase(cnt);
 	checkTimer();

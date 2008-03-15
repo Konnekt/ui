@@ -39,7 +39,7 @@ int ActionProc(sUIActionNotify_base * anBase) {
     case IMIA_CNT_IGNORE:
        if (an->code == ACTN_CREATE) {
            bool ign = uiPos==-1?false:ICMessage(IMC_CNT_IGNORED , Cnt[uiPos].net , (int)GETCNTC(uiPos , CNT_UID))!=0;
-           ActionStatus(an->act , (uiPos>0 && Cnt[uiPos].net!=NET_NONE) ? (ign?ACTS_CHECKED:0) : ACTS_HIDDEN);
+           ActionStatus(an->act , (uiPos>0 && Cnt[uiPos].net!=Net::none) ? (ign?ACTS_CHECKED:0) : ACTS_HIDDEN);
        } else
        if (an->code == ACTN_ACTION) {
          if (uiPos<=0) return 0;
@@ -75,7 +75,7 @@ int ActionProc(sUIActionNotify_base * anBase) {
 		   }
            if (uiPos<0) return 0;
            if (an->act.id == IMIA_CNT_MSG) {
-               bool use = (ICMessage(IMC_NET_TYPE , GETCNTI(an->act.cnt,CNT_NET)) & IMT_MSGUI) != 0;
+               bool use = (ICMessage(IMC_NET_TYPE , GETCNTI(an->act.cnt,CNT_NET)) & imtMsgUI) != 0;
 			   if (an->code == ACTN_CREATE)
 			       ActionStatus(an->act , use ? 0 : ACTS_HIDDEN);
 			   else return use;
@@ -207,7 +207,7 @@ int ActionProc(sUIActionNotify_base * anBase) {
        break;
     case IMIA_MAIN_CNT_SEARCH: case IMIG_MAIN_CNT:
        ACTIONONLY(an);
-	   if (IMessage(IM_PLUG_TYPE, NET_FIRST, IMT_NETSEARCH) == 0) {
+       if (IMessage(IM_PLUG_TYPE, Net::first, imtNetSearch) == 0) {
 		   return 0;
 	   }
        if (!hwndSearch) {
@@ -428,7 +428,7 @@ int ActionProc(sUIActionNotify_base * anBase) {
        }
        break;
     case 1027:
-        IMessage(IM_CHANGESTATUS , NET_BC , IMT_PROTOCOL , ST_AWAY , (int)"TEST!!!"); 
+        IMessage(IM_CHANGESTATUS , Net::broadcast , imtProtocol , ST_AWAY , (int)"TEST!!!"); 
         break;
     case 2000:
         if (anBase->code == ACTN_CREATEWINDOW) {

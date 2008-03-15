@@ -629,9 +629,9 @@ void TipActionTaskBar::fillCache() {
 		int c = IMessage(IMC_PLUG_COUNT);
 		for (int i=0;i<c;i++) {
 			oPlugin plugin = Ctrl->getPlugin((tPluginId)i);
-			if (plugin->getType() & (IMT_PROTOCOL | IMT_NET)) {
+			if (plugin->getType() & (imtProtocol | imtNet)) {
 				int status = plugin->IMessageDirect(IM_GET_STATUS);
-				if (Ctrl->getError() == IMERROR_NORESULT) continue;
+				if (Ctrl->getError() == errorNoResult) continue;
 				int net = plugin->getNet();
 				String statusInfo = SAFECHAR((char*)plugin->IMessageDirect(IM_GET_STATUSINFO));
 				String netName = plugin->getNetName();

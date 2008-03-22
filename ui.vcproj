@@ -16,7 +16,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\__output\"
+			OutputDirectory="../../test"
 			IntermediateDirectory="..\..\_$(ConfigurationName)\$(ProjectName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
@@ -106,8 +106,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="../../_publish/"
-			IntermediateDirectory="../../_temp/ui/release/"
+			OutputDirectory="../../publish/"
+			IntermediateDirectory="..\..\_$(ConfigurationName)\$(ProjectName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="0"
@@ -159,10 +159,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Urlmon.lib comctl32.lib Wininet.lib Msimg32.lib version.lib ..\..\__libs\shared.lib devil_dll.lib devilu_dll.lib devilut_dll.lib"
+				AdditionalDependencies="Urlmon.lib comctl32.lib Wininet.lib Msimg32.lib version.lib shared.lib devil_dll.lib devilu_dll.lib devilut_dll.lib stamina.lib"
 				OutputFile="$(OutDir)/__main/ui.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="../../__libs"
+				AdditionalLibraryDirectories="..\..\depends\lib;..\..\depends\konnekt;..\..\depends\stamina.lib\lib;..\..\depends\stamina.lib\depends\lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/debug/$(ProjectName).pdb"
 				GenerateMapFile="true"

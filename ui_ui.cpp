@@ -76,20 +76,20 @@ std::string __stdcall formatCallback(class cPreg & Preg , sFormatCallback * d) {
 	    ICMessage(IMC_VERSION , (int)s.GetBuffer(100));
 		s.ReleaseBuffer();
 	} else if (token == "UID") {
-		s = SAFECHAR((char*)GETCNTC(d->cntID , CNT_UID));
+		s = getCntString(d->cntID , CNT_UID);
 	} else if (token == "status") {
 		s = d->cntID?getStatusName(GETCNTI(d->cntID , CNT_STATUS) & ST_MASK):"";
 	} else if (token == "info") {
-		s = d->cntID?(char*)GETCNTC(d->cntID , CNT_STATUSINFO) : (char*)trayStatusDescr.c_str();
+		s = d->cntID ? (char*)getCntString(d->cntID , CNT_STATUSINFO).a_str() : (char*)trayStatusDescr.c_str();
 	} else if (token == "display") {
-		s = GETCNTC(d->cntID , CNT_DISPLAY);
+		s = getCntString(d->cntID , CNT_DISPLAY);
 	} else if (token == "group") {
-		s = GETCNTC(d->cntID , CNT_GROUP);
+		s = getCntString(d->cntID , CNT_GROUP);
 	} else if (token == "IP") {
-		s = GETCNTC(d->cntID , CNT_HOST);
+		s = getCntString(d->cntID , CNT_HOST);
 	} else if (d->type == FT_TRAYEVENT) {
 		if (token == "eventDisplay") {
-			s = trayCnt?(char*)GETCNTC(trayCnt , CNT_DISPLAY):"";
+			s = trayCnt ? (char*)getCntString(trayCnt , CNT_DISPLAY).a_str():"";
 		} else if (token == "eventTitle") {
 			s = (trayAction.id)?Act(trayAction).txt.substr(0 , Act(trayAction).txt.find(MSGTITLE_CHAR)):"";
 		} else if (token == "eventMsg" && trayMsgID) {
@@ -267,7 +267,7 @@ CStdString getAutostartKey() {
 	return key;
 }
 CStdString getAutostartValue() {
-	CStdString value = GETSTR(CFG_APPFILE);
+	CStdString value = getCfgString(CFG_APPFILE);
 	value = "\"" + value + "\" /autostart";
 	if (GETINT(CFG_UIAUTOSTARTASKFORPROFILE)) {
 		value += " -profile=?";

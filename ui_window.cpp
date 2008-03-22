@@ -224,7 +224,7 @@ void changeTray(int ico , char * txt) {
    tnid.uID = ID_TRAY;
    tnid.uFlags = NIF_ICON;
    if (txt == (char*)-1) {
-	   trayInfo = formatTitle((char*)GETSTR(CFG_UITRAYTITLE), 0 , FT_TRAY);
+	   trayInfo = formatTitle(getCfgString(CFG_UITRAYTITLE), 0 , FT_TRAY);
    } else if (txt) {
 	   trayInfo = SAFECHAR(txt);
    }
@@ -980,14 +980,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                    nmdi = (NMLVDISPINFO*)lParam;
                    pCnt = (sUICnt*)ListView_GetItemData(hwndList , nmdi->item.iItem);
                    if (!pCnt) return true;
-                   SetWindowText(ListView_GetEditControl(hwndList) , GETCNTC(pCnt->ID , CNT_DISPLAY));
+				   SetWindowText(ListView_GetEditControl(hwndList) , getCntString(pCnt->ID , CNT_DISPLAY).c_str());
 //                   refreshListItem((sUICnt*)ListView_GetItemData(hwndList , nmdi->item.iItem) , nmdi->item.iItem);
                    return false;
                 case LVN_ENDLABELEDIT:
                    nmdi = (NMLVDISPINFO*)lParam;
                    pCnt = (sUICnt*)ListView_GetItemData(hwndList , nmdi->item.iItem);
                    if (!pCnt || !nmdi->item.pszText) return false;
-                   SETCNTC(pCnt->ID , CNT_DISPLAY , nmdi->item.pszText);
+                   setCntString(pCnt->ID , CNT_DISPLAY , nmdi->item.pszText);
                    ICMessage(IMI_REFRESH_CNT , pCnt->ID);
 //                   refreshListItem((sUICnt*)ListView_GetItemData(hwndList , nmdi->item.iItem) , nmdi->item.iItem);
                    return false;

@@ -11,7 +11,7 @@ int ActionProc(sUIActionNotify_base * anBase) {
     case IMIA_MAIN_CNT_ADD:
        ACTIONONLY(an);
        a = IMessage(IMC_CNT_ADD);
-       SETCNTC(a , CNT_GROUP , GETSTR(CFG_CURGROUP));
+       setCntString(a , CNT_GROUP , getCfgString(CFG_CURGROUP));
 //       ICMessage(IMC_CNT_CHANGED , a);
        // Zamiast wysylac przedwczesnie do wszystkich
        // tworzymy ukryta wersje kontaktu.
@@ -487,7 +487,7 @@ int ActionProc(sUIActionNotify_base * anBase) {
 	            sUIActionNotify_createWindow * ancw = static_cast<sUIActionNotify_createWindow *>(anBase);
 				//ancw->hwnd = CreateWindowEx(0 , "EDIT" , "" , WS_VISIBLE | WS_TABSTOP | WS_CHILD | ES_AUTOVSCROLL | ES_MULTILINE | WS_VSCROLL , ancw->x , ancw->y , ancw->w , ancw->h , ancw->hwndParent , 0 , 0 , 0);
 				ancw->hwnd = CreateWindowEx(0 , RICHEDIT_CLASS , "" , WS_VISIBLE | WS_TABSTOP | WS_CHILD | ES_AUTOVSCROLL | ES_MULTILINE | WS_VSCROLL , ancw->x , ancw->y , ancw->w , ancw->h , ancw->hwndParent , 0 , 0 , 0);
-				LOGFONTEX lfe = StrToLogFont(GETSTR(CFG_UIF_MSGSEND));
+				LOGFONTEX lfe = StrToLogFont(getCfgString(CFG_UIF_MSGSEND));
 				cRichEditHtml::Init(ancw->hwnd, false, lfe.bgColor);
 			    CHARFORMAT cf;
 				cf.dwMask = CFM_FACE | CFM_COLOR | CFM_SIZE | CFM_BOLD | CFM_ITALIC | CFM_UNDERLINE; 

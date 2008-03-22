@@ -299,15 +299,15 @@ void SearchDialogAddCnt(HWND hwndDlg , int item) {
 
   int pos = ICMessage(IMC_CNT_ADD , cnt->net , (int)cnt->uid);
 
-  SETCNTC (pos , CNT_NAME , cnt->name);
-  SETCNTC (pos , CNT_SURNAME , cnt->surname);
-  SETCNTC (pos , CNT_NICK , cnt->nick);
-  SETCNTC (pos , CNT_DISPLAY , *cnt->nick?cnt->nick:*cnt->surname?cnt->surname:cnt->uid);
-  SETCNTC (pos , CNT_EMAIL , cnt->email);
-  SETCNTC (pos , CNT_CELLPHONE , cnt->phone);
-  SETCNTC (pos , CNT_CITY , cnt->city);
+  setCntString (pos , CNT_NAME , cnt->name);
+  setCntString (pos , CNT_SURNAME , cnt->surname);
+  setCntString (pos , CNT_NICK , cnt->nick);
+  setCntString (pos , CNT_DISPLAY , *cnt->nick?cnt->nick:*cnt->surname?cnt->surname:cnt->uid);
+  setCntString (pos , CNT_EMAIL , cnt->email);
+  setCntString (pos , CNT_CELLPHONE , cnt->phone);
+  setCntString (pos , CNT_CITY , cnt->city);
   SETCNTI (pos , CNT_BORN , (WORD)cnt->born_min >> 16);
-  SETCNTC (pos , CNT_GROUP , GETSTR(CFG_CURGROUP));
+  setCntString (pos , CNT_GROUP , getCfgString(CFG_CURGROUP));
 //  IMLOG("%s - rok = %d" , *cnt->nick?cnt->nick:*cnt->surname?cnt->surname:cnt->uid , (WORD)cnt->born_min << 16);
   SETCNTI (pos , CNT_GENDER , cnt->gender);
   ICMessage(IMC_CNT_CHANGED , pos);
@@ -473,7 +473,7 @@ void GroupsDialogShow(bool show) {
 void GroupsDialogFill(HWND hwnd) {
    HWND item = GetDlgItem(hwnd , IDC_LIST);
    ListView_DeleteAllItems(item);
-   char * grps2 = strdup(GETSTR(CFG_GROUPS)) , * grp = grps2 , * grps = grps2;
+   char * grps2 = strdup(getCfgString(CFG_GROUPS).a_str()) , * grp = grps2 , * grps = grps2;
    while ((grps = strchr(grps , '\n'))!=0) {
       *grps = 0;
       grps++;
@@ -516,8 +516,8 @@ int CALLBACK GroupsDialogProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam
                       DestroyWindow(hwnd);
                       return TRUE;
                   case IDYES:
-                      ch = strdup(_sprintf("grupa %d" , max(1,strcount(GETSTR(CFG_GROUPS),'\n'))));
-//                      IMLOG(":: %s , %d" ,GETSTR(CFG_GROUPS) , strcount(GETSTR(CFG_GROUPS),'\n'));
+                      ch = strdup(_sprintf("grupa %d" , max(1,strcount(getCfgString(CFG_GROUPS).a_str(),'\n'))));
+//                      IMLOG(":: %s , %d" ,getCfgString(CFG_GROUPS) , strcount(getCfgString(CFG_GROUPS),'\n'));
                       ICMessage(IMC_GRP_ADD , (int)ch);
                       GroupsDialogFill(hwnd);
                       // Wlaczamy edycje
@@ -597,7 +597,7 @@ void IgnoreDialogShow(bool show) {
 void IgnoreDialogFill(HWND hwnd) {
    HWND item = GetDlgItem(hwnd , IDC_LIST);
    ListView_DeleteAllItems(item);
-   char * grps2 = strdup(GETSTR(CFG_IGNORE)) , * grp = grps2 , * grps = grps2;
+   char * grps2 = strdup(getCfgString(CFG_IGNORE).a_str()) , * grp = grps2 , * grps = grps2;
 //   IMLOG("IGNORE [%s]" , grps);
    int group = SendDlgItemMessage(hwnd , IDE_NET , CB_GETITEMDATA , SendDlgItemMessage(hwnd , IDE_NET , CB_GETCURSEL , 0 , 0) , 0);
    char * check = strdup (_sprintf("%d@" , group));
@@ -609,7 +609,7 @@ void IgnoreDialogFill(HWND hwnd) {
          int it = ListView_AddString(item , grp , Ico[UIIcon(IT_LOGO , group , 0 , 0)].index[0]);
          int pos;
          if ((pos = ICMessage(IMC_FINDCONTACT , group , (int)grp))>0)
-           ListView_SetString(item , it , 1 , (char*)GETCNTC(pos , CNT_DISPLAY));
+			 ListView_SetString(item , it , 1 , (char*)getCntString(pos , CNT_DISPLAY).a_str());
       }
       grp = grps;
    }

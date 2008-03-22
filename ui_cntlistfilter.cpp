@@ -23,7 +23,7 @@ cFilters Konnekt::UI::CntList::filters;
 
 void cFilter::Prepare() {
 	if (!cfgID.empty()) {
-		CStdString setting = GetExtParam(GETSTR(CFG_UIFILTERS) , this->cfgID);
+		CStdString setting = GetExtParam(getCfgString(CFG_UIFILTERS) , this->cfgID);
 		if (setting == "1") 
 			enabled = true;
 		else if (setting == "0")
@@ -38,7 +38,7 @@ enFilterResult cFilter::Apply(const sUICnt * cnt) {
 void cFilter::SetEnabled(bool enabled) {
 	this->enabled = enabled;
 	if (!cfgID.empty()) {
-		SETSTR(CFG_UIFILTERS , SetExtParam(GETSTR(CFG_UIFILTERS) , this->cfgID , enabled ? "1" : "0").c_str());
+		setCfgString(CFG_UIFILTERS , SetExtParam(getCfgString(CFG_UIFILTERS) , this->cfgID , enabled ? "1" : "0").c_str());
 	}
 	if (!hidden)
 		UIActionSetStatus(sUIAction(ACT::Gfilters , id) , enabled ? -1 : 0 , ACTS_CHECKED);

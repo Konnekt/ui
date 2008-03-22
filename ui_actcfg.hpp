@@ -277,7 +277,7 @@ int ActionCntProc(sUIActionNotify_base * anBase) {
             }
             if (an->code != ACTN_DROP && an->code != ACTN_CREATE) return 0;
             string s = "\n";
-            char * grps2 = strdup(GETSTR(CFG_GROUPS)) , * grp = grps2 , * grps = grps2;
+			char * grps2 = strdup(getCfgString(CFG_GROUPS).a_str()) , * grp = grps2 , * grps = grps2;
             int i = 0;
             while ((grps = strchr(grps , '\n'))!=0) {
                 *grps = 0;

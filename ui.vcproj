@@ -422,34 +422,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="ui_history.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PrecompiledHeaderFile="$(IntDir)/$(TargetName).pch"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug - remote|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="ui_main.cpp"
 				>
 				<FileConfiguration
@@ -669,10 +641,6 @@
 				>
 			</File>
 			<File
-				RelativePath="ui_history.h"
-				>
-			</File>
-			<File
 				RelativePath="ui_ico.hpp"
 				>
 			</File>
@@ -730,46 +698,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\res\hist_dir.ico"
-				>
-			</File>
-			<File
-				RelativePath=".\res\hist_sub.ico"
-				>
-			</File>
-			<File
-				RelativePath=".\res\histb_compact.ico"
-				>
-			</File>
-			<File
-				RelativePath=".\res\histb_del.ico"
-				>
-			</File>
-			<File
-				RelativePath=".\res\histb_print.ico"
-				>
-			</File>
-			<File
-				RelativePath=".\res\histb_refresh.ico"
-				>
-			</File>
-			<File
-				RelativePath=".\res\histb_resend.ico"
-				>
-			</File>
-			<File
-				RelativePath=".\res\histb_save.ico"
-				>
-			</File>
-			<File
-				RelativePath=".\res\histb_search.ico"
-				>
-			</File>
-			<File
-				RelativePath=".\res\histb_shred.ico"
-				>
-			</File>
-			<File
 				RelativePath=".\res\icon_accountcreate.ico"
 				>
 			</File>
@@ -819,10 +747,6 @@
 			</File>
 			<File
 				RelativePath=".\res\icon_help.ico"
-				>
-			</File>
-			<File
-				RelativePath=".\res\icon_history.ico"
 				>
 			</File>
 			<File
@@ -1101,46 +1025,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\res\ui\hist_dir.ico"
-					>
-				</File>
-				<File
-					RelativePath="..\res\ui\hist_sub.ico"
-					>
-				</File>
-				<File
-					RelativePath="..\res\ui\histb_compact.ico"
-					>
-				</File>
-				<File
-					RelativePath="..\res\ui\histb_del.ico"
-					>
-				</File>
-				<File
-					RelativePath="..\res\ui\histb_print.ico"
-					>
-				</File>
-				<File
-					RelativePath="..\res\ui\histb_refresh.ico"
-					>
-				</File>
-				<File
-					RelativePath="..\res\ui\histb_resend.ico"
-					>
-				</File>
-				<File
-					RelativePath="..\res\ui\histb_save.ico"
-					>
-				</File>
-				<File
-					RelativePath="..\res\ui\histb_search.ico"
-					>
-				</File>
-				<File
-					RelativePath="..\res\ui\histb_shred.ico"
-					>
-				</File>
-				<File
 					RelativePath="..\res\ui\ICON_ACCOUNTCREATE.ico"
 					>
 				</File>
@@ -1186,10 +1070,6 @@
 				</File>
 				<File
 					RelativePath="..\res\ui\icon_help.ico"
-					>
-				</File>
-				<File
-					RelativePath="..\res\ui\icon_history.ico"
 					>
 				</File>
 				<File
@@ -1470,10 +1350,6 @@
 				</File>
 				<File
 					RelativePath="..\res\ui\wnd_config.ico"
-					>
-				</File>
-				<File
-					RelativePath="..\res\ui\wnd_history.ico"
 					>
 				</File>
 				<File

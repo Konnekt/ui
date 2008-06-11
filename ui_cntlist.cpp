@@ -50,7 +50,7 @@ void sUICnt::setStatus(int status , string info) {
     }
 }
 int  sUICnt::GetStatusIcon(bool sameStatus) {
-	int icon = GETCNTI(this->ID , CNT_STATUS_ICON);
+  int icon = GETCNTI(this->ID , Contact::colStatusIcon);
 	if (this->status & ST_COMPOSING)
 		icon = UIIcon(IT_STATUS , 0 , ST_COMPOSING , 0);
 	if (!icon) {
@@ -89,15 +89,15 @@ void sUICnt::MsgSend() {
   Message m;
 
   m.setId(0);
-  m.setNet((Net::tNet)GETCNTI(this->ID , CNT_NET));
+  m.setNet((Net::tNet)GETCNTI(this->ID , Contact::colNet));
   m.setType(Message::typeMessage);
   m.setFromUid("");
-  m.setToUid(GETCNTC(this->ID , CNT_UID , UIDbuff , 500));
+  m.setToUid(GETCNTC(this->ID , Contact::colUid , UIDbuff , 500));
   m.setExt("");
   m.setFlags(Message::flagSend);
   m.setNotify(0);
   m.setAction(NOACTION);
-  m.setTime(cTime64(true));
+  m.setTime(Time64(true));
 
 	// Wczytujemy treœæ	
 	sUIAction sendAct = sUIAction(IMIG_MSGWND , Konnekt::UI::ACT::msg_ctrlsend , this->ID);
@@ -109,14 +109,14 @@ void sUICnt::MsgSend() {
 	gm._message = &m;
 	Act(sendAct).call(&gm);
 	// Czyscimy
-    cPreg Preg;
-    buff = Preg.replace("/(^[\\r\\n ]+)/g" , "" , m.getBody().a_str());
-    buff = Preg.replace("/([\\r\\n ]+)$/g" , "" , buff);
+    RegEx r;
+    buff = r.replace("/(^[\\r\\n ]+)/g" , "" , m.getBody().a_str());
+    buff = r.replace("/([\\r\\n ]+)$/g" , "" , buff);
     if (!buff.size()) {
         Message m;
         m.setNet((Net::tNet)this->net);
         m.setType(Message::typeQuickEvent);
-        m.setFromUid(GETCNTC(this->ID , CNT_UID));
+        m.setFromUid(GETCNTC(this->ID , Contact::colUid));
         m.setToUid("");
         m.setBody("Wpisz wiadomoœæ!");
         m.setExt("");
@@ -170,7 +170,7 @@ void sUICnt::MsgWndOpen(bool queue , bool autoPopup) {
 		ShowWindow(hwndMsg, popup == CFG::mpBackground ? SW_SHOWNOACTIVATE : popup == CFG::mpMinimized ? SW_SHOWMINNOACTIVE : SW_SHOW);
 	}
 	if (queue) {
-    ICMessage(MessageSelect::IM::imcMessageQueue, (int)&MessageSelect((Net::tNet)net , GETCNTC(this->ID,CNT_UID) , Message::typeAll ,Message::flagNone , Message::flagSend));
+    ICMessage(MessageSelect::IM::imcMessageQueue, (int)&MessageSelect((Net::tNet)net , GETCNTC(this->ID,Contact::colUid) , Message::typeAll ,Message::flagNone , Message::flagSend));
 	}
 }
 void sUICnt::MsgWndClose(){
@@ -304,13 +304,13 @@ void cUICnts::closeAll() {
 
 	if ((a->status & CNTM_STATUS) < ST_SEMIONLINE && GETINT(CFG_UISORTACTIVE)) {COMPARE(!a->active , !b->active);}
 #undef COMPARE
-//   const char * c1 = GETCNTC(a->ID , CNT_DISPLAY);
-//   const char * c2 = GETCNTC(b->ID , CNT_DISPLAY);
+//   const char * c1 = GETCNTC(a->ID , Contact::colDisplay);
+//   const char * c2 = GETCNTC(b->ID , Contact::colDisplay);
 //   const char * c1 = "Przyk³ad";
 //   const char * c2 = "Dupek";
    return _stricoll(a->display.c_str() , b->display.c_str());
 
-//    return stricmp(GETCNTC(a->ID , CNT_DISPLAY) , GETCNTC(b->ID , CNT_DISPLAY));
+//    return stricmp(GETCNTC(a->ID , Contact::colDisplay) , GETCNTC(b->ID , Contact::colDisplay));
   }
 
   void cUICnts::sort() {
@@ -375,9 +375,9 @@ void cUICnts::closeAll() {
   CStdString sUICnt::getDisplayFormatted() {
 	  char * format = (char*)GETSTR(CFG_UICL_DISPLAY_FORMAT);
 	  if (!*format) { // standardowa obs³uga
-		  format = (char*)GETCNTC(this->ID,CNT_DISPLAY);
+		  format = (char*)GETCNTC(this->ID,Contact::colDisplay);
 		  if (!*format)
-			  return GETCNTC(this->ID, CNT_UID);
+			  return GETCNTC(this->ID, Contact::colUid);
 		  return format;
 	  }
 	  // formatujemy linijkami... bierzemy pierwsz¹ nie pust¹...
@@ -397,9 +397,9 @@ void cUICnts::closeAll() {
 
   void sUICnt::imRefresh () {
     int id=ID;
-    net=GETCNTI(id,CNT_NET);
-//    Cnt[id]->UID=GETCNTC(pos,CNT_UID);
-    status=GETCNTI(id,CNT_STATUS);
+    net=GETCNTI(id,Contact::colNet);
+//    Cnt[id]->UID=GETCNTC(pos,Contact::colUid);
+    status=GETCNTI(id,Contact::colStatus);
 
 	display=getDisplayFormatted();
     MsgUpdate();
@@ -409,7 +409,7 @@ void cUICnts::closeAll() {
 	ApplyFilters();
   }
   void sUICnt::checkActivity() {
-	if (active && Ctrl->DTgetInt64(DTCNT , this->ID , CNT_LASTACTIVITY) < _time64(0)-1200)
+	if (active && Ctrl->DTgetInt64(DTCNT , this->ID , Contact::colLastActivity) < _time64(0)-1200)
       active=false;
   }
 
@@ -686,7 +686,7 @@ int dragdropList(HWND hwnd, UINT message , WPARAM wParam , LPARAM lParam )
                  if (ListView_GetItemState(cntListWnd->_hwnd , i , LVIS_SELECTED)) {
                     sUICnt * cnt = (sUICnt *)ListView_GetItemData(cntListWnd->_hwnd , i);
                     if (!cnt) continue;
-                    SETCNTC(cnt->ID , CNT_GROUP , TLS().buff);
+                    SETCNTC(cnt->ID , Contact::colGroup , TLS().buff);
 					sIMessage_CntChanged cc(IMC_CNT_CHANGED , cnt->ID);
 					cc._changed.group = 1;
 					IMessage(&cc);
@@ -990,7 +990,7 @@ void cCntListWindow::drawListItem(DRAWITEMSTRUCT * dis) {
        dis->rcItem.top = 0;
    }
    // Wczytujemy kilka przydatnych wartoœci dla pewnoœci...
-   pCnt->status = GETCNTI(pCnt->ID , CNT_STATUS);
+   pCnt->status = GETCNTI(pCnt->ID , Contact::colStatus);
    rcName = rcInfo = dis->rcItem;
    rcName.bottom = rcInfo.top = (rcName.bottom - this->parent->_infoHeight);
    bool selected = dis->itemState & ODS_SELECTED;
@@ -1045,7 +1045,7 @@ void cCntListWindow::drawListItem(DRAWITEMSTRUCT * dis) {
    SetBkMode(dis->hDC , TRANSPARENT);
    
    const char * display = pCnt->display.c_str();
-   if (!*display) display = (char*)GETCNTC(pCnt->ID , CNT_UID);
+   if (!*display) display = (char*)GETCNTC(pCnt->ID , Contact::colUid);
 
    DrawText(dis->hDC , display , -1 , &rc , DT_WORD_ELLIPSIS|DT_SINGLELINE|DT_VCENTER|DT_NOPREFIX);
 
@@ -1089,11 +1089,11 @@ void cCntListWindow::drawListItem(DRAWITEMSTRUCT * dis) {
        Ico[(id)+1].draw(dis->hDC , (ovrXOffset)?ovrXOffset + (ovrXCount++)*9:dis->rcItem.right-((++ovrXCount)*9) , dis->rcItem.top+icoYOffset+4); \
    }
 // #define
-	CStdString statusInfo = GETCNTC(pCnt->ID,CNT_STATUSINFO);
+	CStdString statusInfo = GETCNTC(pCnt->ID,Contact::colStatusInfo);
    if (parent->_iconson) {
-       if (*GETCNTC(pCnt->ID,CNT_EMAIL)) 
+       if (*GETCNTC(pCnt->ID,Contact::colMail)) 
            DO_OVR(UIIcon(IT_OVERLAY,0,OVR_MAIL,0) , 1);
-       if (*GETCNTC(pCnt->ID,CNT_CELLPHONE)) 
+       if (*GETCNTC(pCnt->ID,Contact::colCellPhone)) 
            DO_OVR(UIIcon(IT_OVERLAY,0,OVR_SMS,0) , 2);
        if (!statusInfo.empty()) 
            DO_OVR(UIIcon(IT_OVERLAY,0,OVR_INFO,0) , 0);
@@ -1245,17 +1245,17 @@ void cCntListTip::refresh(int newPos) {
         if (!docked) {
             int h = GETINT(CFG_UICNTTIPHEADER)?charHeight + TIP_VSPACE + 4 : 3;
 			if (GETINT(CFG_UICNTTIP_SHOWDEFAULT)) {
-				toDraw = ((Cnt[this->cnt].net!=0)+(*GETCNTC(this->cnt , CNT_CELLPHONE)!=0)
-							+(*GETCNTC(this->cnt , CNT_EMAIL)!=0)
-							+((*GETCNTC(this->cnt , CNT_NAME)!=0)||(*GETCNTC(this->cnt , CNT_SURNAME)!=0))
+				toDraw = ((Cnt[this->cnt].net!=0)+(*GETCNTC(this->cnt , Contact::colCellPhone)!=0)
+							+(*GETCNTC(this->cnt , Contact::colMail)!=0)
+							+((*GETCNTC(this->cnt , Contact::colName)!=0)||(*GETCNTC(this->cnt , Contact::colSurname)!=0))
 							+(GETINT(CFG_UILASTACTIVITY)&&Cnt[this->cnt].net)
-							+(GETINT(CFG_UISHOWIP)&&*GETCNTC(this->cnt , CNT_HOST))
+							+(GETINT(CFG_UISHOWIP)&&*GETCNTC(this->cnt , Contact::colHost))
 							);
 			} else
 				toDraw = 0;
 
             h += (charHeight+TIP_VSPACE) * toDraw;
-//               h += 12 * (min(6 , max((int)(*GETCNTC(pos , CNT_STATUSINFO)!=0),(int)(strlen(GETCNTC(pos , CNT_STATUSINFO)) / 13))));
+//               h += 12 * (min(6 , max((int)(*GETCNTC(pos , Contact::colStatusInfo)!=0),(int)(strlen(GETCNTC(pos , Contact::colStatusInfo)) / 13))));
             //GetWindowRect(_hwnd , &rt);
 #define TIP_WIDTH 118
 #define TIP_SPACE 26
@@ -1267,7 +1267,7 @@ void cCntListTip::refresh(int newPos) {
 			CStdString info;
 			if (GETINT(CFG_UICNTTIP_SHOWDEFAULT)) {
 				rt.right = w;
-				info = GETCNTC(this->cnt , CNT_STATUSINFO);
+				info = GETCNTC(this->cnt , Contact::colStatusInfo);
 				if (!info.empty()) {
 					toDraw++;
 					DrawText(hdc, info, info.length(), &rt, DT_LEFT | DT_WORDBREAK | DT_NOPREFIX | DT_CALCRECT);
@@ -1396,28 +1396,28 @@ void cCntListTip::paint(){
     if (header) {
         SelectObject(hdc, fontTipB);
         // Nag³ówek
-        DrawText(hdc, GETCNTC(this->cnt , CNT_DISPLAY), -1, &rt, DT_CENTER | DT_SINGLELINE | DT_END_ELLIPSIS|DT_NOPREFIX);
+        DrawText(hdc, GETCNTC(this->cnt , Contact::colDisplay), -1, &rt, DT_CENTER | DT_SINGLELINE | DT_END_ELLIPSIS|DT_NOPREFIX);
         rt.top += realCharHeight + 1 + 3;
     }
     SelectObject(hdc, fontTip);
 	if (GETINT(CFG_UICNTTIP_SHOWDEFAULT)) {
 		if (Cnt[this->cnt].net)
-			drawItem(hdc , &rt , "#" , GETCNTC(this->cnt , CNT_UID) , UIIcon(IT_LOGO , Cnt[this->cnt].net , 0 , 0) , trimWidth);
+			drawItem(hdc , &rt , "#" , GETCNTC(this->cnt , Contact::colUid) , UIIcon(IT_LOGO , Cnt[this->cnt].net , 0 , 0) , trimWidth);
 
-		if ((*GETCNTC(this->cnt , CNT_NAME)!=0)||(*GETCNTC(this->cnt , CNT_SURNAME)!=0)) 
-			drawItem(hdc , &rt , "IN" , (GETCNTC(this->cnt , CNT_NAME) + string(" ") + GETCNTC(this->cnt , CNT_SURNAME)).c_str() , IDI_TIP_NAME , trimWidth);
-		drawItem(hdc , &rt , "@" , GETCNTC(this->cnt , CNT_EMAIL) , IDI_TIP_MAIL , trimWidth);
-		drawItem(hdc , &rt , "P" , GETCNTC(this->cnt , CNT_CELLPHONE) , IDI_TIP_PHONE , trimWidth);
+		if ((*GETCNTC(this->cnt , Contact::colName)!=0)||(*GETCNTC(this->cnt , Contact::colSurname)!=0)) 
+			drawItem(hdc , &rt , "IN" , (GETCNTC(this->cnt , Contact::colName) + string(" ") + GETCNTC(this->cnt , Contact::colSurname)).c_str() , IDI_TIP_NAME , trimWidth);
+		drawItem(hdc , &rt , "@" , GETCNTC(this->cnt , Contact::colMail) , IDI_TIP_MAIL , trimWidth);
+		drawItem(hdc , &rt , "P" , GETCNTC(this->cnt , Contact::colCellPhone) , IDI_TIP_PHONE , trimWidth);
 
 		if (GETINT(CFG_UILASTACTIVITY) && Cnt[this->cnt].net) {
-			cTime64 t(GETCNTI64(cnt , CNT_LASTACTIVITY));
+			Time64 t(GETCNTI64(cnt , Contact::colLastActivity));
 			drawItem(hdc , &rt , "?" , t.empty()&&Cnt[this->cnt].active? "nieaktywny" : (char*)t.strftime("%a %H:%M:%S").c_str() , 0 , trimWidth);
 		}
-		if (GETINT(CFG_UISHOWIP) && (*GETCNTC(this->cnt,CNT_HOST) && GETCNTI(this->cnt,CNT_PORT))) {
-			drawItem(hdc , &rt , "IP" , _sprintf("%s:%d",GETCNTC(this->cnt,CNT_HOST),GETCNTI(this->cnt,CNT_PORT)) , 0 , trimWidth);
+		if (GETINT(CFG_UISHOWIP) && (*GETCNTC(this->cnt,Contact::colHost) && GETCNTI(this->cnt,Contact::colPort))) {
+			drawItem(hdc , &rt , "IP" , _sprintf("%s:%d",GETCNTC(this->cnt,Contact::colHost),GETCNTI(this->cnt,Contact::colPort)) , 0 , trimWidth);
 		}
 
-		drawItem(hdc , &rt , "*" , GETCNTC(this->cnt , CNT_STATUSINFO) , IDI_TIP_REASON , 1000, true);
+		drawItem(hdc , &rt , "*" , GETCNTC(this->cnt , Contact::colStatusInfo) , IDI_TIP_REASON , 1000, true);
 	}	
 	const char * infoFormat = GETSTR(CFG_UICNTTIPINFO);
 	if (*infoFormat) {

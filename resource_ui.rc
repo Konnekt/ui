@@ -33,7 +33,7 @@ LANGUAGE LANG_POLISH, SUBLANG_DEFAULT
 
 1 VERSIONINFO
  FILEVERSION 0,1,23,54
- PRODUCTVERSION 0,6,0,0
+ PRODUCTVERSION 0,7,0,0
  FILEFLAGSMASK 0x0L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -52,10 +52,10 @@ BEGIN
             VALUE "FileDescription", "w98/XP/Vista UserInterface"
             VALUE "FileVersion", "0.1.23.54"
             VALUE "InternalName", "konnektUI [w98/XP]"
-            VALUE "LegalCopyright", "Copyright ©2002-2007 Stamina"
+            VALUE "LegalCopyright", "Copyright ©2002-2008 Stamina"
             VALUE "ProductName", "Konnekt"
             VALUE "ProductVersion", "0.7"
-            VALUE "URL", "http://www.konnekt.info"
+            VALUE "URL", "http://www.konnekt.info/"
         END
     END
     BLOCK "VarFileInfo"
@@ -105,7 +105,6 @@ SEARCH                  ICON                    "res/icon_search.ico"
 PLUGIN                  ICON                    "res/icon_plugin.ico"
 URL                     ICON                    "res/icon_url.ico"
 BETA                    ICON                    "res/icon_beta.ico"
-HISTORY                 ICON                    "res/icon_history.ico"
 OPTIONS                 ICON                    "res/icon_options.ico"
 DELETE                  ICON                    "res/icon_delete.ico"
 CHECKED                 ICON                    "res/icon_checked.ico"
@@ -147,17 +146,6 @@ IDI_TIP_PHONE           ICON                    "res/tip_phone.ico"
 IDI_TIP_NAME            ICON                    "res/tip_name.ico"
 IDI_TIP_REASON          ICON                    "res/tip_reason.ico"
 IDI_TIP_INFO            ICON                    "res/tip_info.ico"
-IDI_HIST_DIR            ICON                    "res/hist_dir.ico"
-IDI_HIST_SUB            ICON                    "res/hist_sub.ico"
-IDI_HIST_QUERY          ICON                    "res/histb_search.ico"
-IDI_HISTB_REFRESH       ICON                    "res/histb_refresh.ico"
-IDI_HISTB_SHRED         ICON                    "res/histb_shred.ico"
-IDI_HISTB_DEL           ICON                    "res/histb_del.ico"
-IDI_HISTB_PRINT         ICON                    "res/histb_print.ico"
-IDI_HISTB_SEARCH        ICON                    "res/histb_search.ico"
-IDI_HISTB_RESEND        ICON                    "res/histb_resend.ico"
-IDI_HISTB_SAVE          ICON                    "res/histb_save.ico"
-IDI_HISTB_COMPACT       ICON                    "res/histb_compact.ico"
 IDI_ENTER               ICON                    "res/enter.ico"
 IDI_CLFILTER_ON         ICON                    "res/clfilter_on.ico"
 IDI_CLFILTER_OFF        ICON                    "res/clfilter_off.ico"
@@ -385,46 +373,6 @@ BEGIN
     DEFPUSHBUTTON   "Nastêpna",IDYES,121,113,50,14,WS_DISABLED
 END
 
-IDD_HISTORY DIALOGEX 0, 0, 325, 208
-STYLE DS_SETFONT | DS_CENTER | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
-EXSTYLE WS_EX_APPWINDOW
-CAPTION "Historia"
-FONT 8, "Tahoma", 0, 0, 0xEE
-BEGIN
-    CONTROL         "Tree1",IDC_TREE,"SysTreeView32",TVS_HASBUTTONS | TVS_LINESATROOT | TVS_DISABLEDRAGDROP | TVS_SHOWSELALWAYS | TVS_TRACKSELECT | WS_TABSTOP | 0x800,7,21,81,150,WS_EX_CLIENTEDGE
-    CONTROL         "List1",IDC_LIST,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_SHAREIMAGELISTS | LVS_OWNERDATA | WS_BORDER | WS_TABSTOP,88,21,230,67
-END
-
-IDD_HISTORY_SEARCH DIALOGEX 0, 0, 215, 152
-STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
-EXSTYLE WS_EX_TOOLWINDOW | WS_EX_APPWINDOW
-CAPTION "Szukaj w historii"
-FONT 8, "Tahoma", 0, 0, 0xEE
-BEGIN
-    PUSHBUTTON      "Start",IDOK,150,6,60,15
-    PUSHBUTTON      "Anuluj",IDCANCEL,150,24,60,15
-    LTEXT           "Wpisz wyra¿enie do znalezienia w historii wiadomoœci.\r\nWyra¿enia regularne w standardzie PERL'a",-1,6,6,138,24
-    CONTROL         "ZnajdŸ wszystkie",IDC_FINDALL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,54,96,12
-    CONTROL         "Wyra¿enie regularne",IDC_REGEXP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,84,96,12
-    CONTROL         "Tylko ca³e wyrazy",IDC_WORDS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,96,96,12
-    CONTROL         "Uwzglêdnij wielkoœæ liter",IDC_CASE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,108,96,12
-    GROUPBOX        "Wyniki jako",-1,108,54,102,66
-    CONTROL         "Pojedyñcze wiadomoœci",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON,114,66,90,12
-    CONTROL         "",IDC_RADIO4,"Button",BS_AUTORADIOBUTTON,114,102,12,12
-    CONTROL         "W¹tek do koñca",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,114,78,90,12
-    CONTROL         "Ca³y w¹tek",IDC_RADIO3,"Button",BS_AUTORADIOBUTTON,114,90,84,12
-    COMBOBOX        IDC_SEARCH,6,36,138,84,CBS_DROPDOWN | CBS_AUTOHSCROLL | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "Tylko wybrany katalog",IDC_ONLYCURRENT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,66,96,12
-    EDITTEXT        IDC_PREV,126,102,24,12,ES_AUTOHSCROLL
-    EDITTEXT        IDC_NEXT,168,102,24,12,ES_AUTOHSCROLL
-    LTEXT           "< - >",-1,150,102,18,12
-    CONTROL         "",IDC_PROGRESS1,"msctls_progress32",WS_BORDER | 0x1,150,42,60,6
-    CONTROL         "",IDC_DATE_FROM,"SysDateTimePick32",DTS_RIGHTALIGN | DTS_SHOWNONE | WS_TABSTOP,10,131,92,15
-    GROUPBOX        "Czas",-1,6,121,204,28
-    LTEXT           "-",-1,106,134,8,8
-    CONTROL         "",IDC_DATE_TO,"SysDateTimePick32",DTS_RIGHTALIGN | DTS_SHOWNONE | WS_TABSTOP,114,131,92,15
-END
-
 IDD_BUTTONS DIALOGEX 0, 0, 186, 35
 STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
@@ -434,10 +382,10 @@ BEGIN
     CTEXT           "Static",IDC_STATIC,7,7,172,21
 END
 
-IDD_DBGACTIONS DIALOG  0, 0, 186, 200
+IDD_DBGACTIONS DIALOGEX 0, 0, 390, 206
 STYLE DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "UIDebug - Actions"
-FONT 8, "Tahoma"
+FONT 8, "Tahoma", 0, 0, 0x0
 BEGIN
     CONTROL         "Tree1",IDC_TREE,"SysTreeView32",TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | TVS_SHOWSELALWAYS | TVS_FULLROWSELECT | WS_TABSTOP,0,0,180,300,WS_EX_CLIENTEDGE
 END
@@ -449,7 +397,7 @@ FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SHAREIMAGELISTS | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,7,164,132
     CONTROL         "",IDC_STATIC,"Static",SS_OWNERDRAW | SS_CENTERIMAGE,171,47,122,92
-    EDITTEXT        IDC_EDIT,171,7,122,40,ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | NOT WS_BORDER | WS_VSCROLL
+    EDITTEXT        IDC_EDIT,171,7,122,40,ES_MULTILINE | ES_READONLY | NOT WS_BORDER
 END
 
 IDD_ENTER DIALOGEX 0, 0, 186, 73
@@ -592,11 +540,10 @@ BEGIN
         BOTTOMMARGIN, 192
     END
 
-    IDD_HISTORY_SEARCH, DIALOG
+    IDD_DBGACTIONS, DIALOG
     BEGIN
-        VERTGUIDE, 114
-        VERTGUIDE, 166
-        BOTTOMMARGIN, 149
+        RIGHTMARGIN, 215
+        BOTTOMMARGIN, 199
     END
 
     IDD_DEBUGICONS, DIALOG

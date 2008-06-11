@@ -46,7 +46,6 @@
    Ico.iconRes(ICON_URL, "URL", 0, IML_16);
    Ico.iconRes(ICON_BETA, "BETA", 0, IML_16);
    Ico.iconRes(ICON_OPTIONS, "options", 0, IML_16_32);
-   Ico.iconRes(ICON_HISTORY, "history", 0, IML_16_32);
    Ico.iconRes(ICON_DELETE, "delete", 0, IML_16);
 
    Ico.iconRes(IDI_TB_PLUGINS, "plugin", 0, IML_16_32);
@@ -351,10 +350,10 @@
 
 	  if (! ShowBits::checkLevel(ShowBits::levelAdvanced)) {
 		Act[IMIG_CFG_SETTINGS].insert(0 , -1 , "Tu znajdziesz pomoc", ACTT_GROUP); {
-			Act[IMIG_CFG_SETTINGS].insert(IMIA_MAIN_WWW , -1 ,  "Strona domowa" AP_ICO + inttostr(ICON_KONNEKT), ACTT_LINK | ACTSC_INLINE | ACTSC_BOLD);
-			Act[IMIG_CFG_SETTINGS].insert(IMIA_MAIN_HELP , -1 , "Szybka pomoc" CFGTIP "Lokalne pliki pomocy" AP_ICO + inttostr(ICON_HELP), ACTT_LINK | ACTSC_INLINE | ACTSC_BOLD);
-			Act[IMIG_CFG_SETTINGS].insert(IMIA_MAIN_FORUM , -1 , "Forum dyskusyjne" CFGTIP "Tutaj znajdziesz odpowiedŸ na wiêkszoœæ pytañ." AP_ICO + inttostr(ICON_INFO), ACTT_LINK | ACTSC_BOLD);
-			Act[IMIG_CFG_SETTINGS].insert(IMIA_MAIN_DOWNLOADINFO , -1 , "Jak pobraæ dodatki i wtyczki?" AP_ICO + inttostr(ICON_URL), ACTT_LINK);
+			Act[IMIG_CFG_SETTINGS].insert(IMIA_MAIN_WWW , -1 ,  ("Strona domowa" AP_ICO + inttostr(ICON_KONNEKT)).c_str(), ACTT_LINK | ACTSC_INLINE | ACTSC_BOLD);
+			Act[IMIG_CFG_SETTINGS].insert(IMIA_MAIN_HELP , -1 , ("Szybka pomoc" CFGTIP "Lokalne pliki pomocy" AP_ICO + inttostr(ICON_HELP)).c_str(), ACTT_LINK | ACTSC_INLINE | ACTSC_BOLD);
+			Act[IMIG_CFG_SETTINGS].insert(IMIA_MAIN_FORUM , -1 , ("Forum dyskusyjne" CFGTIP "Tutaj znajdziesz odpowiedŸ na wiêkszoœæ pytañ." AP_ICO + inttostr(ICON_INFO)).c_str(), ACTT_LINK | ACTSC_BOLD);
+			Act[IMIG_CFG_SETTINGS].insert(IMIA_MAIN_DOWNLOADINFO , -1 , ("Jak pobraæ dodatki i wtyczki?" AP_ICO + inttostr(ICON_URL)).c_str(), ACTT_LINK);
 		}Act[IMIG_CFG_SETTINGS].insert(0 , -1 , "", ACTT_GROUPEND);
 	  }
 
@@ -385,7 +384,7 @@
 				CFGTIP "Je¿eli podczas zamykania systemu Konnekt bêdzie wy³¹czony, nie uruchomi siê automatycznie nastêpnym razem." , ACTT_RADIO | ACTSRADIO_BYPOS | ACTSRADIO_LAST | ACTR_NODATASTORE | ACTR_GETSET, CFG_UIAUTOSTART);
 
 			if (ShowBits::checkLevel(ShowBits::levelAdvanced)) {
-				Act[IMIG_CFG_STARTUP].insert(IMIA_CFG_STARTUP_CLEANUP , -1 , ("Usuñ wszystkie wpisy \r\nw autostarcie" CFGTIP "W razie problemów z uruchamianiem Konnekta po starcie systemu - u¿yj tego przycisku. Zostan¹ usuniête wpisy dotycz¹ce uruchamiania wszystkich kopii i profili." CFGICO + inttostr(ICON_DELETE)) , ACTT_BUTTON, 0, 150, 50);
+				Act[IMIG_CFG_STARTUP].insert(IMIA_CFG_STARTUP_CLEANUP , -1 , ("Usuñ wszystkie wpisy \r\nw autostarcie" CFGTIP "W razie problemów z uruchamianiem Konnekta po starcie systemu - u¿yj tego przycisku. Zostan¹ usuniête wpisy dotycz¹ce uruchamiania wszystkich kopii i profili." CFGICO + inttostr(ICON_DELETE)).c_str() , ACTT_BUTTON, 0, 150, 50);
 			}
 
 		  }Act[IMIG_CFG_STARTUP].insert(0 , -1 , "" , ACTT_GROUPEND);
@@ -1048,25 +1047,25 @@
 				  lista += '\n';
               }
           }
-          Act[IMIG_NFO_DETAILS].insert(IMIB_CNT , -1 , lista.c_str() , ACTT_COMBO|ACTSCOMBO_LIST | ACTSC_INLINE | ACTR_SHOW , CNT_NET);
-		  Act[IMIG_NFO_DETAILS].insert(IMIB_CNT , -1 , "" CFGTIP "Identyfikator w sieci." , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_UID | 0x10000000);
+          Act[IMIG_NFO_DETAILS].insert(IMIB_CNT , -1 , lista.c_str() , ACTT_COMBO|ACTSCOMBO_LIST | ACTSC_INLINE | ACTR_SHOW , Contact::colNet);
+		  Act[IMIG_NFO_DETAILS].insert(IMIB_CNT , -1 , "" CFGTIP "Identyfikator w sieci." , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colUid | 0x10000000);
          }
         Act[IMIG_NFO_DETAILS].insert(0 , -1 , "" , ACTT_GROUPEND);
 
 		Act[IMIG_NFO_DETAILS].insert(0 , -1 , "Wyœwietl jako" , ACTT_GROUP);{
-  			Act[IMIG_NFO_DETAILS].insert(IMIB_CNT , -1 , "" CFGTIP "Nazwa do wyœwietlenia", ACTT_COMBO|ACTSC_INLINE|ACTR_INIT|ACTSCOMBO_NOICON , CNT_DISPLAY);
-			Act[IMIG_NFO_DETAILS].insert(IMIB_CNT , -1 , "" CFGTIP "Grupa do której ma nale¿eæ kontakt.", ACTT_COMBO|ACTSCOMBO_LIST|ACTR_INIT|ACTSCOMBO_NOICON , CNT_GROUP);
+  			Act[IMIG_NFO_DETAILS].insert(IMIB_CNT , -1 , "" CFGTIP "Nazwa do wyœwietlenia", ACTT_COMBO|ACTSC_INLINE|ACTR_INIT|ACTSCOMBO_NOICON , Contact::colDisplay);
+			Act[IMIG_NFO_DETAILS].insert(IMIB_CNT , -1 , "" CFGTIP "Grupa do której ma nale¿eæ kontakt.", ACTT_COMBO|ACTSCOMBO_LIST|ACTR_INIT|ACTSCOMBO_NOICON , Contact::colGroup);
 		}Act[IMIG_NFO_DETAILS].insert(0 , -1 , "" , ACTT_GROUPEND);
 
 		Act[IMIG_NFO_DETAILS].insert(0 , -1 , "Dane" , ACTT_GROUP);{
 			Act[IMIG_NFO_DETAILS].insert(0 , -1 , "Imiê" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-			Act[IMIG_NFO_DETAILS].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_NAME);
+			Act[IMIG_NFO_DETAILS].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colName);
 			Act[IMIG_NFO_DETAILS].insert(0 , -1 , "Imiona" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-			Act[IMIG_NFO_DETAILS].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_MIDDLENAME);
+      Act[IMIG_NFO_DETAILS].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colMiddleName);
 			Act[IMIG_NFO_DETAILS].insert(0 , -1 , "Nazwisko" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-			Act[IMIG_NFO_DETAILS].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_SURNAME);
+			Act[IMIG_NFO_DETAILS].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colSurname);
 			Act[IMIG_NFO_DETAILS].insert(0 , -1 , "Ksywka" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-			Act[IMIG_NFO_DETAILS].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_NICK);
+			Act[IMIG_NFO_DETAILS].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colNick);
 		} Act[IMIG_NFO_DETAILS].insert(0 , -1 , "" , ACTT_GROUPEND);
 		Act[IMIG_NFO_DETAILS].insert(IMIA_NFO_NOTONLIST , -1 , "Usuñ kontakt po zamkniêciu programu" CFGTIP "Kontakt uznawany jest jako spoza listy", ACTT_CHECK | ACTR_INIT);
 
@@ -1074,35 +1073,35 @@
 		{
 			Act[IMIG_NFO_CONTACT].insert(0 , -1 , "Email" , ACTT_GROUP);{
 		        Act[IMIG_NFO_CONTACT].insert(0 , -1 , "G³ówny" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-				Act[IMIG_NFO_CONTACT].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_EMAIL);
+				Act[IMIG_NFO_CONTACT].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colMail);
 		        Act[IMIG_NFO_CONTACT].insert(0 , -1 , "Dodatkowe" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-				Act[IMIG_NFO_CONTACT].insert(IMIB_CNT , -1 , "" , ACTT_TEXT , CNT_EMAIL_MORE , 0 , 32);
+            Act[IMIG_NFO_CONTACT].insert(IMIB_CNT , -1 , "" , ACTT_TEXT , Contact::colMailMore , 0 , 32);
 			}Act[IMIG_NFO_CONTACT].insert(0 , -1 , "" , ACTT_GROUPEND);
 			Act[IMIG_NFO_CONTACT].insert(0 , -1 , "Telefon" , ACTT_GROUP); {
 				Act[IMIG_NFO_CONTACT].insert(0 , -1 , "Komórka" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-				Act[IMIG_NFO_CONTACT].insert(IMIB_CNT , -1 , "" , ACTT_EDIT  | ACTSC_FULLWIDTH, CNT_CELLPHONE);
+				Act[IMIG_NFO_CONTACT].insert(IMIB_CNT , -1 , "" , ACTT_EDIT  | ACTSC_FULLWIDTH, Contact::colCellPhone);
 				Act[IMIG_NFO_CONTACT].insert(0 , -1 , "Stacjonarny" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-				Act[IMIG_NFO_CONTACT].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_PHONE);
+        Act[IMIG_NFO_CONTACT].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colPhone);
 				Act[IMIG_NFO_CONTACT].insert(0 , -1 , "Fax" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-				Act[IMIG_NFO_CONTACT].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_FAX);
+        Act[IMIG_NFO_CONTACT].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colFax);
 				Act[IMIG_NFO_CONTACT].insert(0 , -1 , "Dodatkowe" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-				Act[IMIG_NFO_CONTACT].insert(IMIB_CNT , -1 , "" , ACTT_TEXT , CNT_PHONE_MORE , 0 , 32);
+        Act[IMIG_NFO_CONTACT].insert(IMIB_CNT , -1 , "" , ACTT_TEXT , Contact::colPhoneMore , 0 , 32);
 			}Act[IMIG_NFO_CONTACT].insert(0 , -1 , "" , ACTT_GROUPEND);
 			Act[IMIG_NFO_CONTACT].insert(0 , -1 , "Adres" , ACTT_GROUP);{
 				Act[IMIG_NFO_CONTACT].insert(0 , -1 , "Nazwa" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-				Act[IMIG_NFO_CONTACT].insert(IMIB_CNT , -1 , "" , ACTT_TEXT , CNT_ADDRESS_MORE , 0 , 32);
+        Act[IMIG_NFO_CONTACT].insert(IMIB_CNT , -1 , "" , ACTT_TEXT , Contact::colAddressMore , 0 , 32);
 				Act[IMIG_NFO_CONTACT].insert(0 , -1 , "Ulica" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-				Act[IMIG_NFO_CONTACT].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_STREET);
+        Act[IMIG_NFO_CONTACT].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colStreet);
 				Act[IMIG_NFO_CONTACT].insert(0 , -1 , "Skr. pocztowa" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-				Act[IMIG_NFO_CONTACT].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_POBOX);
+        Act[IMIG_NFO_CONTACT].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colPoBox);
 				Act[IMIG_NFO_CONTACT].insert(0 , -1 , "Miejscowoœæ" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-				Act[IMIG_NFO_CONTACT].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_LOCALITY);
+        Act[IMIG_NFO_CONTACT].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colLocality);
 				Act[IMIG_NFO_CONTACT].insert(0 , -1 , "Kod pocztowy" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-				Act[IMIG_NFO_CONTACT].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_POSTALCODE);
+        Act[IMIG_NFO_CONTACT].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colPostalCode);
 				Act[IMIG_NFO_CONTACT].insert(0 , -1 , "Region/Województwo" , ACTT_COMMENT | ACTSC_INLINE);
-				Act[IMIG_NFO_CONTACT].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_REGION);
+        Act[IMIG_NFO_CONTACT].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colRegion);
 				Act[IMIG_NFO_CONTACT].insert(0 , -1 , "Kraj" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-				Act[IMIG_NFO_CONTACT].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_COUNTRY);
+        Act[IMIG_NFO_CONTACT].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colCountry);
 
 			}Act[IMIG_NFO_CONTACT].insert(0 , -1 , "" , ACTT_GROUPEND);
 		}
@@ -1112,42 +1111,42 @@
 		{
 			Act[IMIG_NFO_WORK].insert(0 , -1 , "Informacje" , ACTT_GROUP);{
 		        Act[IMIG_NFO_WORK].insert(0 , -1 , "Organizacja" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-				Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_WORK_ORGANIZATION);
+            Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colWorkOrganization);
 		        Act[IMIG_NFO_WORK].insert(0 , -1 , "Departament" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-				Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_WORK_ORG_UNIT);
+            Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colWorkOrgUnit);
 		        Act[IMIG_NFO_WORK].insert(0 , -1 , "Stanowisko" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-				Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_WORK_TITLE);
+            Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colWorkTitle);
 		        Act[IMIG_NFO_WORK].insert(0 , -1 , "Funkcja" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-				Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_WORK_ROLE);
+            Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colWorkRole);
 		        Act[IMIG_NFO_WORK].insert(0 , -1 , "Strona WWW" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-				Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_WORK_URL);
+            Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colWorkUrl);
 			}Act[IMIG_NFO_WORK].insert(0 , -1 , "" , ACTT_GROUPEND);
 			Act[IMIG_NFO_WORK].insert(0 , -1 , "Kontakt" , ACTT_GROUP); {
 		        Act[IMIG_NFO_WORK].insert(0 , -1 , "E-Mail" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-				Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_WORK_EMAIL);
+            Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colWorkMail);
 				Act[IMIG_NFO_WORK].insert(0 , -1 , "Telefon" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-				Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_WORK_PHONE);
+        Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colWorkPhone);
 				Act[IMIG_NFO_WORK].insert(0 , -1 , "Fax" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-				Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_WORK_FAX);
+        Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colWorkFax);
 			}Act[IMIG_NFO_WORK].insert(0 , -1 , "" , ACTT_GROUPEND);
 			Act[IMIG_NFO_WORK].insert(0 , -1 , "Adres" , ACTT_GROUP);{
 				Act[IMIG_NFO_WORK].insert(0 , -1 , "Nazwa" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-				Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_TEXT , CNT_WORK_ADDRESS_MORE , 0 , 32);
+        Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_TEXT , Contact::colWorkAdressMore , 0 , 32);
 				Act[IMIG_NFO_WORK].insert(0 , -1 , "Ulica" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-				Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_WORK_STREET);
+        Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colWorkStreet);
 				Act[IMIG_NFO_WORK].insert(0 , -1 , "Skr. Pocztowa" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-				Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_WORK_POBOX);
+        Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colWorkPoBox);
 				Act[IMIG_NFO_WORK].insert(0 , -1 , "Miejscowoœæ" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-				Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_WORK_LOCALITY);
+        Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colWorkLocality);
 				Act[IMIG_NFO_WORK].insert(0 , -1 , "Kod pocztowy" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-				Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_WORK_POSTALCODE);
+        Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colWorkPostalCode);
 				Act[IMIG_NFO_WORK].insert(0 , -1 , "Region/Województwo" , ACTT_COMMENT | ACTSC_INLINE);
-				Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_WORK_REGION);
+        Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colWorkRegion);
 				Act[IMIG_NFO_WORK].insert(0 , -1 , "Kraj" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-				Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_WORK_COUNTRY);
+        Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colWorkCountry);
 			}Act[IMIG_NFO_WORK].insert(0 , -1 , "" , ACTT_GROUPEND);
 			Act[IMIG_NFO_WORK].insert(0 , -1 , "Wiêcej..." , ACTT_GROUP);{
-				Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_TEXT | ACTSC_FULLWIDTH , CNT_WORK_MORE);
+        Act[IMIG_NFO_WORK].insert(IMIB_CNT , -1 , "" , ACTT_TEXT | ACTSC_FULLWIDTH , Contact::colWorkMore);
 			}Act[IMIG_NFO_WORK].insert(0 , -1 , "" , ACTT_GROUPEND);
 		} // WORK
 
@@ -1156,17 +1155,17 @@
 	  {
 		  Act[IMIG_NFO_INFO].insert(0 , -1 , "" , ACTT_GROUP);{
 			Act[IMIG_NFO_INFO].insert(0 , -1 , "Strona WWW" , ACTT_COMMENT|ACTSC_INLINE, 0, 75);
-			Act[IMIG_NFO_INFO].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , CNT_URL);
+      Act[IMIG_NFO_INFO].insert(IMIB_CNT , -1 , "" , ACTT_EDIT | ACTSC_FULLWIDTH , Contact::colUrl);
 			Act[IMIG_NFO_INFO].insert(0 , -1 , "P³eæ" , ACTT_COMMENT|ACTSC_INLINE, 0, 75);
-			Act[IMIG_NFO_INFO].insert(IMIB_CNT , -1 , "Nieznana\nKobieta\nMê¿czyzna" , ACTT_COMBO|ACTSCOMBO_LIST|ACTSCOMBO_BYPOS|ACTSCOMBO_NOICON , CNT_GENDER);
+			Act[IMIG_NFO_INFO].insert(IMIB_CNT , -1 , "Nieznana\nKobieta\nMê¿czyzna" , ACTT_COMBO|ACTSCOMBO_LIST|ACTSCOMBO_BYPOS|ACTSCOMBO_NOICON , Contact::colGender);
 			Act[IMIG_NFO_INFO].insert(0 , -1 , "Data urodzenia" , ACTT_COMMENT | ACTSC_INLINE, 0, 75);
-			Act[IMIG_NFO_INFO].insert(IMIB_CNT , -1 , "dd-MM-yyyy" , ACTT_TIME|ACTSTIME_SHOWNONE|ACTR_CONVERT , CNT_BORN);
+			Act[IMIG_NFO_INFO].insert(IMIB_CNT , -1 , "dd-MM-yyyy" , ACTT_TIME|ACTSTIME_SHOWNONE|ACTR_CONVERT , Contact::colBorn);
 		  }Act[IMIG_NFO_INFO].insert(0 , -1 , "" , ACTT_GROUPEND);
 		  Act[IMIG_NFO_INFO].insert(0 , -1 , "Opis w³asny" , ACTT_GROUP);{
-			  Act[IMIG_NFO_INFO].insert(IMIB_CNT , -1 , "" , ACTT_TEXT | ACTSC_FULLWIDTH | ACTR_INIT , CNT_DESCRIPTION);
+			  Act[IMIG_NFO_INFO].insert(IMIB_CNT , -1 , "" , ACTT_TEXT | ACTSC_FULLWIDTH | ACTR_INIT , Contact::colDescription);
 		  }Act[IMIG_NFO_INFO].insert(0 , -1 , "" , ACTT_GROUPEND);
 		  Act[IMIG_NFO_INFO].insert(0 , -1 , "Notatki" , ACTT_GROUP);{
-			  Act[IMIG_NFO_INFO].insert(IMIB_CNT , -1 , "" , ACTT_TEXT | ACTSC_FULLWIDTH , CNT_INFO);
+        Act[IMIG_NFO_INFO].insert(IMIB_CNT , -1 , "" , ACTT_TEXT | ACTSC_FULLWIDTH , Contact::colInfo);
 		  }Act[IMIG_NFO_INFO].insert(0 , -1 , "" , ACTT_GROUPEND);
 	  }
    // TESTOWE

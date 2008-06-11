@@ -399,7 +399,7 @@ HWND makeCfgProp(cUIGroup & g ) {
           //if (!h) h = -2;
 		  if (!h) {
 			  CStdString copy;
-			  cPreg pr(false);
+			  RegEx pr;
 			  copy = pr.replace("/[\\r\\n]+/", "", g[i].txt.c_str());
 			  copy = pr.replace("/<br */? *>/", "\r\n", copy);
 			  copy = pr.replace("/<[^>]+>/", "", copy);
@@ -1700,7 +1700,7 @@ void cUIAction_cfg::getComboValue(char * val , size_t size) {
 
 void cUIAction_cfg::setTimeValue(const char * val) {
     if (!val) return;
-    cDate64 time;
+    Date64 time;
     switch (val[0]) {
         case 'Y': time.year = atoi(val+1);time.day=1;time.month=1; break;
         default:time = _atoi64(val);
@@ -1714,7 +1714,7 @@ void cUIAction_cfg::getTimeValue(char * val , size_t size) {
     if (DateTime_GetSystemtime((HWND)this->handle , &st)==GDT_NONE) {
         strcpy(val , "0");return;
     } else {
-        cTime64 time(st);
+        Time64 time(st);
         _i64toa((__int64)time , val , 10);
     }
 

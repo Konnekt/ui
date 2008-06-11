@@ -363,7 +363,7 @@ int ISetCols() {
 	SetColumn(DTCFG , CFG_UIF_MENUDEFAULT , DT_CT_PCHAR , "Tahoma;238;-11;b;0x0;0xffffff;" , "UI/menu/fontDefault");
 	SetColumn(DTCFG , CFG_UIF_MENUACTIVE , DT_CT_PCHAR , "Tahoma;238;-11;b;0xffffff;0x804000;" , "UI/font/fontActive");
 
-	SetColumn(DTCNT , CNT_STATUS_ICON , DT_CT_INT , 0 , "UI/status/icon");
+	SetColumn(DTCNT , Contact::colStatusIcon , DT_CT_INT , 0 , "UI/status/icon");
   return 1;
 }
 
@@ -735,22 +735,22 @@ bool CSetNotify(int pos , int * pNotify=0 , sUIAction * pAction=0 , unsigned int
     pos = Ctrl->DTgetID(DTCNT , pos);
     if (pos == -1 || !hwndMain || !Cnt.exists(pos)) return false;
     bool animate = false;
-    int notify = GETCNTI(pos , CNT_NOTIFY);
+    int notify = GETCNTI(pos , Contact::colNotify);
     sUIAction action = NOACTION;
 	if (!Cnt.exists(pos)) return false; // Cos tu nie gra!!!
     if (notify == NOTIFY_AUTO) {
         MessageNotify mn;
         if (Cnt[pos].user) {mn.net = 0; mn.setUid("");}
         else {
-            mn.net = GETCNTI(pos , CNT_NET);
-            mn.setUid(GETCNTC(pos , CNT_UID));
+            mn.net = GETCNTI(pos , Contact::colNet);
+            mn.setUid(GETCNTC(pos , Contact::colUid));
         }
         ICMessage(MessageNotify::IM::imcMessageNotify,(int)&mn);
         notify = mn.notify;
         action = mn.action;
         if (msgID) *msgID = mn.id;
-    } else {action = sUIAction(GETCNTI(pos , CNT_ACT_PARENT),GETCNTI(pos , CNT_ACT_ID));
-        if (msgID) *msgID = GETCNTI(pos , CNT_NOTIFY_MSG);
+    } else {action = sUIAction(GETCNTI(pos , Contact::colActParent),GETCNTI(pos , Contact::colActId));
+        if (msgID) *msgID = GETCNTI(pos , Contact::colNotifyMsg);
     }
     if (Cnt[pos].notify != notify) {
         Cnt[pos].notify = notify;
@@ -780,7 +780,7 @@ int CNotify(int pos) {
        sUIAction action;
        unsigned int msgID = 0;
        if (CSetNotify(i , &notify , &action , &msgID)) animate ++;
-       unsigned int lastMsg = GETCNTI(i , CNT_LASTMSG);
+       unsigned int lastMsg = GETCNTI(i , Contact::colLastMsg);
        if (notify && lastMsg>=maxID) {
           nTrayNotify = notify;
           nTrayAction = action;
@@ -1590,7 +1590,7 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
         || (*GETSTR(CFG_UIMSGFROMOTHERPASS) && !strcmp(GETSTR(CFG_UIMSGFROMOTHERPASS) , m->getBody().a_str()))
          ) {
            pos = ICMessage(IMC_CNT_ADD , (int)m->getNet() , (int)m->getFromUid().a_str());
-           SETCNTI(pos , CNT_STATUS , ST_NOTINLIST , CNTM_FLAG);
+           SETCNTI(pos , Contact::colStatus , ST_NOTINLIST , CNTM_FLAG);
            ICMessage(IMC_CNT_CHANGED , pos);
            return GETINT(CFG_UIMSGFROMOTHER)!=0;
          }
@@ -1601,7 +1601,7 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
            msg.setType(Message::typeMessage);
            msg.setToUid(m->getFromUid());
            msg.setBody(GETSTR(CFG_UIMSGFROMOTHERREPLY));
-           msg.setTime(cTime64(true));
+           msg.setTime(Time64(true));
            msg.setFlags(Message::flagSend | Message::flagAutomated);
 
            MessageSelect ms;
@@ -1684,7 +1684,7 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
 
       if (!Cnt.exists(msg->p1)) return 0;
 
-      Ctrl->DTsetInt64(DTCNT , msg->p1 , CNT_LASTACTIVITY , _time64(0));
+      Ctrl->DTsetInt64(DTCNT , msg->p1 , Contact::colLastActivity , _time64(0));
 //    Cnt[msg->p1].activity=time(0);
       Cnt[msg->p1].active = true;
       Cnt[msg->p1].ApplyFilters();
@@ -1720,12 +1720,12 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
         //              ICMessage(IMI_NEWNOTIFY , (int)&sNOTIFY(NOACTION , -1 , msg->p1));
                 }
                 if (GETINT(CFG_UICNTONLINENOTIFY)
-                        && (GETCNTI(msg->p1 , CNT_STATUS)&CNTM_STATUS) == ST_OFFLINE
+                        && (GETCNTI(msg->p1 , Contact::colStatus)&CNTM_STATUS) == ST_OFFLINE
                         && (msg->p2&CNTM_STATUS) != ST_OFFLINE) {
-                            ICMessage(IMI_NEWNOTIFY , (int)&sNOTIFY(NOACTION , IDI_NEW_USER , (char*)_sprintf("%s jest dostêpn%s!",GETCNTC(msg->p1 , CNT_DISPLAY),GETCNTI(msg->p1,CNT_GENDER)==GENDER_FEMALE?"a":"y")));
+                          ICMessage(IMI_NEWNOTIFY , (int)&sNOTIFY(NOACTION , IDI_NEW_USER , (char*)_sprintf("%s jest dostêpn%s!",GETCNTC(msg->p1 , Contact::colDisplay),GETCNTI(msg->p1,Contact::colGender) == Contact::genderFemale?"a":"y")));
                 }
            }
-           Cnt[sc->cntID].setStatus(sc->status , sc->info?sc->info:GETCNTC(sc->cntID , CNT_STATUSINFO));
+           Cnt[sc->cntID].setStatus(sc->status , sc->info?sc->info:GETCNTC(sc->cntID , Contact::colStatusInfo));
            return 0;
          }
     case IM_NEW_PROFILE:
@@ -1753,11 +1753,11 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
 		*/
 		sIMessage_plugArgs * pa = static_cast<sIMessage_plugArgs*>(msgBase);
 		if (pa->argc < 2) return 0;
-		cPreg preg(false);
+		RegEx preg;
 		if (preg.match("#^(\\d+|\\w*)(?:/|:)(.+?)(?:\\?([^?]+))?$#i" , getArgV(pa->argv+1 , pa->argc-1 , "-cnt" , true , "")) <= 1) return 0;
 		CStdString net = preg.getSub(1);
 		CStdString uid = preg.getSub(2);
-		CStdString msg = preg.result > 3 ? preg.getSub(3) : getArgV(pa->argv+1 , pa->argc-1 , "-msg" , true , "");
+		CStdString msg = preg.getResult() > 3 ? preg.getSub(3) : getArgV(pa->argv+1 , pa->argc-1 , "-msg" , true , "");
 		if (uid.empty()) return 0;
 		Net::tNet netID;
 		if (net.empty() || atoi(net)>0) {
@@ -1781,7 +1781,7 @@ IMPARAM __stdcall IMessageProc(sIMessage_base * msgBase) {
 		int cntID = ICMessage(IMC_CNT_FIND , netID , (int)uid.c_str());
 		if (cntID == -1 && ICMessage(IMI_CONFIRM , (int)("Czy na pewno chcesz dodaæ kontakt sieci " + string(safeChar(IMessage(IM_PLUG_NETNAME , netID , imtNetUID))) + " " + string(safeChar(IMessage(IM_PLUG_UIDNAME , netID , imtNetUID))) + ":"  + string(uid) + "?").c_str())) {
 			cntID = ICMessage(IMC_CNT_ADD , netID , (int)uid.c_str());
-			SETCNTI(cntID , CNT_STATUS , ST_NOTINLIST , ST_NOTINLIST);
+			SETCNTI(cntID , Contact::colStatus , ST_NOTINLIST , ST_NOTINLIST);
 			ICMessage(IMC_CNT_CHANGED , cntID);
 			// symulujemy "wiêcej"
 			ICMessage(IMI_ACTION_CALL , (int)&sUIActionNotify_2params(sUIAction(IMIG_CNT , IMIA_CNT_INFO , cntID) , ACTN_ACTION , 0 , 0));

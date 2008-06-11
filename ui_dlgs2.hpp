@@ -299,17 +299,17 @@ void SearchDialogAddCnt(HWND hwndDlg , int item) {
 
   int pos = ICMessage(IMC_CNT_ADD , cnt->net , (int)cnt->uid);
 
-  setCntString (pos , CNT_NAME , cnt->name);
-  setCntString (pos , CNT_SURNAME , cnt->surname);
-  setCntString (pos , CNT_NICK , cnt->nick);
-  setCntString (pos , CNT_DISPLAY , *cnt->nick?cnt->nick:*cnt->surname?cnt->surname:cnt->uid);
-  setCntString (pos , CNT_EMAIL , cnt->email);
-  setCntString (pos , CNT_CELLPHONE , cnt->phone);
-  setCntString (pos , CNT_CITY , cnt->city);
-  SETCNTI (pos , CNT_BORN , (WORD)cnt->born_min >> 16);
-  setCntString (pos , CNT_GROUP , getCfgString(CFG_CURGROUP));
+  setCntString (pos , Contact::colName , cnt->name);
+  setCntString (pos , Contact::colSurname , cnt->surname);
+  setCntString (pos , Contact::colNick , cnt->nick);
+  setCntString (pos , Contact::colDisplay , *cnt->nick?cnt->nick:*cnt->surname?cnt->surname:cnt->uid);
+  setCntString (pos , Contact::colMail , cnt->email);
+  setCntString (pos , Contact::colCellPhone , cnt->phone);
+  setCntString (pos , Contact::colCity , cnt->city);
+  SETCNTI (pos , Contact::colBorn , (WORD)cnt->born_min >> 16);
+  setCntString (pos , Contact::colGroup , getCfgString(CFG_CURGROUP));
 //  IMLOG("%s - rok = %d" , *cnt->nick?cnt->nick:*cnt->surname?cnt->surname:cnt->uid , (WORD)cnt->born_min << 16);
-  SETCNTI (pos , CNT_GENDER , cnt->gender);
+  SETCNTI (pos , Contact::colGender , cnt->gender);
   ICMessage(IMC_CNT_CHANGED , pos);
 }
 
@@ -609,7 +609,7 @@ void IgnoreDialogFill(HWND hwnd) {
          int it = ListView_AddString(item , grp , Ico[UIIcon(IT_LOGO , group , 0 , 0)].index[0]);
          int pos;
          if ((pos = ICMessage(IMC_FINDCONTACT , group , (int)grp))>0)
-			 ListView_SetString(item , it , 1 , (char*)getCntString(pos , CNT_DISPLAY).a_str());
+			 ListView_SetString(item , it , 1 , (char*)getCntString(pos , Contact::colDisplay).a_str());
       }
       grp = grps;
    }

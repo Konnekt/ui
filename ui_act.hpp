@@ -11,7 +11,7 @@ int ActionProc(sUIActionNotify_base * anBase) {
     case IMIA_MAIN_CNT_ADD:
        ACTIONONLY(an);
        a = IMessage(IMC_CNT_ADD);
-       setCntString(a , CNT_GROUP , getCfgString(CFG_CURGROUP));
+       setCntString(a , Contact::colGroup , getCfgString(CFG_CURGROUP));
 //       ICMessage(IMC_CNT_CHANGED , a);
        // Zamiast wysylac przedwczesnie do wszystkich
        // tworzymy ukryta wersje kontaktu.
@@ -29,34 +29,34 @@ int ActionProc(sUIActionNotify_base * anBase) {
        break;
     case IMIA_CNT_SENDEMAIL:
        if (an->code == ACTN_CREATE) {
-                  ActionStatus(an->act , (uiPos>0 && *GETCNTC(uiPos , CNT_EMAIL)) ? 0 : ACTS_HIDDEN);
+                  ActionStatus(an->act , (uiPos>0 && *GETCNTC(uiPos , Contact::colMail)) ? 0 : ACTS_HIDDEN);
        } else
        if (an->code == ACTN_ACTION) {
          if (uiPos<=0) return 0;
-         ShellExecute(0 , "open" , (char*)(string("mailto:")+GETCNTC(uiPos , CNT_EMAIL)).c_str() , "" , "" , SW_SHOW);
+         ShellExecute(0 , "open" , (char*)(string("mailto:")+GETCNTC(uiPos , Contact::colMail)).c_str() , "" , "" , SW_SHOW);
        }
        break;
     case IMIA_CNT_IGNORE:
        if (an->code == ACTN_CREATE) {
-           bool ign = uiPos==-1?false:ICMessage(IMC_CNT_IGNORED , Cnt[uiPos].net , (int)GETCNTC(uiPos , CNT_UID))!=0;
+           bool ign = uiPos==-1?false:ICMessage(IMC_CNT_IGNORED , Cnt[uiPos].net , (int)GETCNTC(uiPos , Contact::colUid))!=0;
            ActionStatus(an->act , (uiPos>0 && Cnt[uiPos].net!=Net::none) ? (ign?ACTS_CHECKED:0) : ACTS_HIDDEN);
        } else
        if (an->code == ACTN_ACTION) {
          if (uiPos<=0) return 0;
-         bool ign = ICMessage(IMC_CNT_IGNORED , Cnt[uiPos].net , (int)GETCNTC(uiPos , CNT_UID))!=0;
+         bool ign = ICMessage(IMC_CNT_IGNORED , Cnt[uiPos].net , (int)GETCNTC(uiPos , Contact::colUid))!=0;
          if (ign)
-             ICMessage(IMC_IGN_DEL , Cnt[uiPos].net , (int)GETCNTC(uiPos , CNT_UID));
+             ICMessage(IMC_IGN_DEL , Cnt[uiPos].net , (int)GETCNTC(uiPos , Contact::colUid));
          else
-             ICMessage(IMC_IGN_ADD , Cnt[uiPos].net , (int)GETCNTC(uiPos , CNT_UID));
+             ICMessage(IMC_IGN_ADD , Cnt[uiPos].net , (int)GETCNTC(uiPos , Contact::colUid));
        }
        break;
     case IMIA_CNT_ADD:
        if (an->code == ACTN_CREATE) {
-                  ActionStatus(an->act , (an->act.cnt!=-1 && GETCNTI(an->act.cnt,CNT_STATUS)&ST_NOTINLIST) ? 0 : ACTS_HIDDEN);
+                  ActionStatus(an->act , (an->act.cnt!=-1 && GETCNTI(an->act.cnt,Contact::colStatus)&ST_NOTINLIST) ? 0 : ACTS_HIDDEN);
        } else
        if (an->code == ACTN_ACTION) {
          if (uiPos<=0) return 0;
-         SETCNTI(an->act.cnt , CNT_STATUS , 0 , ST_NOTINLIST);
+         SETCNTI(an->act.cnt , Contact::colStatus , 0 , ST_NOTINLIST);
          ICMessage(IMC_CNT_CHANGED , an->act.cnt);
          //ICMessage(IMI_REFRESH_CNT , an->act.cnt);
        }
@@ -75,14 +75,14 @@ int ActionProc(sUIActionNotify_base * anBase) {
 		   }
            if (uiPos<0) return 0;
            if (an->act.id == IMIA_CNT_MSG) {
-               bool use = (ICMessage(IMC_NET_TYPE , GETCNTI(an->act.cnt,CNT_NET)) & imtMsgUI) != 0;
+               bool use = (ICMessage(IMC_NET_TYPE , GETCNTI(an->act.cnt,Contact::colNet)) & imtMsgUI) != 0;
 			   if (an->code == ACTN_CREATE)
 			       ActionStatus(an->act , use ? 0 : ACTS_HIDDEN);
 			   else return use;
            } else {
                MessageSelect mw;
-               mw.net = GETCNTI(uiPos , CNT_NET);
-               mw.setUid(GETCNTC(uiPos , CNT_UID));
+               mw.net = GETCNTI(uiPos , Contact::colNet);
+               mw.setUid(GETCNTC(uiPos , Contact::colUid));
                mw.type = Message::typeMessage;
                mw.woflag = Message::flagSend;
                ActionStatus(an->act ,
@@ -302,8 +302,8 @@ int ActionProc(sUIActionNotify_base * anBase) {
 			return 0;
 		Message m;
 		if (anBase->act.cnt >= 0) {
-      MessageSelect ms((Net::tNet)(anBase->act.cnt == 0 ? 0 : GETCNTI(anBase->act.cnt , CNT_NET)) 
-				, (char*)anBase->act.cnt == 0 ? 0 : GETCNTC(anBase->act.cnt , CNT_UID) 
+      MessageSelect ms((Net::tNet)(anBase->act.cnt == 0 ? 0 : GETCNTI(anBase->act.cnt , Contact::colNet)) 
+				, (char*)anBase->act.cnt == 0 ? 0 : GETCNTC(anBase->act.cnt , Contact::colUid) 
         ,Message::typeAll , Message::flagMenuByUI , Message::flagNone);
       ICMessage(MessageSelect::IM::imcMessageGet , (int)&ms , (int)&m);
 		}
@@ -364,11 +364,11 @@ int ActionProc(sUIActionNotify_base * anBase) {
         return 1;
     case IMIA_NFO_ADDTOLIST:
        if (an->code == ACTN_CREATE) {
-            ActionStatus(an->act , (an->act.cnt!=-1 && GETCNTI(an->act.cnt,CNT_STATUS)&ST_NOTINLIST) ? 0 : ACTS_HIDDEN);
+            ActionStatus(an->act , (an->act.cnt!=-1 && GETCNTI(an->act.cnt,Contact::colStatus)&ST_NOTINLIST) ? 0 : ACTS_HIDDEN);
        } else
        if (an->code == ACTN_ACTION) {
          if (uiPos<=0) return 0;
-         SETCNTI(an->act.cnt , CNT_STATUS , 0 , ST_NOTINLIST);
+         SETCNTI(an->act.cnt , Contact::colStatus , 0 , ST_NOTINLIST);
          ICMessage(IMC_CNT_CHANGED , an->act.cnt);
          ActionStatus(an->act , ACTS_HIDDEN);
 		 UIActionCfgSetValue(sUIAction(IMIG_NFO_DETAILS, IMIA_NFO_NOTONLIST, an->act.cnt), "0");
@@ -381,11 +381,11 @@ int ActionProc(sUIActionNotify_base * anBase) {
             ActionStatus(an->act , (uiPos>0) ? 0 : ACTS_HIDDEN);
 		} else if (an->code == ACTN_GET) {
 			sUIActionNotify_buff * anb = (sUIActionNotify_buff *)anBase;
-			strcpy(anb->buff, (GETCNTI(an->act.cnt,CNT_STATUS)&ST_NOTINLIST)?"1":"0");
+			strcpy(anb->buff, (GETCNTI(an->act.cnt,Contact::colStatus)&ST_NOTINLIST)?"1":"0");
 		} else if (an->code == ACTN_SET) {
 			sUIActionNotify_buff * anb = (sUIActionNotify_buff *)anBase;
-			if (anb->buff && ((GETCNTI(anb->act.cnt,CNT_STATUS)&ST_NOTINLIST) != 0) != (*anb->buff == '1') ) {
-				SETCNTI(anb->act.cnt , CNT_STATUS , *anb->buff == '1' ? ST_NOTINLIST : 0 , ST_NOTINLIST);
+			if (anb->buff && ((GETCNTI(anb->act.cnt,Contact::colStatus)&ST_NOTINLIST) != 0) != (*anb->buff == '1') ) {
+				SETCNTI(anb->act.cnt , Contact::colStatus , *anb->buff == '1' ? ST_NOTINLIST : 0 , ST_NOTINLIST);
 			    ICMessage(IMC_CNT_CHANGED , anb->act.cnt);
 			}
 		}
@@ -501,7 +501,7 @@ int ActionProc(sUIActionNotify_base * anBase) {
 				SendMessage(ancw->hwnd , EM_SETCHARFORMAT , SCF_ALL , (LPARAM)&cf);
 			    //SendMessage(ancw->hwnd , EM_SETCHARFORMAT , SCF_SELECTION , (LPARAM)&cf);
                 SetProp(ancw->hwnd, "OldWindowProc", (HANDLE)SetWindowLong(ancw->hwnd , GWL_WNDPROC , (long)EditMsgControlProc));
-				SendMessage(ancw->hwnd , EM_LIMITTEXT , IMessage(IM_MSG_CHARLIMIT , (Net::tNet)GETCNTI(anBase->act.cnt , CNT_NET)) , 0);
+				SendMessage(ancw->hwnd , EM_LIMITTEXT , IMessage(IM_MSG_CHARLIMIT , (Net::tNet)GETCNTI(anBase->act.cnt , Contact::colNet)) , 0);
 				ShowCaret(ancw->hwnd);
 				break;}
 			case ACTN_DESTROYWINDOW: {
@@ -556,7 +556,7 @@ int ActionProc(sUIActionNotify_base * anBase) {
 					cRichEditHtml::InsertHTML(hwnd, text, cMsgControlRich::SetStyleCB);
 				} else {
 					if (gm->_isHtml) {
-						cPreg preg;
+						RegEx preg;
 						text = preg.replace("/<.+?>/s", "", text);
 					}
 					SendMessage(hwnd, EM_REPLACESEL, true, (LPARAM) text.c_str());

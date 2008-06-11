@@ -205,7 +205,7 @@ void cMsgControlRich::msgInsert(Message * m , const char * display , bool scroll
 	if (from.empty()) {
 		if (display) from=display;
 		else 
-		from = GETCNTC(cnt , CNT_DISPLAY);
+		from = GETCNTC(cnt , Contact::colDisplay);
 	}
 
   if (from.empty()) from = (m->getFlags() & Message::flagSend)?"JA" : m->getFromUid().a_str();
@@ -237,7 +237,7 @@ void cMsgControlRich::msgInsert(Message * m , const char * display , bool scroll
   if (m->getType() != Message::typeQuickEvent && (!from.empty() || m->getTime())) {
         RE_SETEXFONT(CFG_UIF_MSGCNT);
         if (!from.empty()) {RE_BOLD(1);RE_ADD(from+": ");RE_BOLD(0);}
-        cTime64 dtime(m->getTime());
+        Time64 dtime(m->getTime());
         if (m->getTime()/* && m->type==Message::typeMessage*/) {
 			if (dtime.sec / 86400 != _time64(0) / 86400)
 				RE_ADD(dtime.strftime(" (%a %d-%m'%y %H:%M) ")); 
@@ -285,7 +285,7 @@ void cMsgControlRich::statusInsert(int status , CStdString info) {
     pf.dxStartIndent = 0;
     SendMessage(hwnd , EM_SETPARAFORMAT , 0 , (LPARAM)&pf);
     RE_SETEXFONT(CFG_UIF_MSG);
-    CStdString txt = cTime64(true).strftime("[%H:%M] status ");
+    CStdString txt = Time64(true).strftime("[%H:%M] status ");
     RE_ADD(txt);
     RE_BOLD(1);
     RE_ADD(getStatusName(status) + (info.empty()?"\r\n":""));

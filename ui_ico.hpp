@@ -196,23 +196,23 @@ int sUIIcon::draw(IML_enum what , HDC hDC , int x , int y , int style , int stat
   HANDLE cUIIcons::getImageFromURL(string URL , int & _imgType , HINSTANCE dll , sUIIconRegister::tIconParams * _ip) {
 	  sUIIconRegister::tIconParams ip = {0,0};
 	  if (_ip) ip = *_ip;
-	  cPreg Preg;
+	  RegEx r;
         _imgType=0;
-		if (Preg.match("|^([a-z]+)://(.+)\\.([^.#]*)(?:#(.+))?$|" , URL.c_str())<=0)
+		if (r.match("|^([a-z]+)://(.+)\\.([^.#]*)(?:#(.+))?$|" , URL.c_str())<=0)
             return 0;
         int imageType = 0;
         HANDLE imageHandle = NULL;
 #define IMAGE_OTHER 3
-		imageType = (Preg(3)=="bmp"?IMAGE_BITMAP:Preg(3)=="ico"?IMAGE_ICON:IMAGE_OTHER);
-		CStdString params = "&" + Preg(4);
+		imageType = (r[3]=="bmp"?IMAGE_BITMAP:r[3]=="ico"?IMAGE_ICON:IMAGE_OTHER);
+		CStdString params = "&" + r[4];
 		if (imageType == IMAGE_ICON) {
 			if (!ip.size && ActParamExists(params, "&size=")) 
 				ip.size = atoi(GetActParam(params, "&size=").c_str());
 			if (!ip.bits && ActParamExists(params, "&bits=")) 
 				ip.bits = atoi(GetActParam(params, "&bits=").c_str());
 		}
-        if (Preg(1)=="file") {
-			CStdString filename = ExpandEnvironmentStrings( (Preg(2)+"."+Preg(3)).c_str() );
+        if (r[1]=="file") {
+			CStdString filename = ExpandEnvironmentStrings( (r[2]+"."+r[3]).c_str() );
 			filename.Replace("/", "\\");
 			
 			if (_access(filename , 0)!=0) {
@@ -233,23 +233,23 @@ int sUIIcon::draw(IML_enum what , HDC hDC , int x , int y , int style , int stat
 				imageHandle = (HANDLE)imgID;
 			}
 
-        } else if (Preg(1)=="res") {
-            Preg.match("|^([0-9dlui]+)/(.+)$|" , Preg(2).c_str());
-			HINSTANCE inst = (Preg(1)=="0" || Preg(1)=="ui")?Ctrl->hDll():Preg(1)=="dll"?dll:(HINSTANCE)atoi(Preg(1).c_str());
+        } else if (r[1]=="res") {
+            r.match("|^([0-9dlui]+)/(.+)$|" , r[2].c_str());
+			HINSTANCE inst = (r[1]=="0" || r[1]=="ui")?Ctrl->hDll():r[1]=="dll"?dll:(HINSTANCE)atoi(r[1].c_str());
 			// Wy³apujemy z RES nazwê typu i identyfikator
-			Preg.match("|^(?:([^/]+)/)?([^/]+)$|" , Preg(2).c_str());
-			CStdString type = Preg(1).c_str();
-			CStdString id = Preg(2).c_str();
-			Preg.setPattern("/^(?:\\d+)|(?:0x[0-9a-f]+)$/");
-			Preg.setSubject(id);
-			const char * idId = (Preg.match()>0) ? MAKEINTRESOURCE(chtoint(id)) : id;
+			r.match("|^(?:([^/]+)/)?([^/]+)$|" , r[2].c_str());
+			CStdString type = r[1].c_str();
+			CStdString id = r[2].c_str();
+			r.setPattern("/^(?:\\d+)|(?:0x[0-9a-f]+)$/");
+			r.setSubject(id);
+			const char * idId = (r.match()>0) ? MAKEINTRESOURCE(chtoint(id)) : id;
 			if (imageType == IMAGE_ICON) 
 				imageHandle = LoadIconEx(inst , idId , ip.size , ip.bits);
 			else if (imageType == IMAGE_BITMAP)
 	            imageHandle = LoadImage(inst , idId , imageType,0,0,0);
 			else {
-				Preg.setSubject(type);
-				const char * typeId = (Preg.match()>0) ? MAKEINTRESOURCE(chtoint(type)) : type;
+				r.setSubject(type);
+				const char * typeId = (r.match()>0) ? MAKEINTRESOURCE(chtoint(type)) : type;
 	            ILuint imgID;
 				ilInit();
 		        ilGenImages(1, &imgID);
@@ -261,22 +261,22 @@ int sUIIcon::draw(IML_enum what , HDC hDC , int x , int y , int style , int stat
 				if (data) {
 					int ilType = IL_TYPE_UNKNOWN;
 					ilLoadL(ilType, data, dataSize);
-				//ilutLoadResource(inst , atoi(Preg(2).c_str()) , (ILstring)Preg(3).c_str() , IL_TYPE_UNKNOWN);
+				//ilutLoadResource(inst , atoi(r[2].c_str()) , (ILstring)r[3].c_str() , IL_TYPE_UNKNOWN);
 					imageHandle = (HANDLE)imgID;
 				}
 			}
-        } else if (Preg(1)=="handle") {
+        } else if (r[1]=="handle") {
 			if (imageType == IMAGE_OTHER) return 0;
-            imageHandle = CopyImage((HANDLE)atoi(Preg(2).c_str()) , imageType , 0 , 0 , 0);
-        } else if (Preg(1)=="reg") {
-            Preg.match("|^([^/]+)/([0-9]+)$|" , Preg(2).c_str());
-            int id = atoi(Preg(2).c_str());
+            imageHandle = CopyImage((HANDLE)atoi(r[2].c_str()) , imageType , 0 , 0 , 0);
+        } else if (r[1]=="reg") {
+            r.match("|^([^/]+)/([0-9]+)$|" , r[2].c_str());
+            int id = atoi(r[2].c_str());
             if (::Ico.find(id)) {
-                if (Preg(1)=="IML16" || Preg(1)=="IML_16") {
+                if (r[1]=="IML16" || r[1]=="IML_16") {
                     imageType = IMAGE_ICON;
                     imageHandle = CopyImage(::Ico[id].getIcon() , imageType , 0 , 0 , 0);
                 }
-                if (Preg(1)=="IML32" || Preg(1)=="IML_32") {
+                if (r[1]=="IML32" || r[1]=="IML_32") {
                     imageType = IMAGE_ICON;
 					if (::Ico[id].index[1] != -1)
 						imageHandle = ImageList_ExtractIcon(0 , ::Ico[id].iml[1] , ::Ico[id].index[1]);

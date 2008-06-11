@@ -610,7 +610,7 @@ void TipActionTaskBar::fillCache() {
 	ToolTipX::Tip * tip = new ToolTipX::Tip;
 	int ico = trayNotify ? trayNotify : ICON_KONNEKT;
 	if ( ! trayInfo.empty()) {
-        cPreg preg;
+        RegEx preg;
 		if (ISICON_BLANK(ico)) {ico&=~IT_BLANK_MASK;}
 		if (ico & UIIcon(-1,0,0,0)) ico &= UIIcon(-1, -1, -1, 0);
 		int width = GetTextSize(tooltip.getTipWindow(), font, preg.replace("/<.*?>/", "", trayInfo).c_str()).cx + 10;

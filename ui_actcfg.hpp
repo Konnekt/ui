@@ -248,10 +248,10 @@ int ActionCntProc(sUIActionNotify_base * anBase) {
     sUIActionInfo ai;
     sUIAction act = an->act;
     switch (an->act.id & ~IMIB_) {
-		case CNT_NET: {
+		case Contact::colNet: {
             if (an->code != ACTN_ACTION && an->code != ACTN_SHOW) return 0;
             String v = getActionValue(Act(an->act));
-            ai.act = sUIAction(an->act.parent , IMIB_CNT|CNT_UID , an->act.cnt);
+            ai.act = sUIAction(an->act.parent , IMIB_CNT|Contact::colUid , an->act.cnt);
             ai.mask = UIAIM_STATUS;
 			ai.status = (v != "0") ?0:ACTS_DISABLED;
             ai.statusMask = ACTS_DISABLED;
@@ -259,7 +259,7 @@ int ActionCntProc(sUIActionNotify_base * anBase) {
 			break;}
 
 
-        case CNT_DISPLAY: {
+        case Contact::colDisplay: {
             if (an->code != ACTN_DROP && an->code != ACTN_CREATE) return 0;
             string s = InfoGetDisplay(act.cnt);
             ai.act = an->act;
@@ -267,7 +267,7 @@ int ActionCntProc(sUIActionNotify_base * anBase) {
             ai.txt = (char*)s.c_str();
             ActionSet(ai);
             break;}
-        case CNT_GROUP: {
+        case Contact::colGroup: {
             if (an->code == ACTN_CREATE) {
                 ai.act = an->act;
                 ai.mask = UIAIM_STATUS;
@@ -294,27 +294,27 @@ int ActionCntProc(sUIActionNotify_base * anBase) {
             ai.txt = (char*)s.c_str();
             ActionSet(ai);
             break;}
-        case CNT_BORN:
+        case Contact::colBorn:
             switch (an->code) {
                 case ACTN_CONVERT_TO:{
 					sUIActionNotify_buff * ab = static_cast<sUIActionNotify_buff *>(anBase);
 					int born = atoi(ab->buff);
-                    cDate64 time;
+                    Date64 time;
                     if (!born) {strcpy(ab->buff,"0");break;}
                     time.day = (BYTE)born;
                     time.month = (born & 0xFF00) >> 8;
                     time.year = (born & 0xFFFF0000) >> 16;
-					_i64toa((__int64)cTime64(time) , ab->buff , 10);
+					_i64toa((__int64)Time64(time) , ab->buff , 10);
                     break;}
                 case ACTN_CONVERT_FROM: {
 					sUIActionNotify_buff * ab = static_cast<sUIActionNotify_buff *>(anBase);
-          cDate64 time = an->notify1 ? _atoi64((char*)an->notify1) : 0;
+          Date64 time = an->notify1 ? _atoi64((char*)an->notify1) : 0;
 					if (ab->buff) itoa((BYTE)time.day | (BYTE)time.month << 8 | (WORD)time.year << 16 , ab->buff , 10);
                     break;}
                 break;
 			break;
             }
-		case CNT_DESCRIPTION:
+		case Contact::colDescription:
 			if (an->code == ACTN_CREATE)
 				UIActionSetStatus(an->act , (Ctrl->DTgetPos(DTCNT , an->act.cnt)!=0) ? -1 : 0 , ACTSEDIT_READONLY);
 			break;

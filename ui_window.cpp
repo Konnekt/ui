@@ -980,14 +980,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                    nmdi = (NMLVDISPINFO*)lParam;
                    pCnt = (sUICnt*)ListView_GetItemData(hwndList , nmdi->item.iItem);
                    if (!pCnt) return true;
-				   SetWindowText(ListView_GetEditControl(hwndList) , getCntString(pCnt->ID , CNT_DISPLAY).c_str());
+                   SetWindowText(ListView_GetEditControl(hwndList) , getCntString(pCnt->ID , Contact::colDisplay).c_str());
 //                   refreshListItem((sUICnt*)ListView_GetItemData(hwndList , nmdi->item.iItem) , nmdi->item.iItem);
                    return false;
                 case LVN_ENDLABELEDIT:
                    nmdi = (NMLVDISPINFO*)lParam;
                    pCnt = (sUICnt*)ListView_GetItemData(hwndList , nmdi->item.iItem);
                    if (!pCnt || !nmdi->item.pszText) return false;
-                   setCntString(pCnt->ID , CNT_DISPLAY , nmdi->item.pszText);
+                   setCntString(pCnt->ID , Contact::colDisplay , nmdi->item.pszText);
                    ICMessage(IMI_REFRESH_CNT , pCnt->ID);
 //                   refreshListItem((sUICnt*)ListView_GetItemData(hwndList , nmdi->item.iItem) , nmdi->item.iItem);
                    return false;

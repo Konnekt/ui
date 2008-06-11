@@ -65,10 +65,10 @@ struct sFormatCallback {
 };
 
 
-std::string __stdcall formatCallback(class cPreg & Preg , sFormatCallback * d) {
+std::string __stdcall formatCallback(class RegEx * r , sFormatCallback * d) {
 	bool matched = true;
     CStdString s("");
-	CStdString token = Preg[2];
+	CStdString token = (*r)[2];
 	bool fromInfoWindow = (d->type == FT_DISPLAYPROPOSAL);
 	if (token == "profile") {
 		s = SAFECHAR((char*)ICMessage(IMC_GETPROFILE));
@@ -76,20 +76,20 @@ std::string __stdcall formatCallback(class cPreg & Preg , sFormatCallback * d) {
 	    ICMessage(IMC_VERSION , (int)s.GetBuffer(100));
 		s.ReleaseBuffer();
 	} else if (token == "UID") {
-		s = getCntString(d->cntID , CNT_UID);
+		s = getCntString(d->cntID , Contact::colUid).a_str();
 	} else if (token == "status") {
-		s = d->cntID?getStatusName(GETCNTI(d->cntID , CNT_STATUS) & ST_MASK):"";
+		s = d->cntID?getStatusName(GETCNTI(d->cntID , Contact::colStatus) & ST_MASK):"";
 	} else if (token == "info") {
-		s = d->cntID ? (char*)getCntString(d->cntID , CNT_STATUSINFO).a_str() : (char*)trayStatusDescr.c_str();
+		s = d->cntID ? (char*)getCntString(d->cntID , Contact::colStatusInfo).a_str() : (char*)trayStatusDescr.c_str();
 	} else if (token == "display") {
-		s = getCntString(d->cntID , CNT_DISPLAY);
+		s = getCntString(d->cntID , Contact::colDisplay).a_str();
 	} else if (token == "group") {
-		s = getCntString(d->cntID , CNT_GROUP);
+		s = getCntString(d->cntID , Contact::colGroup).a_str();
 	} else if (token == "IP") {
-		s = getCntString(d->cntID , CNT_HOST);
+		s = getCntString(d->cntID , Contact::colHost).a_str();
 	} else if (d->type == FT_TRAYEVENT) {
 		if (token == "eventDisplay") {
-			s = trayCnt ? (char*)getCntString(trayCnt , CNT_DISPLAY).a_str():"";
+			s = trayCnt ? (char*)getCntString(trayCnt , Contact::colDisplay).a_str():"";
 		} else if (token == "eventTitle") {
 			s = (trayAction.id)?Act(trayAction).txt.substr(0 , Act(trayAction).txt.find(MSGTITLE_CHAR)):"";
 		} else if (token == "eventMsg" && trayMsgID) {
@@ -102,13 +102,13 @@ std::string __stdcall formatCallback(class cPreg & Preg , sFormatCallback * d) {
 	if (!matched) { // druga szansa...
 		int id = Ctrl->DTgetNameID(DTCNT, token);
 		if (id < 0) // nic ju¿ nam nie pomo¿e
-			return Preg[0];
+			return (*r)[0];
 		s = CntGetInfoValue(fromInfoWindow, (d->type == FT_TRAYEVENT) ? trayCnt : d->cntID, id);
 	}
 	if (s.empty())
 		return "";
 	else
-		return Preg[1] + string(s) + Preg[3];
+		return (*r)[1] + string(s) + (*r)[3];
 }
 
 CStdString formatTitle(string format , int cntID , formatTitle_enum type) {
@@ -118,12 +118,12 @@ CStdString formatTitle(string format , int cntID , formatTitle_enum type) {
 	data.cntID = cntID;
 	data.type = type;
 
-	cPreg Preg;
-    Preg.setSubject(format);
-    Preg.setPattern("/\\\\n/g");
-	Preg.setSubject(Preg.replace("\n"));
-    Preg.setPattern("/\\{([^a-z0-9_}]*?)([a-z0-9_\\/]+)([^a-z0-9_}]*?)\\}/mgi");
-	return Preg.replace((fPregReplace)formatCallback , 0 , &data);
+	RegEx r;
+  r.setSubject(format);
+  r.setPattern("/\\\\n/g");
+  r.setSubject(r.replace("\n"));
+  r.setPattern("/\\{([^a-z0-9_}]*?)([a-z0-9_\\/]+)([^a-z0-9_}]*?)\\}/mgi");
+  return r.replace((RegEx::fReplace)formatCallback , 0 , &data);
 }
 
 
@@ -267,7 +267,7 @@ CStdString getAutostartKey() {
 	return key;
 }
 CStdString getAutostartValue() {
-	CStdString value = getCfgString(CFG_APPFILE);
+	CStdString value = getCfgString(CFG_APPFILE).a_str();
 	value = "\"" + value + "\" /autostart";
 	if (GETINT(CFG_UIAUTOSTARTASKFORPROFILE)) {
 		value += " -profile=?";

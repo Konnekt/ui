@@ -7,17 +7,17 @@ void InfoDialogLoad(HWND hwndDlg , int pos) {
 }
 
 string InfoGetDisplay(int cntID) {
-    sUIAction act = sUIAction(IMIG_NFO_DETAILS , CNT_DISPLAY|IMIB_CNT , cntID);
+    sUIAction act = sUIAction(IMIG_NFO_DETAILS , Contact::colDisplay|IMIB_CNT , cntID);
     String s = getActionValue(Act(act)) + "\n";
 
 	CStdString format = GETSTR(CFG_UICNT_CREATEDISPLAY_FORMAT);
 	if (format.empty()) {// standardowe podejœcie
-		act.id = IMIB_CNT|CNT_NICK;
+    act.id = IMIB_CNT|Contact::colNick;
 		String nick = getActionValue(Act(act));
 		if (nick.empty() == false) s += nick + "\n";
-		act.id = IMIB_CNT|CNT_NAME;
+    act.id = IMIB_CNT|Contact::colName;
 		String name = getActionValue(Act(act));
-		act.id = IMIB_CNT|CNT_SURNAME;
+    act.id = IMIB_CNT|Contact::colSurname;
 		String surname = getActionValue(Act(act));
 		if (name.empty() != false || surname.empty() != false) {
 			if (surname.empty() != false) s += surname;
@@ -25,12 +25,12 @@ string InfoGetDisplay(int cntID) {
 			if (name.empty() != false) s+=name;
 			s+="\n";
 		}
-		act.id = IMIB_CNT|CNT_UID;
+		act.id = IMIB_CNT|Contact::colUid;
 		String uid = getActionValue(Act(act));
 		if (!uid.empty()) s += uid + "\n";
 	} else {
 		s += formatTitle(format, cntID, FT_DISPLAYPROPOSAL) + "\n";
-		cPreg preg(false);
+		RegEx preg;
 		s.replace("\r","");
 		s = preg.replace("/\\n{2,}/","\n", s.a_str());
 	}
@@ -50,18 +50,18 @@ void InfoDialogSave(int cntID , bool upload) {
             display = display.substr(display.find('\n')+1);
             display = display.substr(0,display.find('\n'));
         }
-        setActionValue(Act(sUIAction(IMIG_NFO_DETAILS , CNT_DISPLAY|IMIB_CNT , cntID)) , display);
+        setActionValue(Act(sUIAction(IMIG_NFO_DETAILS , Contact::colDisplay|IMIB_CNT , cntID)) , display);
     }
     bool fill = false;
-    CStdString oldUID = GETCNTC(cntID , CNT_UID);
-    int oldNet = GETCNTI(cntID , CNT_NET);
-    CStdString oldGroup = GETCNTC(cntID , CNT_GROUP);
+    CStdString oldUID = GETCNTC(cntID , Contact::colUid);
+    int oldNet = GETCNTI(cntID , Contact::colNet);
+    CStdString oldGroup = GETCNTC(cntID , Contact::colGroup);
     saveCfg(&Act[IMIG_NFO]);
     // sprawdza czy sie cos zmienilo
-    bool changedNet = GETCNTI(cntID , CNT_NET) != oldNet;
-	bool changedUid = GETCNTC(cntID , CNT_UID) != oldUID;
-	bool changedGroup = GETCNTC(cntID , CNT_GROUP) != oldGroup;
-    if (1 /*zakladamy ze zawsze sie cos zmienia*/ || changedNet || changedUid || changedGroup || GETCNTI(cntID , CNT_INTERNAL)&CNT_INTERNAL_adding) {
+    bool changedNet = GETCNTI(cntID , Contact::colNet) != oldNet;
+	  bool changedUid = GETCNTC(cntID , Contact::colUid) != oldUID;
+	  bool changedGroup = GETCNTC(cntID , Contact::colGroup) != oldGroup;
+    if (1 /*zakladamy ze zawsze sie cos zmienia*/ || changedNet || changedUid || changedGroup || GETCNTI(cntID , Contact::colInternal)&CNT_INTERNAL_adding) {
         sIMessage_CntChanged icc(IMC_CNT_CHANGED , cntID);
 		icc.net = Net::core;
 		icc.type = imtCore;
@@ -78,7 +78,7 @@ void InfoDialogSave(int cntID , bool upload) {
         }
         IMessage(&icc);
     }
-    if (!GETCNTI(cntID , CNT_NET)) SETCNTC(cntID , CNT_UID , "");
+    if (!GETCNTI(cntID , Contact::colNet)) SETCNTC(cntID , Contact::colUid , "");
 	if (changedGroup) fill = true;
 	if (upload) {
 		EnableWindow(Cnt[cntID].hwndInfo , false);
@@ -112,8 +112,8 @@ void InfoDialogCancel(int cntID , HWND hwnd) {
 
 void InfoDialogRefresh(int cntID) {
     HWND hwnd = Cnt[cntID].hwndInfo;
-    int tNet = GETCNTI(cntID , CNT_NET);
-    string tUID = GETCNTC(cntID , CNT_UID);
+    int tNet = GETCNTI(cntID , Contact::colNet);
+    string tUID = GETCNTC(cntID , Contact::colUid);
     EnableWindow(hwnd , false);
 //    SetWindow
     IMessage(IM_CNT_DOWNLOAD,Net::first,imtContact,cntID,1);
@@ -121,8 +121,8 @@ void InfoDialogRefresh(int cntID) {
     EnableWindow(hwnd , true);
     SetForegroundWindow(hwnd);
     SetActiveWindow(hwnd);
-    SETCNTI(cntID , CNT_NET , tNet);
-    SETCNTC(cntID , CNT_UID , tUID.c_str());
+    SETCNTI(cntID , Contact::colNet , tNet);
+    SETCNTC(cntID , Contact::colUid , tUID.c_str());
     InfoDialogSummary(cntID , true);
 }
 
@@ -181,57 +181,59 @@ void InfoDialogSummary(int cnt , bool local) {
         , (!Ctrl->DTgetPos(DTCNT , cnt))||(GetProp((HWND)Act[IMIG_NFOWND].ghandle , "NEWContact"))?ACTS_HIDDEN:0);
 	if (!Ctrl->DTgetPos(DTCNT, cnt) || !Cnt[cnt].hwndInfo) return;
     CStdString sum = "";
-	cPreg preg(false);
+	RegEx preg;
     Act[IMIG_NFO].setCnt(cnt , true);
-	int d_gender = local?atoi(getActionValue(Act(CNT_GENDER|IMIB_CNT)).c_str()) : GETCNTI(cnt , CNT_GENDER);
+    int d_gender = local?atoi(getActionValue(Act(Contact::colGender|IMIB_CNT)).c_str()) : GETCNTI(cnt , Contact::colGender);
+
 #define D_STRING(var , col) \
     CStdString var = CntGetInfoValue(local , cnt , col)
-    D_STRING(d_name , CNT_NAME);
-    D_STRING(d_middlename , CNT_MIDDLENAME);
-    D_STRING(d_surname , CNT_SURNAME);
-    D_STRING(d_nick , CNT_NICK);
-    D_STRING(d_display , CNT_DISPLAY);
-    D_STRING(d_email , CNT_EMAIL);
-    D_STRING(d_phone , CNT_PHONE);
-    D_STRING(d_cellphone , CNT_CELLPHONE);
-    D_STRING(d_fax , CNT_FAX);
-    D_STRING(d_url , CNT_URL);
-    D_STRING(d_description , CNT_DESCRIPTION);
-    D_STRING(d_street , CNT_STREET);
-    D_STRING(d_address_more , CNT_ADDRESS_MORE);
-    D_STRING(d_postalcode , CNT_POSTALCODE);
-    D_STRING(d_country , CNT_COUNTRY);
-    D_STRING(d_region , CNT_REGION);
-    D_STRING(d_locality , CNT_LOCALITY);
-	D_STRING(d_pobox , CNT_POBOX);
+
+    D_STRING(d_name , Contact::colName);
+    D_STRING(d_middlename , Contact::colMiddleName);
+    D_STRING(d_surname , Contact::colSurname);
+    D_STRING(d_nick , Contact::colNick);
+    D_STRING(d_display , Contact::colDisplay);
+    D_STRING(d_email , Contact::colMail);
+    D_STRING(d_phone , Contact::colPhone);
+    D_STRING(d_cellphone , Contact::colCellPhone);
+    D_STRING(d_fax , Contact::colFax);
+    D_STRING(d_url , Contact::colUrl);
+    D_STRING(d_description , Contact::colDescription);
+    D_STRING(d_street , Contact::colStreet);
+    D_STRING(d_address_more , Contact::colAddressMore);
+    D_STRING(d_postalcode , Contact::colPostalCode);
+    D_STRING(d_country , Contact::colCountry);
+    D_STRING(d_region , Contact::colRegion);
+    D_STRING(d_locality , Contact::colLocality);
+    D_STRING(d_pobox , Contact::colPoBox);
 // WORK
-    D_STRING(d_w_organization , CNT_WORK_ORGANIZATION);
-	D_STRING(d_w_org_unit , CNT_WORK_ORG_UNIT);
-	D_STRING(d_w_title , CNT_WORK_TITLE);
-	D_STRING(d_w_role , CNT_WORK_ROLE);
-	D_STRING(d_w_email , CNT_WORK_EMAIL);
-	D_STRING(d_w_phone , CNT_WORK_PHONE);
-	D_STRING(d_w_fax , CNT_WORK_FAX);
-	D_STRING(d_w_url , CNT_WORK_URL);
+    D_STRING(d_w_organization , Contact::colWorkOrganization);
+    D_STRING(d_w_org_unit , Contact::colWorkOrgUnit);
+    D_STRING(d_w_title , Contact::colWorkTitle);
+    D_STRING(d_w_role , Contact::colWorkRole);
+    D_STRING(d_w_email , Contact::colWorkMail);
+    D_STRING(d_w_phone , Contact::colWorkPhone);
+    D_STRING(d_w_fax , Contact::colWorkFax);
+    D_STRING(d_w_url , Contact::colWorkUrl);
 
-	D_STRING(d_w_street , CNT_WORK_STREET);
-    D_STRING(d_w_address_more , CNT_WORK_ADDRESS_MORE);
-	D_STRING(d_w_pobox , CNT_WORK_POBOX);
-    D_STRING(d_w_postalcode , CNT_WORK_POSTALCODE);
-    D_STRING(d_w_country , CNT_WORK_COUNTRY);
-    D_STRING(d_w_region , CNT_WORK_REGION);
-    D_STRING(d_w_locality , CNT_WORK_LOCALITY);
+    D_STRING(d_w_street , Contact::colWorkStreet);
+    D_STRING(d_w_address_more , Contact::colWorkAdressMore);
+    D_STRING(d_w_pobox , Contact::colWorkPoBox);
+    D_STRING(d_w_postalcode , Contact::colWorkPostalCode);
+    D_STRING(d_w_country , Contact::colWorkCountry);
+    D_STRING(d_w_region , Contact::colWorkRegion);
+    D_STRING(d_w_locality , Contact::colWorkLocality);
 
-    D_STRING(d_uid , CNT_UID);
+    D_STRING(d_uid , Contact::colUid);
 
     int d_born = 0;
-	int d_net = local?atoi(getActionValue(Act(CNT_NET|IMIB_CNT)).c_str()) : GETCNTI(cnt , CNT_NET);
+	int d_net = local?atoi(getActionValue(Act(Contact::colNet|IMIB_CNT)).c_str()) : GETCNTI(cnt , Contact::colNet);
 
     if (local) {
-		cDate64 time = _atoi64(getActionValue(Act(CNT_BORN|IMIB_CNT)).c_str());
+		Date64 time = _atoi64(getActionValue(Act(Contact::colBorn|IMIB_CNT)).c_str());
         d_born = (BYTE)time.day | (BYTE)time.month << 8 | (WORD)time.year << 16;
     } else 
-        d_born = GETCNTI(cnt , CNT_BORN);
+        d_born = GETCNTI(cnt , Contact::colBorn);
 
 
 /*    if (d_gender == GENDER_UNKNOWN && d_name.size() > 1) {
@@ -256,7 +258,7 @@ void InfoDialogSummary(int cnt , bool local) {
 	sum += "<br/></span>";
 
 //	sum+=" jest ";
-    sum+=(d_gender==GENDER_MALE)?"mê¿czyzna ":d_gender==GENDER_FEMALE?"kobieta ":"";
+  sum+=(d_gender==Contact::genderMale)?"mê¿czyzna ":d_gender==Contact::genderFemale?"kobieta ":"";
     if (d_born) {
         SYSTEMTIME st;
         GetLocalTime(&st);
@@ -370,19 +372,19 @@ void InfoDialogSummary(int cnt , bool local) {
 
 
 	if (d_net) {
-		if (*GETCNTC(cnt , CNT_HOST) && GETCNTI(cnt , CNT_PORT)) {
+		if (*GETCNTC(cnt , Contact::colHost) && GETCNTI(cnt , Contact::colPort)) {
 			sum +="<div class='var'>IP\t<span class='value'>";
-			sum +=GETCNTC(cnt,CNT_HOST);
+			sum +=GETCNTC(cnt,Contact::colHost);
 			sum +=":";
-			sum +=GETCNTC(cnt,CNT_PORT);
+			sum +=GETCNTC(cnt,Contact::colPort);
 			sum +="</span></div>";
 		}
-		sum += "<div class='var'>Status\t<span class='value'>" + getStatusName(GETCNTI(cnt , CNT_STATUS));
-		if (*GETCNTC(cnt , CNT_STATUSINFO)) {
-			sum +=" \"" + string(GETCNTC(cnt , CNT_STATUSINFO)) + "\"";
+		sum += "<div class='var'>Status\t<span class='value'>" + getStatusName(GETCNTI(cnt , Contact::colStatus));
+		if (*GETCNTC(cnt , Contact::colStatusInfo)) {
+			sum +=" \"" + string(GETCNTC(cnt , Contact::colStatusInfo)) + "\"";
 		}
  		sum +="</span></div>";
-		cTime64 t = GETCNTI64(cnt , CNT_LASTACTIVITY);
+    Time64 t = GETCNTI64(cnt , Contact::colLastActivity);
 		if (!t.empty()) {
 			sum+=t.strftime("<div class='var'>Ostatnio aktywny: <span class='value'>%d %B %Y %H:%M:%S</span></div>");
 		}
@@ -413,10 +415,10 @@ int CALLBACK InfoDialogProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam) 
 //                int p2 = (int)cnt->hwndInfo;
                 cnt->hwndInfo = hwnd;
                 SetProp(hwnd , "CNTID" , (void*)(cnt->user?0:cnt->ID));
-/*                if (!cnt->user && !*GETCNTC(cnt->ID , CNT_DISPLAY)) {
+/*                if (!cnt->user && !*GETCNTC(cnt->ID , Contact::colDisplay)) {
                     SetProp(hwnd , "NEWContact" , (void*)lParam);
                 }*/
-                SetWindowText(hwnd , _sprintf("Informacje o %s",GETCNTC(cnt->ID , CNT_DISPLAY)));
+                SetWindowText(hwnd , _sprintf("Informacje o %s",GETCNTC(cnt->ID , Contact::colDisplay)));
                 // Wyglad
                 //SendDlgItemMessage(hwndDlg , IDE_BORN , DTM_SETFORMAT , 0 , (LPARAM)"dd-MM-yyyy");
 
@@ -431,7 +433,7 @@ int CALLBACK InfoDialogProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam) 
                 }
                 */
                 // Ustawia wszystkie kontrolki
-                //SetDlgItemText(hwndDlg , IDE_DISPLAY , (char*)IMessage(IMC_GETCNTC ,0,0,cnt->pos,CNT_DISPLAY));
+                //SetDlgItemText(hwndDlg , IDE_DISPLAY , (char*)IMessage(IMC_GETCNTC ,0,0,cnt->pos,Contact::colDisplay));
                 break;}
         case MYWM_REFRESH: { // Wypelniamy wszystko elegancko
                 Act[IMIG_NFOWND].ghandle=hwnd;
@@ -766,8 +768,8 @@ INT_PTR CALLBACK MsgDialogProc(HWND hwndDlg,UINT message,WPARAM wParam,LPARAM lP
 				break;}
         case MYWM_REFRESH: {
                  cnt=(sUICnt*)GetProp(hwndDlg , "CNT");
-                 cch = GETCNTC(cnt->ID , CNT_DISPLAY);
-                 if (!*cch) cch = GETCNTC(cnt->ID , CNT_UID);
+                 cch = GETCNTC(cnt->ID , Contact::colDisplay);
+                 if (!*cch) cch = GETCNTC(cnt->ID , Contact::colUid);
                  string title = formatTitle((char*)GETSTR(CFG_UIMSGTITLE), cnt->ID , FT_WINDOW);
                  SetWindowText(hwndDlg , title.c_str());
 //                 DeleteObject(fnt);
@@ -869,7 +871,7 @@ INT_PTR CALLBACK MsgDialogProc(HWND hwndDlg,UINT message,WPARAM wParam,LPARAM lP
                   // Usuwa powiadomienia ...
                   MessageSelect mp;
                   mp.net = cnt->net;
-                  mp.setUid(GETCNTC(cnt->ID , CNT_UID));
+                  mp.setUid(GETCNTC(cnt->ID , Contact::colUid));
                   mp.type = Message::typeMessage;
                   mp.wflag = Message::flagOpened;
                   mp.woflag = Message::flagSend;

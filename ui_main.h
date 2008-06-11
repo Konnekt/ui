@@ -53,6 +53,9 @@ using namespace Konnekt;
 #define MYWM_DLGLONGSET WM_USER+1088
 
 
+#define CNTM_STATUS     ST_MASK
+#define CNTM_FLAG       0xFFFFFF00
+
 
 #define EMSG_UI "UI.DLL - %s - "
 

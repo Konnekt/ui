@@ -21,11 +21,8 @@
 
 //#include <md5.h>
 #include "include\func.h"
-#include "include\preg.h"
 //#include "include\dbtable.h"
 //#include "include\dtablebin.h"
-
-#include "include\time64.h"
 
 #include "resource_ui.h"
 

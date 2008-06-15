@@ -34,7 +34,6 @@ namespace Konnekt {
 using namespace std;
 using namespace Konnekt;
 #include "include\func.h"
-#include "include\time64.h"
 #include "resource_ui.h"
 #include "include\garbage.h"
 #include "include\critical_section.h"

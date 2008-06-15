@@ -11,7 +11,6 @@
 #pragma hdrstop
 
 #include "include\win_listview.h"
-#include "include\preg.h"
 #include "include\fontpicker.h"
 
 #include "ui_main.h"

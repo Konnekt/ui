@@ -11,9 +11,7 @@
 
 #include <direct.h>
 #include <io.h>
-#include <Richedit.h>
-
-#include "include\preg.h"
+#include <richedit.h>
 
 #include "include\dirdialog.h"
 #include "include\colorpicker.h"

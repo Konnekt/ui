@@ -18,7 +18,7 @@ piiiipii<span class="mark">MARKO-<span class="mark">WAN</span>IE</span><br/>
 #define FUNC_NOTHREAD
 #include "func.h"
 
-#include "simxml.h"
+#include <Stamina/SimXML.h>
 #include "fontpicker.h"
 
 
@@ -101,15 +101,15 @@ void cRichEditHtml::Clear(HWND hwnd) {
 }
 
 void cRichEditFormat::InsertHTML(CStdString body , fSetStyleCB styleCB) {
-	cXML XML;
-	cPreg preg(0);
+	SXML XML;
+	RegEx preg;
 	body = preg.replace("#\\r|\\n|\\&\\#1[30];#" , "" , body);
 //	body = preg.replace("#<br/?>#is" , "" , body);
 /* HACK */
 	body = preg.replace("#(?<!\\>)<br/?>(?!\\<)#is" , "\n" , body);
 	body = preg.replace("#<br>#is" , "<br/>" , body);
 	XML.loadSource(body);
-	cXML::nwInfo ni;
+	SXML::NodeWalkInfo ni;
 	size_t last = 0 , lastApply = -1 , current = 0;
 
 	CStdString prefix = "";
@@ -121,7 +121,7 @@ void cRichEditFormat::InsertHTML(CStdString body , fSetStyleCB styleCB) {
 			SETTEXTEX ste;
 			ste.codepage = CP_ACP;
 			ste.flags = ST_SELECTION | ST_KEEPUNDO;
-			SendMessage(hwnd , EM_SETTEXTEX , (int)&ste , (LPARAM)(prefix + CStdString(DecodeEntities(body.substr(last , ni.start - last))) + suffix).c_str());
+			SendMessage(hwnd , EM_SETTEXTEX , (int)&ste , (LPARAM)(prefix + CStdString(decodeEntities(body.substr(last , ni.start - last))) + suffix).c_str());
 		}
 		current += ni.start - last;
 		last = ni.end;
@@ -130,8 +130,8 @@ void cRichEditFormat::InsertHTML(CStdString body , fSetStyleCB styleCB) {
 		suffix = "";
 		token.MakeLower();
 		int newParagraph = 0;
-		int oper = (ni.state == cXML::nwInfo::opened)? 1 : -1;
-		if (ni.state == cXML::nwInfo::closed)
+		int oper = (ni.state == SXML::NodeWalkInfo::opened)? 1 : -1;
+		if (ni.state == SXML::NodeWalkInfo::closed)
 			oper = 0;
 		if (oper < 0) {
 			/* generalnie... nic nie trzeba robiæ... */
@@ -208,7 +208,7 @@ void cRichEditFormat::InsertHTML(CStdString body , fSetStyleCB styleCB) {
 //		}
 	}
 	if (ni.end != -1) {
-		InsertText(DecodeEntities(body.substr(ni.end)));
+		InsertText(decodeEntities(body.substr(ni.end)));
 	}
 }
 

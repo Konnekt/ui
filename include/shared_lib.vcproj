@@ -62,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="version.lib Msimg32.lib pcre.lib"
+				AdditionalDependencies="version.lib Msimg32.lib"
 				OutputFile="$(OutDir)/shared_debug.lib"
 				AdditionalLibraryDirectories="..\..\depends\lib;..\..\depends\konnekt;..\..\depends\stamina.lib\lib;..\..\depends\stamina.lib\depends\lib"
 				IgnoreAllDefaultLibraries="true"
@@ -133,7 +133,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="version.lib Msimg32.lib pcre.lib"
+				AdditionalDependencies="version.lib Msimg32.lib"
 				OutputFile="$(OutDir)/shared.lib"
 				AdditionalLibraryDirectories="..\..\depends\lib;..\..\depends\konnekt;..\..\depends\stamina.lib\lib;..\..\depends\stamina.lib\depends\lib"
 				IgnoreAllDefaultLibraries="true"
@@ -173,14 +173,6 @@
 			</File>
 			<File
 				RelativePath="ColorPicker.cpp"
-				>
-			</File>
-			<File
-				RelativePath="crc32.cpp"
-				>
-			</File>
-			<File
-				RelativePath="crc32.h"
 				>
 			</File>
 			<File

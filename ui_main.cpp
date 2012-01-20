@@ -401,7 +401,7 @@ void UISetAlpha() {
 	SetAlpha(hwndMain , (!GETINT(CFG_UIUSEMAINALPHA) || alpha >= 100) ? 255 : (char)ceil(alpha * 2.55));
 }
 
-UISet() {
+int UISet() {
     IMLOG("UISet");
 
 	menuType = (MenuType) GETINT(CFG_UIMENUTYPE);
@@ -618,7 +618,7 @@ int CStatus (int sender , int status , const char * descr){
 
     int net = IMessageDirect(IM_PLUG_NET , sender);
     int ico = UIIcon(4 , net , status , 0);
-	static lastStatus = -1;
+	static int lastStatus = -1;
     for (int i = 0 ; i<Act[IMIG_STATUS].size() ; i++) {
       if (Act[IMIG_STATUS][i].owner == sender) {
 //        IMLOG("STATUS %d %d %x %d" , i , status , UIIcon(4 , IMessageDirect(IM_PLUG_NET , sender) , status , 0) , Ico.find(UIIcon(4 , IMessageDirect(IM_PLUG_NET , sender) , status , 0)));
@@ -727,7 +727,7 @@ int CNotify(int pos) {
    return 0;
 }
 
-CNewNotify(sNOTIFY * n) {
+int CNewNotify(sNOTIFY * n) {
    n->cnt = Ctrl->DTgetPos(DTCNT , n->cnt);
    if (n->cnt == -1 || n->cnt == 0) {
      IMLOG("- Nowy trayNotify = %d" , trayNotify);
@@ -748,7 +748,7 @@ CNewNotify(sNOTIFY * n) {
    return 1;
 }
 
-ICfgChanged() {
+int ICfgChanged() {
    IMLOG("- Zmiana w konfiguracji");
    UISet();
    cntList.refresh(true);

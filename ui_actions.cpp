@@ -629,7 +629,7 @@ void TipActionTaskBar::fillCache() {
 				CStdString netName = SAFECHAR((char*)IMessageDirect(IM_PLUG_NETNAME , id));
 	//			tip->add(new ToolTipX::TipOnlyTitle(netName + string(": ") + getStatusName(status), Ico.getImageList(IML_16), Ico.getIconIndex(UIIcon(IT_STATUS, net, status, 0), IML_16), font));
 				tip->add(new ToolTipX::TipOnlyTitle("", (HICON)Ico.iconGet(UIIcon(IT_STATUS, net, status, 0), IML_ICO2), true, font), ToolTipX::Tip::alignWrap);
-				CStdString text = netName + string(": ") + getStatusName(status);
+				CStdString text = netName + ": " + getStatusName(status);
 				if (!statusInfo.empty()) {
 					text += "\r\n" + statusInfo;
 				}

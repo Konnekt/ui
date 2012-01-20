@@ -324,7 +324,7 @@ int CALLBACK SearchDialogProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam
    HWND item;
    int i , b , c;
    static HIMAGELIST himl;
-   static sort = 1;
+   static int sort = 1;
    __int64 big;
    switch (message)
    {

@@ -55,7 +55,7 @@ struct GroupBoxFilledSubClass {
 		// Call the original window procedure for default processing. 
 		return CallWindowProc(oldProc, hwnd, msg, wParam, lParam); 
 	}
-	static SubClass(HWND hwnd) {
+	static void SubClass(HWND hwnd) {
 		oldProc = (WNDPROC)SetWindowLong(hwnd , GWL_WNDPROC , (LONG)WndProc);
 	}
 };

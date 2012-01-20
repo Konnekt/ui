@@ -324,7 +324,7 @@ void cUICnts::closeAll() {
   }
 
   void cUICnts::checkActivity(bool force) {
-	  static lastCheck = time(0);
+	  static int lastCheck = time(0);
 	  if (force || time(0)-lastCheck > 600) {
 		  for (Cnt_it_t it=this->Cnt.begin(); it!=Cnt.end(); it++)
 			  it->second->checkActivity();
@@ -642,7 +642,7 @@ int CALLBACK sortList_compare(LPARAM p1, LPARAM p2, LPARAM lParam) {
 
 
 
-dragdropList(HWND hwnd, UINT message , WPARAM wParam , LPARAM lParam )
+int dragdropList(HWND hwnd, UINT message , WPARAM wParam , LPARAM lParam )
 {
    static bool dragging = false;
    static int dragIndex = -1;

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="Windows-1250"?>
+<history>
+
+  <info>
+    <name>kTransfer</name>
+    <info></info>
+    <when_empty></when_empty>
+    <icon>0x1FBD0</icon>
+  	<list>ALL</list> <!-- Co wyswietlic na liscie
+  									 			ALL - probuje otworzyc wszystkie podgrupy
+  												FILES - wszystkie pliki (tak samo jak w drzewku)
+  												 -->
+  	<sort>0</sort>
+<!-- Rodzaje wyswietlanych kolumn 
+  							dopuszczalne parametry width i name ...
+  							Kolejnosc jest STALA
+  							Moga byc:
+  							contact , title , date , info , file , count , status
+  							-->
+    <headers>   
+  		<parent width="100" name="Rodzaj"/>
+  		<title width="200" name="Nazwa pliku"/>
+  		<date width="150" name="Data"  format="%Y-%m-%d %H:%M %A"/>
+  	</headers>
+  	
+  
+  </info>
+  <!-- Informacje domyslne dla podkatalogow nie posiadajacych swoich opisow -->
+  
+  <directory>
+	<icon>0x50000070</icon>
+    <headers>
+  		<title width="200" name="Nazwa pliku"/>
+  		<date width="150" name="Data"  format="%Y-%m-%d %H:%M %A"/>
+  	</headers>
+  
+  </directory>
+</history>	

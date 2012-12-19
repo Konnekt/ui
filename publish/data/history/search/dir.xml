@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="Windows-1250"?>
+<history>
+
+  <info>
+    <name>Wyszukiwanie</name>
+    <info>Wyniki przeszukiwania historii</info>
+    <when_empty>Jeszcze niczego nie szukałeś</when_empty>
+    <icon>602</icon>
+  	<list>FILES</list>
+  	<sort>0</sort>
+<!-- Rodzaje wyswietlanych kolumn 
+  							dopuszczalne parametry width i name ...
+  							Kolejnosc jest STALA
+  							Moga byc:
+  							contact , title , date , info , file , count , status
+  							-->
+    <headers>   
+  		<name width="200" name="Zapytanie"/>
+  		<info width="200" name="Uwagi"/>
+  		<count width="150" name="Znalezionych"/>
+  	</headers>
+  	
+  
+  </info>
+  <!-- Informacje domyslne dla podkatalogow nie posiadajacych swoich opisow -->
+  
+  <directory>
+    <headers>   
+  		<info width="200" name="..."/>
+  		<title width="200" name="Tytuł"/>
+  		<date width="100" name="Data"  format="%H:%M %d %m'%y %A"/>
+  		<count width="100" name="Długość"/>
+  	</headers>
+  
+  </directory>
+</history>	

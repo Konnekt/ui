@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="Windows-1250"?>
+<history>
+  <directory>
+    <name>Wszystkie adresy URL</name>
+    <info>Wyszukuje adresy URL w historii</info>
+    <icon>0xFA0</icon>
+  	<source>SEARCH</source>
+  	<search>
+		<find_all>1</find_all>
+		<only_current/>
+		<query>\b(\w+://[^\s&lt;]+|([^\s&gt;]+@)?([\w\-]+\.)+(com|org|gov|edu|biz|info|pro|net|[a-z]{2})(:\d+)?(/[^\s&lt;]+)?)\b</query>
+		<regexp>1</regexp>
+		<thread>
+			<previous>0</previous>
+			<next>0</next>
+		</thread>
+		<use_case/>
+		<words/>
+    </search>
+
+  </directory>
+</history>
+

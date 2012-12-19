@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="Windows-1250"?>
+<history>
+  <directory>
+    <name>Nie przeczytane</name>
+    <info>Wiadomości zakolejkowane do przeczytania</info>
+    <when_empty></when_empty>
+    <icon></icon>
+	
+
+	
+  	<source>QUEUE</source>
+  	<queue>
+  		<net></net>
+    	<type>1</type>
+  	  <flag>0</flag>
+			<noflag>2</noflag>
+	  </queue>
+	
+	
+  </directory>
+</history>
+

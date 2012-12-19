@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="Windows-1250"?>
+<history>
+
+  <info>
+    <name>SMSy</name>
+    <info></info>
+    <when_empty></when_empty>
+    <icon></icon>
+  	<list>ALL</list> <!-- Co wyswietlic na liscie
+  									 			ALL - probuje otworzyc wszystkie podgrupy
+  												FILES - wszystkie pliki (tak samo jak w drzewku)
+  												 -->
+  	<sort>0</sort>
+<!-- Rodzaje wyswietlanych kolumn 
+  							dopuszczalne parametry width i name ...
+  							Kolejnosc jest STALA
+  							Moga byc:
+  							contact , title , date , info , file , count , status
+  							-->
+    <headers>   
+  		<parent width="100" name="Kontakt"/>
+  		<title width="200" name="..."/>
+  		<date width="100" name="Data"  format="%H:%M %d %m'%y %A"/>
+  		<count width="100" name="Ilość"/>
+  	</headers>
+  	
+  
+  </info>
+  <!-- Informacje domyslne dla podkatalogow nie posiadajacych swoich opisow -->
+  
+  <directory>
+    <headers>   
+  		<title width="200" name="..."/>
+  		<date width="100" name="Data"  format="%H:%M %d %m'%y %A"/>
+  		<count width="100" name="Ilość"/>
+  	</headers>
+  
+  </directory>
+</history>	

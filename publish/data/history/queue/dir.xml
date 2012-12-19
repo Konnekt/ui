@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="Windows-1250"?>
+<history>
+  <info>
+    <name>Kolejka</name>
+    <info>Wiadomości w kolejce</info>
+    <when_empty>Brak wiadomości w kolejce</when_empty>
+    <icon></icon>
+    <list>FILES</list>
+		<sort>1</sort>
+    <headers>
+  	  <info width="240" name="..."/>
+  		<count width="100" name="Liczba"/>
+  	</headers>
+  </info>
+  
+  <directory>
+    <headers>
+		<name width="100" name="Od/Do"/>
+  		<title width="200" name="Tytuł"/>
+  		<date width="200" name="Godzina"   format="%H:%M"/>
+  	</headers>
+  </directory>
+</history>
+	

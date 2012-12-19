@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="Windows-1250"?>
+<history>
+  <directory>
+    <name>Wszystkie</name>
+    <info>Absolutnie wszystkie wiadomości w kolejce</info>
+    <when_empty></when_empty>
+    <icon></icon>
+
+	
+  	<source>QUEUE</source>
+  		<queue>
+  		<net></net>
+    	<type></type>
+  		<flag>-1</flag>
+		<noflag>0</noflag>
+	</queue>
+
+  </directory>
+</history>
+

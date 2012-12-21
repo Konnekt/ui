@@ -167,8 +167,13 @@ class cUIGroup_cfg : public cUIGroup {
 };
 
 cUIGroup::~cUIGroup() {
-  for (t_Act_it Act_it=Act.begin(); Act_it!=Act.end(); Act_it++) {
-    if (!((*Act_it)->type & ACT_ISGROUP)) delete *Act_it;
+//  for (t_Act_it Act_it=Act.begin(); Act_it!=Act.end(); Act_it++) {
+//    if (!((*Act_it)->type & ACT_ISGROUP)) delete *Act_it;
+//  }
+  int c  = Act.size() - 1;
+  while (c > 0) {
+    remove(c);
+    c--;
   }
 }
 
